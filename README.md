@@ -79,3 +79,23 @@ Triggering the filter
 
 This will render each JSON object to html and append to '#people_list' div.
 Second arg is object render function which can be customized as show above.
+
+Demo
+----
+To see the sample demo, clone this repo and open demo/filterjs.html in your browser
+
+Examples
+--------
+
+[GoodInKind Services](http://www.goodinkind.com/services)
+[GoodInKind NonProfits](http://www.goodinkind.com/nonprofits)
+
+If you use this, please send me an email, I shall add your link here!
+
+Contributing
+------------
+Please send me a pull request so that this can be improved.
+
+License
+-------
+This is released under the MIT license.
