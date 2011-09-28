@@ -9,16 +9,14 @@ each other.
 Usage
 -----
 
-/*  
- * i.e @people.to_json will render json data
- */
-    var people = [{person: {name: 'Jiren', age:26, country: 'India', country_id: 1}}, 
-              {person: {name: 'Joe', age:25, country: 'USA', country_id: 2}}] 
+Capture the JSON data (maybe using @people.to_json)
 
-/*
- * View function call for every object of the people array. It will render 
- * the HTML template.
- */
+    var people = [{person: {name: 'Jiren', age:26, country: 'India', country_id: 1}}, 
+                  {person: {name: 'Joe', age:25, country: 'USA', country_id: 2}}] 
+
+View function call for every object of the people array. It will render 
+the HTML template.
+
     var view = function(person){
 
       name    = this.span({'class': 'name'}, person.name);
