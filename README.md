@@ -45,7 +45,7 @@ For category selections:
 
     country: ['#country_list input:checkbox .EVENT.click .SELECT.:checked', 'country_id'],
 
-Selector: '#country_list input:checkbox': All the checkboxes in the <div id="country_list">
+Selector: '#country_list input:checkbox': All the checkboxes in the div with id="country_list"
 Event   : .EVENT.click : This is the event on the selector that will trigger the filter.
 Selection Criteria: .SELECT.:checked : The criteria for filtering. (In this case, all selected checkboxes)
 JSON attribute: country_id : This is a JSON attribute defined in JSON objects for which filtering is done.
@@ -56,7 +56,9 @@ For Range selections,
 
 The only thing that changes here is the additional field 
 Range: .TYPE.range : It is expected to set ranges as values like '20-30', 'below-30', '30-above'.
-Example: <input checked="checked" value="20-30" type="checkbox">
+Example: 
+
+    <input checked="checked" value="20-30" type="checkbox">
 
 For Array selections,
 
