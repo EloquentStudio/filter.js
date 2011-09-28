@@ -11,8 +11,11 @@ Usage
 
 Capture the JSON data (maybe using @people.to_json)
 
-    var people = [{person: {name: 'Jiren', age:26, country: 'India', country_id: 1}}, 
-                  {person: {name: 'Joe', age:25, country: 'USA', country_id: 2}}] 
+    var people = [{person: {name: 'Jiren', age:26, country: 'India', country_id: 1, 
+                            states : [{ state : 'MH', state_id : 3 }, {state : 'HN', state_id : 4}] } }, 
+                  {person: {name: 'Joe', age:25, country: 'USA', country_id: 2,
+                            states : [{ state : 'MH', state_id : 3 }, {state : 'HN', state_id : 4}] } }
+                 ]
 
 View function call for every object of the people array. It will render 
 the HTML template.
@@ -26,39 +29,46 @@ the HTML template.
       return this.link('/demo/' + person.id ,{'title': person.name}, [name,age,country]);
     };
 
-/*  
- * Filter is working on html input element value.
- * '#country_list input:checkbox' checkox selector
- * .EVENT.click : bind click event to '#country_list input:checkbox' 
- * .SELECT.:checked : Filter on checked input checkbox. 
- *  country_id : This is a filtering field defined in JSON objects. i.e above people JSON.
- * 
- * For Range.
- *  Define .TYPE.range 
- *  Also set input value like '20-30', below-30, 30-above
- *  <input checked="checked" value="20-30" type="checkbox">
- */
-var settings = {
-  filter_criteria: {
-          country: ['#country_list input:checkbox .EVENT.click .SELECT.:checked', 'country_id'],
-          age: ['#age_list input:checkbox .EVENT.click .SELECT.:checked .TYPE.range', 'country_id'],
-     }
-};
+  
+Filter criteria is defined in the follwing ways: 
 
-/* This will render each person object to html and append to  '#people_list'.
- * Second arg is object render function. 
- */
-new filterJS(people, "#people_list", view, settings);
+    var settings = {
+      filter_criteria: {
+              country: ['#country_list input:checkbox .EVENT.click .SELECT.:checked', 'country_id'],
+              age: ['#age_list input:checkbox .EVENT.click .SELECT.:checked .TYPE.range', 'age'],
+              states: ['#state_list input:checkbox .EVENT.click .SELECT.:checked', 'states.ARRAY.state_id'],
+        }
+    };
 
+The detailed explaination is here:
+For category selections:
 
-NOTE
-----
-- For silder filter see demo.
+    country: ['#country_list input:checkbox .EVENT.click .SELECT.:checked', 'country_id'],
 
-- Filter on internal array of json object
-i.e Filter on country id
-  var people = [{person: {name: 'Jiren', age:26, countries:[{ country: 'India', country_id: 1},{ country: 'US', country_id: 2}]}}]
-Settings"
-  country: ['#country_list input:checkbox .EVENT.click .SELECT.:checked', 'countries.ARRAY.country_id'],
+Selector: '#country_list input:checkbox': All the checkboxes in the <div id="country_list">
+Event   : .EVENT.click : This is the event on the selector that will trigger the filter.
+Selection Criteria: .SELECT.:checked : The criteria for filtering. (In this case, all selected checkboxes)
+JSON attribute: country_id : This is a JSON attribute defined in JSON objects for which filtering is done.
 
+For Range selections,
 
+    age: ['#age_list input:checkbox .EVENT.click .SELECT.:checked .TYPE.range', 'age'],
+
+The only thing that changes here is the additional field 
+Range: .TYPE.range : It is expected to set ranges as values like '20-30', 'below-30', '30-above'.
+Example: <input checked="checked" value="20-30" type="checkbox">
+
+For Array selections,
+
+    states: ['#state_list input:checkbox .EVENT.click .SELECT.:checked', 'states.ARRAY.state_id'],
+
+If we need to look into a JSON array for the search criteria, we can use the .ARRAY. selector.
+This would look into the states array and filter on the state_id
+
+Triggering the filter
+---------------------
+
+    var fJS = new filterJS(people, "#people_list", view, settings);
+
+This will render each JSON object to html and append to '#people_list' div.
+Second arg is object render function which can be customized as show above.
