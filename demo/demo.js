@@ -1,4 +1,4 @@
-
+var fJS;
 jQuery(document).ready(function($) {
 
    $('#category_all, #nonprofit_all, #price_all').closest('ul').children().find(':checkbox').attr('checked', true);
@@ -8,6 +8,7 @@ jQuery(document).ready(function($) {
    });
 
    $('#price_filter').val('0-500');
+   $('#price_range_label').html('$0-$500');
    $( "#price_slider" ).slider({
       range:true,
       min: 0,
@@ -22,6 +23,7 @@ jQuery(document).ready(function($) {
    });
 
    $('#timeleft_filter').val('0-3');
+   $('#timeleft_range_label').html('0 days - 3 days');
    $( "#timeleft_slider" ).slider({
       range:true,
       min: 0,
@@ -34,11 +36,29 @@ jQuery(document).ready(function($) {
       }   
    });
 
-  var fJS = filterInit();
+   fJS = filterInit();
+
+   //For Demo
+   $('#native_rendere').attr('checked', true);
+   $('#native_rendere').click(function(){
+       $('#native_rendere').attr('checked', true);
+       $('#mustache_rendere').attr('checked', false);
+       $('#service_list').html('');
+       fJS.unbindEvents();
+       fJS = filterInit();
+   });
+
+   $('#mustache_rendere').click(function(){
+       $('#native_rendere').attr('checked', false);
+       $('#mustache_rendere').attr('checked', true);
+       $('#service_list').html('');
+       fJS.unbindEvents();
+       fJS = filterInit('mustache');
+   });
 
 });
 
-function filterInit(){
+function filterInit(filter_type){
 
   var calulate_day_left = function(days){
     if(days == 0) return 'Last Day';
@@ -64,6 +84,18 @@ function filterInit(){
     return this.link('/demo/' + service.to_param ,{'title': service.title}, fs_box);
   };
 
+  var mustache_template = $("#service_template").html(); 
+
+  var mustacheView = function(service){
+
+    service.timeleft = Math.floor(Math.random()*10);
+    service.timeleft_str = calulate_day_left(service.timeleft);
+    service.short_title = service.title.length < 27 ? service.title : service.title.substring(0,27) +'...';
+    service.short_nonprofit_name = service.nonprofit.name.length < 27 ? service.nonprofit.name : service.nonprofit.name.substring(0,27) +'...';
+      
+    return Mustache.to_html(mustache_template, service);
+  };
+
   var settings = {
       filter_criteria: {
           category: ['#category_list input:checkbox .EVENT.click .SELECT.:checked', 'service_categories.ARRAY.category_id'],
@@ -74,6 +106,12 @@ function filterInit(){
           }
       };
 
-  return new filterJS(services, "#service_list", view, settings);
+  if(filter_type == 'mustache'){
+    return FilterJS(services, "#service_list", mustacheView, settings);
+  }
+  else{
+    return FilterJS(services, "#service_list", view, settings);
+  }
+  
 }
 

@@ -2,18 +2,33 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta content="text/html; charset=UTF-8" http-equiv="Content-Type">
-    <link href="http://jquery-ui.googlecode.com/svn/tags/1.7/themes/base/jquery-ui.css" media="screen" rel="stylesheet" type="text/css">
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.6.4/jquery.min.js" type="text/javascript"></script>
-    <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.16/jquery-ui.min.js" type="text/javascript"></script>
-
+    <link href="jquery-ui.css" media="screen" rel="stylesheet" type="text/css">
     <link href="style.css" media="screen" rel="stylesheet" type="text/css">
-    <script src="https://raw.github.com/jiren/filter.js/master/filter.js" type="text/javascript"></script>
+    <script src="jquery.min.js" type="text/javascript"></script>
+    <script src="jquery-ui.min.js" type="text/javascript"></script>
+    <script src="../vendors/mustache.js" type="text/javascript"></script>
+    <script src="../filter_v2.js" type="text/javascript"></script>
     <script src="demo.js" type="text/javascript"></script>
     </head>
     <body>
       <div><h1 class="header_name">Filter.js</h1></div>
     <div class="container">
       <div class="sidebar_bar">
+        <div class="sidebar_left_find">
+          <div class="sidebar_list">
+            <h3>View Renderer Types</h3>
+            <ul> 
+              <li>
+              <input id="native_rendere"  type="checkbox" name="rendering_type" value="native">
+              <span >Native Rendering</span>
+              </li>
+              <li>
+              <input id="mustache_rendere"  type="checkbox" name="rendering_type" value="mustache">
+              <span >Mustache.js Rendering</span>
+              </li>
+            </ul>
+          </div>
+        </div>  
         <div class="sidebar_left_find">
           <div class="sidebar_list">
             <h3>Filter by Price</h3>
@@ -210,6 +225,22 @@ type="checkbox">
           </script>
       <div class="clear"></div>
     </div>
+
+   <script id="service_template" type="text/mustache">
+     <a title="{{title}}" href="/demo/{{to_param}}">
+       <div class="fs_box">
+         <div class="fs_left">
+           <span>Mustache</span>
+           <span class="fs_head">{{short_title}}</span>
+           <span class="fs_for">for</span>
+           <span class="fs_disc">{{short_nonprofit_name}}</span>
+           <span class="fs_disc">{{timeleft_str}}</span>
+         </div>
+         <div class="fs_price">${{amount}}</div>
+         <div class="clear"></div>
+       </div>
+      </a>
+  </script>
     
 </body>
 </html>

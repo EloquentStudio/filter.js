@@ -29,6 +29,11 @@ the HTML template.
       return this.link('/demo/' + person.id ,{'title': person.name}, [name,age,country]);
     };
 
+Register new html element
+    FilterJS.registerHtmlElement('p');
+
+    //Use arguments attributes, content
+    this.p({class: 'new'}, 'demo')
   
 Filter criteria is defined in the follwing ways: 
 
@@ -75,10 +80,33 @@ This would look into the states array and filter on the state_id
 Triggering the filter
 ---------------------
 
-    var fJS = new filterJS(people, "#people_list", view, settings);
+    var fJS = FilterJS(people, "#people_list", view, settings);
 
 This will render each JSON object to html and append to '#people_list' div.
 Second arg is object render function which can be customized as show above.
+
+Mustache.js integration
+-----------------------
+
+[https://github.com/janl/mustache.js](https://github.com/janl/mustache.js)
+
+Define mustache.js template in html page.
+
+    <script id="person_template" type="text/mustache">
+      <a href="/demo/{{id}}" title="{{name}}">
+        <span class="name">{{name}}</span>
+        <span class="age">{{age}}</span>
+        <div class="country">{{country}}</div>
+      </a>
+    </script>
+
+View function:
+
+    var mustache_template = $("#person_template").html(); //Find template data.
+
+    var mustacheView = function(person){
+        return Mustache.to_html(mustache_template, person);
+    };
 
 Demo
 ----
