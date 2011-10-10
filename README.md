@@ -29,11 +29,13 @@ the HTML template.
       return this.link('/demo/' + person.id ,{'title': person.name}, [name,age,country]);
     };
 
-Register new html element
-    FilterJS.registerHtmlElement('p');
+Suppose you require some HTML element which is not currently supported in filter.js,
+you can simply use the registerHtmlElement method to add this to your HTML views.
+
+    FilterJS.registerHtmlElement('article');
 
     //Use arguments attributes, content
-    this.p({class: 'new'}, 'demo')
+    this.article({class: 'new'}, 'demo')
   
 Filter criteria is defined in the follwing ways: 
 
