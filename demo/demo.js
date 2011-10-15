@@ -103,8 +103,9 @@ function filterInit(filter_type){
           price: ['#price_list input:checkbox .EVENT.click .SELECT.:checked .TYPE.range', 'amount'],
           amount: ['#price_filter .EVENT.change .SELECT.:input .TYPE.range', 'amount'],
           timeleft: ['#timeleft_filter .EVENT.change .SELECT.:input .TYPE.range', 'timeleft']
-          }
-      };
+          },
+       and_filter_on: true //If any filter selection is zero then select none. For 'OR' filter set 'false'
+  };
 
   if(filter_type == 'mustache'){
     return FilterJS(services, "#service_list", mustacheView, settings);

@@ -44,7 +44,8 @@ Filter criteria is defined in the follwing ways:
               country: ['#country_list input:checkbox .EVENT.click .SELECT.:checked', 'country_id'],
               age: ['#age_list input:checkbox .EVENT.click .SELECT.:checked .TYPE.range', 'age'],
               states: ['#state_list input:checkbox .EVENT.click .SELECT.:checked', 'states.ARRAY.state_id'],
-        }
+        },
+       and_filter_on: false
     };
 
 The detailed explaination is here:
@@ -78,6 +79,12 @@ For Array selections,
 
 If we need to look into a JSON array for the search criteria, we can use the .ARRAY. selector.
 This would look into the states array and filter on the state_id
+
+Categroy 'AND', 'OR' selection criteria.If any categroy selection result is zero and 'and_filter_on' => 'true'
+then no elements are shown.For 'and_filter_on' => 'false' zero result category ignored.
+
+    and_filter_on: true  //AND opration
+    and_filter_on: false //OR Opration
 
 Triggering the filter
 ---------------------

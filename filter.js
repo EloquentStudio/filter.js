@@ -18,6 +18,7 @@
         this.view = view;
         this.parentNode = parentNode;
         this.settings = settings || {};
+        this.settings.and_filter_on = settings.and_filter_on || true;
 
         if (this.dataModel.constructor == Object){
           this.dataModel = [this.dataModel];
@@ -130,17 +131,24 @@
             var base = this;
             var filter_out = base.settings.all_object.slice();
             var selected_count = 0;
+            var select_none = false; //Zero Selection for any category
 
             base.settings.selector.forEach(function(s) {
                 var out = $(s.element).filter(s.select).map(function() {
                     return $(this).val();
                 });
                 selected_count += out.length;
+
                 if (out.length) {
                     filter_out = base.grep(filter_out, base.findObjects(s.name, out, s.type));
                 }
+                else{
+                  select_none = true;
+                }
+
             });
 
+            if(select_none && base.settings.and_filter_on) selected_count = 0;
             base.hideShow((selected_count ? filter_out: []));
         },
 
