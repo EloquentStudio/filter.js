@@ -242,7 +242,7 @@
                     var eval_out = eval('dm.' + filter_criteria[name][2]);
                     var obj = object_map[name];
 
-                    if (eval_out != null && eval_out.constructor == Array) {
+                    if (eval_out && eval_out.constructor == Array) {
                         eval_out.forEach(function(x) {
                             if (obj[x]) {
                                 obj[x].push(dm[settings.root].id);
