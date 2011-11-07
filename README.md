@@ -113,8 +113,31 @@ View function:
 
     var mustache_template = $("#person_template").html(); //Find template data.
 
-    var mustacheView = function(person){
+    var view = function(person){
         return Mustache.to_html(mustache_template, person);
+    };
+
+Jquery Template integration
+---------------------------
+
+[https://github.com/jquery/jquery-tmpl](https://github.com/jquery/jquery-tmpl)
+
+Define jquery template in html page.
+
+    <script id="person_template" type="text/x-jquery-tmpl">
+      <a href="/demo/${id}" title="${name}">
+        <span class="name">${name}</span>
+        <span class="age">${age}</span>
+        <div class="country">${country}</div>
+      </a>
+    </script>
+
+View function:
+
+    var jquery_template = $("#person_template"); //Find template data.
+
+    var view = function(person){
+        return $.tmpl(jquery_template, person)
     };
 
 Demo

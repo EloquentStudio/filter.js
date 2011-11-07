@@ -39,24 +39,29 @@ jQuery(document).ready(function($) {
    fJS = filterInit();
 
    //For Demo
-   $('#native_rendere').attr('checked', true);
-   $('#native_rendere').click(function(){
-       $('#native_rendere').attr('checked', true);
-       $('#mustache_rendere').attr('checked', false);
-       $('#service_list').html('');
-       fJS.unbindEvents();
-       fJS = filterInit();
+   $('#native_renderer').attr('checked', true);
+   $('#native_renderer').click(function(){
+       renderByType('#native_renderer')
    });
 
-   $('#mustache_rendere').click(function(){
-       $('#native_rendere').attr('checked', false);
-       $('#mustache_rendere').attr('checked', true);
-       $('#service_list').html('');
-       fJS.unbindEvents();
-       fJS = filterInit('mustache');
+   $('#mustache_renderer').click(function(){
+       renderByType('#mustache_renderer', 'mustache')
+   });
+
+   $('#jtempl_renderer').click(function(){
+       renderByType('#jtempl_renderer', 'jtempl')
    });
 
 });
+
+function renderByType(id, type){
+  $('#renderer_types :checkbox').attr('checked', false);
+  $(id).attr('checked', true);
+  $('#service_list').html('');
+  fJS.unbindEvents();
+  fJS = filterInit(type);
+}
+
 
 function filterInit(filter_type){
 
@@ -84,10 +89,10 @@ function filterInit(filter_type){
     return this.link('/demo/' + service.to_param ,{'title': service.title}, fs_box);
   };
 
-  var mustache_template = $("#service_template").html(); 
+  //Mustache
+  var mustache_template = $("#mustache_template").html(); 
 
   var mustacheView = function(service){
-
     service.timeleft = Math.floor(Math.random()*10);
     service.timeleft_str = calulate_day_left(service.timeleft);
     service.short_title = service.title.length < 27 ? service.title : service.title.substring(0,27) +'...';
@@ -95,6 +100,19 @@ function filterInit(filter_type){
       
     return Mustache.to_html(mustache_template, service);
   };
+
+  //JQuery Template
+  var jquery_template = $('#jtempl_template');
+
+  var jtemplView = function(service){
+    service.timeleft = Math.floor(Math.random()*10);
+    service.timeleft_str = calulate_day_left(service.timeleft);
+    service.short_title = service.title.length < 27 ? service.title : service.title.substring(0,27) +'...';
+    service.short_nonprofit_name = service.nonprofit.name.length < 27 ? service.nonprofit.name : service.nonprofit.name.substring(0,27) +'...';
+      
+    return $.tmpl(jquery_template, service);
+  };
+
 
   var settings = {
       filter_criteria: {
@@ -109,6 +127,9 @@ function filterInit(filter_type){
 
   if(filter_type == 'mustache'){
     return FilterJS(services, "#service_list", mustacheView, settings);
+  }
+  else if(filter_type == 'jtempl'){
+    return FilterJS(services, "#service_list", jtemplView, settings);
   }
   else{
     return FilterJS(services, "#service_list", view, settings);
