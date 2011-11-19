@@ -101,7 +101,7 @@
             this.dataModel.forEach(function(dm) {
                 dm = dm[base.settings.root];
                 var el = $(base.view(dm));
-                el.attr({'id': base.settings.root + '_' + dm.id, 'tagjs': true});
+                el.attr({'id': base.settings.root + '_' + dm.id, 'data-fjs': true});
                 node.append(el);
             });
         },
@@ -268,7 +268,7 @@
 
         hideShow: function(id_arr) {
             var id_str = "#" + this.settings.root + '_';
-            $(this.parentNode + " > *[tagjs]").hide();
+            $(this.parentNode + " > *[data-fjs]").hide();
 
             id_arr.forEach(function(id) {
                 $(id_str + id).show();
