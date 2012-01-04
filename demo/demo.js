@@ -36,6 +36,13 @@ jQuery(document).ready(function($) {
       }   
    });
 
+   $('#filter_by_link, #clear_link_filter').click(function(e){
+     e.preventDefault();
+     $($(this).data('target')).val($(this).data('value'));
+     fJS.filter();
+   });
+
+
    fJS = filterInit();
 
    //For Demo
@@ -120,7 +127,8 @@ function filterInit(filter_type){
           nonprofit: ['#nonprofit_list input:checkbox .EVENT.click .SELECT.:checked' , 'nonprofit.nonprofit_categories.ARRAY.category_id'],
           price: ['#price_list input:checkbox .EVENT.click .SELECT.:checked .TYPE.range', 'amount'],
           amount: ['#price_filter .EVENT.change .SELECT.:input .TYPE.range', 'amount'],
-          timeleft: ['#timeleft_filter .EVENT.change .SELECT.:input .TYPE.range', 'timeleft']
+          timeleft: ['#timeleft_filter .EVENT.change .SELECT.:input .TYPE.range', 'timeleft'],
+          link_filter: ['#link_filter .EVENT.change .SELECT.:input .TYPE.range', 'amount']
           },
        and_filter_on: true //If any filter selection is zero then select none. For 'OR' filter set 'false'
   };

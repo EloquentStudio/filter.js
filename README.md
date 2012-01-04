@@ -94,6 +94,32 @@ Triggering the filter
 This will render each JSON object to html and append to '#people_list' div.
 Second arg is object render function which can be customized as show above.
 
+Filter using link
+-----------------
+
+Define link with hidden input. Link data-target is hidden input id and data-value is use to set 
+hidden input value.
+
+    <a id="filter_by_link" href="#" data-value="100-200" data-target='#link_filter'>Price: 100 - 200</a>
+    <input type="hidden" id="link_filter"/>
+
+Add filter criteria to setting.
+
+    link_filter: ['#link_filter .EVENT.change .SELECT.:input .TYPE.range', 'amount']
+
+To clear filter. data-value set to data-taget element which is hidden field associated with link.
+
+    <a id="clear_link_filter" href="#" data-target="#link_filter" data-value='0-above'>Clear</a>
+
+Bind event on filter link and clear filter link. Here on click link data-value set to data-target element value.
+
+    $('#filter_by_link, #clear_link_filter').click(function(e){
+      e.preventDefault();
+      $($(this).data('target')).val($(this).data('value'));
+      fJS.filter();
+    });
+
+
 Mustache.js integration
 -----------------------
 
