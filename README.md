@@ -92,15 +92,14 @@ Filtering Callbacks
 
 Define callback in settings. Callbacks executes after each filtering events.(In demo folder: 'map_filter.html')
 
-  var filter_callbacks = {
-      gmap: function(result){
-             googleMap.updateMarkers(result);
-      },
-      logger: function(result){
+    var filter_callbacks = {
+        gmap: function(result){
+          googleMap.updateMarkers(result);
+        },
+        logger: function(result){
           $.each(result, function(i,v){ console.log(v.id)})
-      }
-
-  };
+        }
+    };
 
 
 Triggering the filter
