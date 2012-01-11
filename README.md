@@ -204,7 +204,7 @@ Examples
 If you use this, please send me an email, I shall add your link here!
 
 
-Chnage and New Functionality
+Changes and New Functionality
 ----------------------------
 
 v1.1
