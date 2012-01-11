@@ -101,6 +101,12 @@ Define callback in settings. Callbacks executes after each filtering events.(In 
         }
     };
 
+If want to execute callback on init set configuration in setting
+
+    exec_callbacks_on_init: true
+  
+
+
 
 Triggering the filter
 ---------------------
@@ -196,6 +202,17 @@ Examples
 
 
 If you use this, please send me an email, I shall add your link here!
+
+
+Chnage and New Functionality
+----------------------------
+
+v1.1
+  - And / Or filtering
+
+v1.2
+ - Filtering Callbacks
+
 
 Contributing
 ------------
