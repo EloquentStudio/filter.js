@@ -194,6 +194,7 @@ Demo
 To see the sample demo, clone this repo and open demo/filterjs.html in your browser
 
 [Filter](http://jiren.github.com/filter.js/filterjs.html)
+
 [Filter with google map](http://jiren.github.com/filter.js/filterjs-map.html)
 
 Examples
