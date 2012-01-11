@@ -45,6 +45,7 @@ Filter criteria is defined in the follwing ways:
               age: ['#age_list input:checkbox .EVENT.click .SELECT.:checked .TYPE.range', 'age'],
               states: ['#state_list input:checkbox .EVENT.click .SELECT.:checked', 'states.ARRAY.state_id'],
         },
+       callbacks = filter_callbacks, //Define below.
        and_filter_on: false
     };
 
@@ -85,6 +86,22 @@ then no elements are shown.For 'and_filter_on' => 'false' zero result category i
 
     and_filter_on: true  //AND opration
     and_filter_on: false //OR Opration
+
+Filtering Callbacks
+-------------------
+
+Define callback in settings. Callbacks executes after each filtering events.(In demo folder: 'map_filter.html')
+
+  var filter_callbacks = {
+      gmap: function(result){
+             googleMap.updateMarkers(result);
+      },
+      logger: function(result){
+          $.each(result, function(i,v){ console.log(v.id)})
+      }
+
+  };
+
 
 Triggering the filter
 ---------------------
@@ -165,6 +182,7 @@ View function:
     var view = function(person){
         return $.tmpl(jquery_template, person)
     };
+
 
 Demo
 ----
