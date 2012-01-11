@@ -1,6 +1,6 @@
 /*
  * Filter.js
- * version: 1.1 (10/10/2011)
+ * version: 1.2 (10/01/2012)
  *
  * Licensed under the MIT:
  *   http://www.opensource.org/licenses/mit-license.php
@@ -31,13 +31,17 @@
         this.render();
         this.buildCategoryMap();
         this.bindEvents();
+
+        if(this.settings.exec_callbacks_on_init &&  this.settings.callbacks){
+          this.execCallBacks(this.settings.all_objects);
+        }
     };
 
     var FilterJS = function(dataModel, parentNode, view, settings) {
         return new _filterJS(dataModel, parentNode, view, settings);
     };
 
-    FilterJS.VERSION = 1.1;
+    FilterJS.VERSION = 1.2;
 
     //Register new html tag
     FilterJS.registerHtmlElement = function(tag_name){
@@ -129,7 +133,7 @@
         //Find elements accroding to selection criteria.
         filter: function() {
             var base = this;
-            var filter_out = base.settings.all_object.slice();
+            var filter_out = base.settings.all_objects.slice();
             var selected_count = 0;
             var select_none = false; //Zero Selection for any category
 
@@ -149,7 +153,12 @@
             });
 
             if(select_none && base.settings.and_filter_on) selected_count = 0;
-            base.hideShow((selected_count ? filter_out: []));
+            filter_out = selected_count ? filter_out : [];
+
+            base.hideShow(filter_out);
+
+            //Callbacks
+            base.execCallBacks(filter_out);
         },
 
         //Compare and collect objects
@@ -169,7 +178,9 @@
 
                         cat = $.map(base.settings.object_map[filter_name],
                         function(n, v) {
-                            if (Number(v) >= range[0] && Number(v) <= range[1]) return base.settings.object_map[filter_name][v];
+                            if (Number(v) >= range[0] && Number(v) <= range[1]){
+                              return base.settings.object_map[filter_name][v];
+                            }
                         });
                     }
                 }
@@ -234,10 +245,10 @@
             var filter_criteria = this.settings.filter_criteria;
             var object_map = this.buildObjectMap();
             var settings = this.settings;
-            settings.all_object = [];
+            settings.all_objects = [];
 
             this.dataModel.forEach(function(dm) {
-                settings.all_object.push(dm[settings.root].id);
+                settings.all_objects.push(dm[settings.root].id);
                 for (name in filter_criteria) {
                     var eval_out = eval('dm.' + filter_criteria[name][2]);
                     var obj = object_map[name];
@@ -273,7 +284,25 @@
             id_arr.forEach(function(id) {
                 $(id_str + id).show();
             });
+        },
+
+        execCallBacks: function(result){
+            var base = this;
+            if(!base.settings.callbacks) return;
+
+            filtered_objects = [];
+            $.each(base.dataModel, function(i, v){
+              if(result.indexOf(v[base.settings.root].id) != -1){
+                filtered_objects.push(v[base.settings.root]);
+              }
+            });
+
+            $.each(base.settings.callbacks, function(name, callback){
+                callback.call(base, filtered_objects);
+              }
+            );
         }
+
     };
 
     window.FilterJS = FilterJS;

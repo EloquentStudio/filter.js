@@ -120,6 +120,9 @@ function filterInit(filter_type){
     return $.tmpl(jquery_template, service);
   };
 
+  var filter_callbacks = {
+    logger: function(result){console.log(result);}
+  };
 
   var settings = {
       filter_criteria: {
@@ -130,8 +133,10 @@ function filterInit(filter_type){
           timeleft: ['#timeleft_filter .EVENT.change .SELECT.:input .TYPE.range', 'timeleft'],
           link_filter: ['#link_filter .EVENT.change .SELECT.:input .TYPE.range', 'amount']
           },
-       and_filter_on: true //If any filter selection is zero then select none. For 'OR' filter set 'false'
+       and_filter_on: true, //If any filter selection is zero then select none. For 'OR' filter set 'false'
+       callbacks: filter_callbacks //Filter callback execute in filter init and each filtering event.
   };
+
 
   if(filter_type == 'mustache'){
     return FilterJS(services, "#service_list", mustacheView, settings);
