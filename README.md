@@ -90,7 +90,7 @@ then no elements are shown.For 'and_filter_on' => 'false' zero result category i
 Filtering Callbacks
 -------------------
 
-Define callback in settings. Callbacks executes after each filtering events.(In demo folder: 'map_filter.html')
+Define callback in settings. Callbacks executes after each filtering events.(In examples folder: 'filterjs-map.html')
 
     var filter_callbacks = {
         gmap: function(result){
