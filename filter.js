@@ -18,7 +18,6 @@
         this.view = view;
         this.parentNode = parentNode;
         this.settings = settings || {};
-        this.settings.and_filter_on = settings.and_filter_on || true;
 
         if (this.dataModel.constructor == Object){
           this.dataModel = [this.dataModel];
