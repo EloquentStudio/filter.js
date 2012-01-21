@@ -147,4 +147,10 @@ h1, h2, h3, h4, h5, h6, p, ol, ul {
   height: 300px;
   margin:0  0 20px 20px;
 }
+.result_count{
+  color: #222;
+  text-align: center;
+  font-family: 'crimson Text', serif;
+  font-weight: normal;
+}
 

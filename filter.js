@@ -8,7 +8,7 @@
  * Copyright 2011 Jiren Patel[ joshsoftware.com ]
  * 
  * Dependency:
- *  jQuery(v1.3 >=)
+ *  jQuery(v1.6 >=)
  */
 
  (function(window) {
@@ -151,8 +151,7 @@
 
             });
 
-            if(select_none && base.settings.and_filter_on) selected_count = 0;
-            filter_out = selected_count ? filter_out : [];
+            if(select_none && base.settings.and_filter_on) filter_out = [];
 
             base.hideShow(filter_out);
 
@@ -176,11 +175,11 @@
                         if (range[1] == 'above') range[1] = Infinity;
 
                         cat = $.map(base.settings.object_map[filter_name],
-                        function(n, v) {
-                            if (Number(v) >= range[0] && Number(v) <= range[1]){
-                              return base.settings.object_map[filter_name][v];
-                            }
-                        });
+                          function(n, v) {
+                              if (Number(v) >= range[0] && Number(v) <= range[1]){
+                                return base.settings.object_map[filter_name][v];
+                              }
+                          });
                     }
                 }
                 else {
@@ -198,9 +197,9 @@
         //Find objects in array
         grep: function(filter_out, value) {
             return jQuery.grep(filter_out,
-            function(p, i) {
+              function(p, i) {
                 return (jQuery.inArray(p, value) != -1);
-            });
+              });
         },
 
         //Make eval expresssion  to collect object from the json data.
