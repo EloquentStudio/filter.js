@@ -98,6 +98,10 @@ Define callback in settings. Callbacks executes after each filtering events.(In 
         },
         logger: function(result){
           $.each(result, function(i,v){ console.log(v.id)})
+        },
+        //Tinysort integration
+        tiny_sort: function() {
+           $('a[data-fjs]').tsort('.fs_price:visible', {order: 'asc'})
         }
     };
 

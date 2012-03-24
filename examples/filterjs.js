@@ -122,12 +122,17 @@ function filterInit(filter_type){
 
   var filter_callbacks = {
     logger: function(result){
-              console.log(result);
+       console.log(result);
     },
 
     show_result_count: function(result){
         $('.result_count').text('Found : ' + result.length);
+    },
+                     
+    tiny_sort: function() {
+       $('a[data-fjs]').tsort('.fs_head:visible', {order: 'asc'})
     }
+            
   };
 
   var settings = {
