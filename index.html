@@ -1,79 +1,271 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
-<head>
-  <meta charset='utf-8'>
-
-  <title>jiren/filter.js @ GitHub</title>
-
-  <style type="text/css">
-    body {
-      margin-top: 1.0em;
-      background-color: #FFFAFA;
-      font-family: Helvetica, Arial, FreeSans, san-serif;
-      color: #000000;
-    }
-    #container {
-      margin: 0 auto;
-      width: 700px;
-    }
-    h1 { font-size: 3.8em; color: #820b58; margin-bottom: 3px; }
-    h1 .small { font-size: 0.4em; }
-    h1 a { text-decoration: none }
-    h2 { font-size: 1.5em; color: #820b58; }
-    h3 { text-align: center; color: #820b58; }
-    a { color: #820B58; }
-    .description { font-size: 1.2em; margin-bottom: 30px; margin-top: 30px; font-style: italic;}
-    .download { float: right; }
-    pre { background: #000; color: #fff; padding: 15px;}
-    hr { border: 0; width: 80%; border-bottom: 1px solid #aaa}
-    .footer { text-align:center; padding-top:30px; font-style: italic; }
-  </style>
-</head>
-
-<body>
-  <a href="https://github.com/jiren/filter.js"><img style="position: absolute; top: 0; right: 0; border: 0;" src="http://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub" /></a>
-
-  <div id="container">
-
-    <div class="download">
-      <a href="https://github.com/jiren/filter.js/zipball/master">
-        <img border="0" width="90" src="https://github.com/images/modules/download/zip.png"></a>
-      <a href="https://github.com/jiren/filter.js/tarball/master">
-        <img border="0" width="90" src="https://github.com/images/modules/download/tar.png"></a>
-    </div>
-
-    <h1><a href="https://github.com/jiren/filter.js">Filter.js</a>
-      <span class="small">by <a href="https://github.com/jiren">jiren</a></span></h1>
-
-    <div class="description">
-      Client-side JS filtering of JSON objects and rendering HTML snippets via jQuery. 
-    </div>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>Filter.js by jiren</title>
     
-      <h2>Contact</h2>
-      <p>Jiren Patel (jiren@joshsoftware.com)<br/>      </p>
-    
-    <h2>Demo</h2>
-    <p>
-    <a href="http://jiren.github.com/filter.js/filterjs.html">Filter</a><br/>
-      <a href="http://jiren.github.com/filter.js/filterjs-map.html">Filter with google map</a>
-    </p>
+    <link rel="stylesheet" href="stylesheets/styles.css">
+    <link rel="stylesheet" href="stylesheets/pygment_trac.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <div class="wrapper">
+      <header>
+        <h1>Filter.js</h1>
+        <p>Client-side JS filtering of JSON objects and rendering HTML snippets via jQuery. </p>
+        <p class="view"><a href="https://github.com/jiren/filter.js">View the Project on GitHub <small>jiren/filter.js</small></a></p>
+        <ul>
+          <li><a href="https://github.com/jiren/filter.js/zipball/master">Download <strong>ZIP File</strong></a></li>
+          <li><a href="https://github.com/jiren/filter.js/tarball/master">Download <strong>TAR Ball</strong></a></li>
+          <li><a href="https://github.com/jiren/filter.js">Fork On <strong>GitHub</strong></a></li>
+        </ul>
+      </header>
+      <section>
+        <h1>Filter.js</h1>
 
-    <h2>Download</h2>
-    <p>
-      You can download this project in either
-      <a href="https://github.com/jiren/filter.js/zipball/master">zip</a> or
-      <a href="https://github.com/jiren/filter.js/tarball/master">tar formats.
-    </p>
-    <p>You can also clone the project with <a href="http://git-scm.com">Git</a>
-      by running:
-      <pre>$ git clone git://github.com/jiren/filter.js</pre>
-    </p>
+<p>Filter.js is client-side JSON objects filter to show/hide html elements.
+Multiple filter criteria can be specified and used in conjunction with 
+each other.</p>
 
-    <div class="footer">
-      get the source code on GitHub : <a href="https://github.com/jiren/filter.js">jiren/filter.js</a>
+<h2>Usage</h2>
+
+<p>Capture the JSON data (maybe using @people.to_json)</p>
+
+<pre><code>var people = [{person: {name: 'Jiren', age:26, country: 'India', country_id: 1, 
+                        states : [{ state : 'MH', state_id : 3 }, {state : 'HN', state_id : 4}] } }, 
+              {person: {name: 'Joe', age:25, country: 'USA', country_id: 2,
+                        states : [{ state : 'MH', state_id : 3 }, {state : 'HN', state_id : 4}] } }
+             ]
+</code></pre>
+
+<p>View function call for every object of the people array. It will render 
+the HTML template.</p>
+
+<pre><code>var view = function(person){
+
+  name    = this.span({'class': 'name'}, person.name);
+  age     = this.span({'class': 'age'},  person.age);
+  country = this.div({'class': 'country'}, person.country);
+
+  return this.link('/demo/' + person.id ,{'title': person.name}, [name,age,country]);
+};
+</code></pre>
+
+<p>Suppose you require some HTML element which is not currently supported in filter.js,
+you can simply use the registerHtmlElement method to add this to your HTML views.</p>
+
+<pre><code>FilterJS.registerHtmlElement('article');
+
+//Use arguments attributes, content
+this.article({class: 'new'}, 'demo')
+</code></pre>
+
+<p>Filter criteria is defined in the follwing ways: </p>
+
+<pre><code>var settings = {
+  filter_criteria: {
+          country: ['#country_list input:checkbox .EVENT.click .SELECT.:checked', 'country_id'],
+          age: ['#age_list input:checkbox .EVENT.click .SELECT.:checked .TYPE.range', 'age'],
+          states: ['#state_list input:checkbox .EVENT.click .SELECT.:checked', 'states.ARRAY.state_id'],
+    },
+   callbacks = filter_callbacks, //Define below.
+   and_filter_on: false
+};
+</code></pre>
+
+<p>The detailed explaination is here:
+For category selections:</p>
+
+<pre><code>country: ['#country_list input:checkbox .EVENT.click .SELECT.:checked', 'country_id'],
+</code></pre>
+
+<p>Selector: '#country_list input:checkbox': All the checkboxes in the div with id="country_list"</p>
+
+<p>Event   : .EVENT.click : This is the event on the selector that will trigger the filter.</p>
+
+<p>Selection Criteria: .SELECT.:checked : The criteria for filtering. (In this case, all selected checkboxes)</p>
+
+<p>JSON attribute: country_id : This is a JSON attribute defined in JSON objects for which filtering is done.</p>
+
+<p>For Range selections,</p>
+
+<pre><code>age: ['#age_list input:checkbox .EVENT.click .SELECT.:checked .TYPE.range', 'age'],
+</code></pre>
+
+<p>The only thing that changes here is the additional field </p>
+
+<p>Range: .TYPE.range : It is expected to set ranges as values like '20-30', 'below-30', '30-above'.</p>
+
+<p>Example: </p>
+
+<pre><code>&lt;input checked="checked" value="20-30" type="checkbox"&gt;
+</code></pre>
+
+<p>For Array selections,</p>
+
+<pre><code>states: ['#state_list input:checkbox .EVENT.click .SELECT.:checked', 'states.ARRAY.state_id'],
+</code></pre>
+
+<p>If we need to look into a JSON array for the search criteria, we can use the .ARRAY. selector.
+This would look into the states array and filter on the state_id</p>
+
+<p>Categroy 'AND', 'OR' selection criteria.If any categroy selection result is zero and 'and_filter_on' =&gt; 'true'
+then no elements are shown.For 'and_filter_on' =&gt; 'false' zero result category ignored.</p>
+
+<pre><code>and_filter_on: true  //AND opration
+and_filter_on: false //OR Opration
+</code></pre>
+
+<h2>Filtering Callbacks</h2>
+
+<p>Define callback in settings. Callbacks executes after each filtering events.(In examples folder: 'filterjs-map.html')</p>
+
+<pre><code>var filter_callbacks = {
+    gmap: function(result){
+      googleMap.updateMarkers(result);
+    },
+    logger: function(result){
+      $.each(result, function(i,v){ console.log(v.id)})
+    },
+    //Tinysort integration
+    tiny_sort: function() {
+       $('a[data-fjs]').tsort('.fs_price:visible', {order: 'asc'})
+    }
+};
+</code></pre>
+
+<p>If want to execute callback on init set configuration in setting</p>
+
+<pre><code>exec_callbacks_on_init: true
+</code></pre>
+
+<h2>Triggering the filter</h2>
+
+<pre><code>var fJS = FilterJS(people, "#people_list", view, settings);
+</code></pre>
+
+<p>This will render each JSON object to html and append to '#people_list' div.
+Second arg is object render function which can be customized as show above.</p>
+
+<h2>Filter using link</h2>
+
+<p>Define link with hidden input. Link data-target is hidden input id and data-value is use to set 
+hidden input value.</p>
+
+<pre><code>&lt;a id="filter_by_link" href="#" data-value="100-200" data-target='#link_filter'&gt;Price: 100 - 200&lt;/a&gt;
+&lt;input type="hidden" id="link_filter"/&gt;
+</code></pre>
+
+<p>Add filter criteria to setting.</p>
+
+<pre><code>link_filter: ['#link_filter .EVENT.change .SELECT.:input .TYPE.range', 'amount']
+</code></pre>
+
+<p>To clear filter. data-value set to data-taget element which is hidden field associated with link.</p>
+
+<pre><code>&lt;a id="clear_link_filter" href="#" data-target="#link_filter" data-value='0-above'&gt;Clear&lt;/a&gt;
+</code></pre>
+
+<p>Bind event on filter link and clear filter link. Here on click link data-value set to data-target element value.</p>
+
+<pre><code>$('#filter_by_link, #clear_link_filter').click(function(e){
+  e.preventDefault();
+  $($(this).data('target')).val($(this).data('value'));
+  fJS.filter();
+});
+</code></pre>
+
+<h2>Mustache.js integration</h2>
+
+<p><a href="https://github.com/janl/mustache.js">https://github.com/janl/mustache.js</a></p>
+
+<p>Define mustache.js template in html page.</p>
+
+<pre><code>&lt;script id="person_template" type="text/mustache"&gt;
+  &lt;a href="/demo/{{id}}" title="{{name}}"&gt;
+    &lt;span class="name"&gt;{{name}}&lt;/span&gt;
+    &lt;span class="age"&gt;{{age}}&lt;/span&gt;
+    &lt;div class="country"&gt;{{country}}&lt;/div&gt;
+  &lt;/a&gt;
+&lt;/script&gt;
+</code></pre>
+
+<p>View function:</p>
+
+<pre><code>var mustache_template = $("#person_template").html(); //Find template data.
+
+var view = function(person){
+    return Mustache.to_html(mustache_template, person);
+};
+</code></pre>
+
+<h2>Jquery Template integration</h2>
+
+<p><a href="https://github.com/jquery/jquery-tmpl">https://github.com/jquery/jquery-tmpl</a></p>
+
+<p>Define jquery template in html page.</p>
+
+<pre><code>&lt;script id="person_template" type="text/x-jquery-tmpl"&gt;
+  &lt;a href="/demo/${id}" title="${name}"&gt;
+    &lt;span class="name"&gt;${name}&lt;/span&gt;
+    &lt;span class="age"&gt;${age}&lt;/span&gt;
+    &lt;div class="country"&gt;${country}&lt;/div&gt;
+  &lt;/a&gt;
+&lt;/script&gt;
+</code></pre>
+
+<p>View function:</p>
+
+<pre><code>var jquery_template = $("#person_template"); //Find template data.
+
+var view = function(person){
+    return $.tmpl(jquery_template, person)
+};
+</code></pre>
+
+<h2>Demo</h2>
+
+<p>To see the sample demo, clone this repo and open demo/filterjs.html in your browser</p>
+
+<p><a href="http://jiren.github.com/filter.js/filterjs.html">Filter</a></p>
+
+<p><a href="http://jiren.github.com/filter.js/filterjs-map.html">Filter with google map</a></p>
+
+<h2>Examples</h2>
+
+<p><a href="http://www.goodinkind.com/services">GoodInKind Services</a>
+<a href="http://www.goodinkind.com/nonprofits">GoodInKind NonProfits</a>
+<a href="http://dealacre.com/">Dealacer (require soft registration)</a></p>
+
+<p>If you use this, please send me an email, I shall add your link here!</p>
+
+<h2>Changes and New Functionality</h2>
+
+<p>v1.1
+  - And / Or filtering</p>
+
+<p>v1.2
+ - Filtering Callbacks</p>
+
+<h2>Contributing</h2>
+
+<p>Please send me a pull request so that this can be improved.</p>
+
+<h2>License</h2>
+
+<p>This is released under the MIT license.</p>
+      </section>
+      <footer>
+        <p>This project is maintained by <a href="https://github.com/jiren">jiren</a></p>
+        <p><small>Hosted on GitHub Pages &mdash; Theme by <a href="https://github.com/orderedlist">orderedlist</a></small></p>
+      </footer>
     </div>
-
-  </div>
-
-</body>
+    <script src="javascripts/scale.fix.js"></script>
+    
+  </body>
 </html>
+>>>>>>> 2c7fca1c7ee200f10188df6a967350022736a04c
