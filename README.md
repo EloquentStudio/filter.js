@@ -9,11 +9,11 @@ each other.
 Usage
 -----
 
-Capture the JSON data (maybe using @people.to_json)
+Capture the JSON data (maybe using @people.to_json).Here 'id' field is mandatory in all json records and it should be uniq.
 
-    var people = [{person: {name: 'Jiren', age:26, country: 'India', country_id: 1, 
+    var people = [{person: {id: 1, name: 'Jiren', age:26, country: 'India', country_id: 1, 
                             states : [{ state : 'MH', state_id : 3 }, {state : 'HN', state_id : 4}] } }, 
-                  {person: {name: 'Joe', age:25, country: 'USA', country_id: 2,
+                  {person: {id: 2, name: 'Joe', age:25, country: 'USA', country_id: 2,
                             states : [{ state : 'MH', state_id : 3 }, {state : 'HN', state_id : 4}] } }
                  ]
 
@@ -120,6 +120,9 @@ Triggering the filter
 This will render each JSON object to html and append to '#people_list' div.
 Second arg is object render function which can be customized as show above.
 
+NOTE: Initially where html element going to render and append must be empty.Here '#people_list' div is empty.
+
+
 Filter using link
 -----------------
 
@@ -145,6 +148,22 @@ Bind event on filter link and clear filter link. Here on click link data-value s
       fJS.filter();
     });
 
+Javascript Template Integration
+-------------------------------
+ Template must have parent any html tag.
+ i.e 
+    
+    incorrect:
+
+    <span class="name">{{name}}</span>
+    <span class="age">{{age}}</span>
+
+    correct:
+     
+    <div> 
+      <span class="name">{{name}}</span>
+      <span class="age">{{age}}</span>
+    </div>
 
 Mustache.js integration
 -----------------------
