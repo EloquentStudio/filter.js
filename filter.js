@@ -46,7 +46,7 @@
     FilterJS.registerHtmlElement = function(tag_name){
         _filterJS.prototype[tag_name] = function(attrs, content){
            return _filterJS.prototype.content_tag(tag_name, attrs, content);
-        }
+        };
     };
 
     _filterJS.prototype = {
