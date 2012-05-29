@@ -8,7 +8,7 @@
  * Copyright 2011 Jiren Patel[ joshsoftware.com ]
  * 
  * Dependency:
- *  jQuery(v1.3 >=)
+ *  jQuery(v1.6 >=)
  */
 
  (function(window) {
@@ -18,7 +18,6 @@
         this.view = view;
         this.parentNode = parentNode;
         this.settings = settings || {};
-        this.settings.and_filter_on = settings.and_filter_on || true;
 
         if (this.dataModel.constructor == Object){
           this.dataModel = [this.dataModel];
@@ -47,7 +46,7 @@
     FilterJS.registerHtmlElement = function(tag_name){
         _filterJS.prototype[tag_name] = function(attrs, content){
            return _filterJS.prototype.content_tag(tag_name, attrs, content);
-        }
+        };
     };
 
     _filterJS.prototype = {
@@ -152,8 +151,7 @@
 
             });
 
-            if(select_none && base.settings.and_filter_on) selected_count = 0;
-            filter_out = selected_count ? filter_out : [];
+            if(select_none && base.settings.and_filter_on) filter_out = [];
 
             base.hideShow(filter_out);
 
@@ -177,11 +175,11 @@
                         if (range[1] == 'above') range[1] = Infinity;
 
                         cat = $.map(base.settings.object_map[filter_name],
-                        function(n, v) {
-                            if (Number(v) >= range[0] && Number(v) <= range[1]){
-                              return base.settings.object_map[filter_name][v];
-                            }
-                        });
+                          function(n, v) {
+                              if (Number(v) >= range[0] && Number(v) <= range[1]){
+                                return base.settings.object_map[filter_name][v];
+                              }
+                          });
                     }
                 }
                 else {
@@ -199,9 +197,9 @@
         //Find objects in array
         grep: function(filter_out, value) {
             return jQuery.grep(filter_out,
-            function(p, i) {
+              function(p, i) {
                 return (jQuery.inArray(p, value) != -1);
-            });
+              });
         },
 
         //Make eval expresssion  to collect object from the json data.
@@ -337,9 +335,22 @@ Array.prototype.filter_collect = function(field, out_arr) {
 };
 
 //In IE forEach mathod not define so added manually if not define.
-if(!('forEach' in Array.prototype)) {
+if(!Array.prototype.forEach) {
     Array.prototype.forEach = function(action, that) {
         for (var i = 0, n = this.length; i < n; i++)
         if (i in this) action.call(that, this[i], i, this);
     };
 }
+
+//In IE indexOf method not define.
+if (!Array.prototype.indexOf) {
+  Array.prototype.indexOf = function(obj, start) {
+    for (var i = (start || 0), j = this.length; i < j; i++) {
+      if (this[i] === obj) { return i; }
+  }
+  return -1;
+}
+
+}
+
+
