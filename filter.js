@@ -335,9 +335,22 @@ Array.prototype.filter_collect = function(field, out_arr) {
 };
 
 //In IE forEach mathod not define so added manually if not define.
-if(!('forEach' in Array.prototype)) {
+if(!Array.prototype.forEach) {
     Array.prototype.forEach = function(action, that) {
         for (var i = 0, n = this.length; i < n; i++)
         if (i in this) action.call(that, this[i], i, this);
     };
 }
+
+//In IE indexOf method not define.
+if (!Array.prototype.indexOf) {
+  Array.prototype.indexOf = function(obj, start) {
+    for (var i = (start || 0), j = this.length; i < j; i++) {
+      if (this[i] === obj) { return i; }
+  }
+  return -1;
+}
+
+}
+
+
