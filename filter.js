@@ -13,9 +13,12 @@
 
 (function(window) {
 
-  var _filterJS = function(dataModel, parentNode, view, settings) {
+  var _filterJS = function(dataModel, parentNode, view, settings, itemsPerPage) {
     this.dataModel = dataModel;
+    this.subset = dataModel;
     this.view = view;
+    this.index = 0;
+    this.itemsPerPage = itemsPerPage;
     this.parentNode = parentNode;
     this.settings = settings || {};
 
@@ -36,8 +39,8 @@
     }
   };
 
-  var FilterJS = function(dataModel, parentNode, view, settings) {
-    return new _filterJS(dataModel, parentNode, view, settings);
+  var FilterJS = function(dataModel, parentNode, view, settings, itemsPerPage) {
+    return new _filterJS(dataModel, parentNode, view, settings, itemsPerPage);
   };
 
   FilterJS.VERSION = 1.2;
@@ -94,14 +97,50 @@
       return this.content_tag('img', attrs)
     },
 
+    setItemsPerPage: function(size) {
+      if (size <= 0) throw "invalid size";
+      this.index = 0;
+      this.itemsPerPage = size;
+      this.render();
+    },
+
+    goToPage: function(index) {
+      if (index <= 0 || index > this.pageNumber().total)
+	throw "invalid page number";
+      this.index = (index - 1) * this.itemsPerPage;
+      this.render();
+      return this.pageNumber();
+    },
+
+    nextPage: function() {
+      if (this.index + this.itemsPerPage < this.subset.length )
+	this.index += this.itemsPerPage;
+      this.render();
+      return this.pageNumber();
+    },
+
+    previousPage: function() {
+      if (this.index - this.itemsPerPage >= 0)
+	this.index -= this.itemsPerPage;
+      this.render();
+      return this.pageNumber();
+    },
+
+    pageNumber: function() {
+      return {
+	current: parseInt(this.index / this.itemsPerPage, 10) + 1,
+	total: Math.ceil(this.subset.length / this.itemsPerPage)};
+    },
+
     //Render Html using JSON data
     render: function(parentNode) {
+      $(this.parentNode).empty();
       var base = this;
       var node = $(this.parentNode);
 
       if (!this.parentNode || !this.view) return;
 
-      this.dataModel.forEach(function(dm) {
+      $(this.subset.slice(this.index, this.index + this.itemsPerPage)).each(function(i, dm) {
         dm = dm[base.settings.root];
         var el = $(base.view(dm));
         el.attr({'id': base.settings.root + '_' + dm.id, 'data-fjs': true});
@@ -153,7 +192,11 @@
 
       if(select_none && base.settings.and_filter_on) filter_out = [];
 
-      base.hideShow(filter_out);
+      this.subset = $.grep(this.dataModel, function(element, i) {
+	return $.inArray(element.product.id, filter_out) != -1;
+      });
+      this.index = 0;
+      this.render();
 
       //Callbacks
       base.execCallBacks(filter_out);
