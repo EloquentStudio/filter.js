@@ -127,9 +127,11 @@
     },
 
     pageNumber: function() {
+      var current = parseInt(this.index / this.itemsPerPage, 10) + 1,
+      total = Math.ceil(this.subset.length / this.itemsPerPage);
       return {
-	current: parseInt(this.index / this.itemsPerPage, 10) + 1,
-	total: Math.ceil(this.subset.length / this.itemsPerPage)};
+	current: total == 0 ? 0 : current,
+	total: total};
     },
 
     //Render Html using JSON data
