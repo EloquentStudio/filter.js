@@ -126,6 +126,13 @@
       return this.pageNumber();
     },
 
+    appendPage: function() {
+      if (this.index + this.itemsPerPage < this.subset.length ) {
+	this.index += this.itemsPerPage;
+	this.render(true);
+      }
+    },
+
     pageNumber: function() {
       var current = parseInt(this.index / this.itemsPerPage, 10) + 1,
       total = Math.ceil(this.subset.length / this.itemsPerPage);
@@ -135,8 +142,9 @@
     },
 
     //Render Html using JSON data
-    render: function(parentNode) {
-      $(this.parentNode).empty();
+    render: function(append) {
+      if (typeof append == "undefined" || append == false)
+	$(this.parentNode).empty();
       var base = this;
       var node = $(this.parentNode);
 
