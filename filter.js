@@ -18,7 +18,7 @@
         this.view = view;
         this.parentNode = parentNode;
         this.settings = settings || {};
-        this.last_result = null;
+        //this.last_result = null;
 
         if (this.dataModel.constructor == Object){
           this.dataModel = [this.dataModel];

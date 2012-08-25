@@ -122,7 +122,7 @@ function filterInit(filter_type){
 
   var filter_callbacks = {
     logger: function(result){
-        //console.log(result);
+        console.log(result);
     },
 
     show_result_count: function(result){
