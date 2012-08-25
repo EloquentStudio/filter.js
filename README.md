@@ -46,7 +46,8 @@ Filter criteria is defined in the follwing ways:
               states: ['#state_list input:checkbox .EVENT.click .SELECT.:checked', 'states.ARRAY.state_id'],
         },
        callbacks = filter_callbacks, //Define below.
-       and_filter_on: false
+       and_filter_on: false,
+       search: { input: '#searchbox' }
     };
 
 The detailed explaination is here:
@@ -86,6 +87,12 @@ then no elements are shown.For 'and_filter_on' => 'false' zero result category i
 
     and_filter_on: true  //AND opration
     and_filter_on: false //OR Opration
+
+For Live Search,
+  
+    search: { input: '#searchbox'}
+
+Search option is adding live search from the html elements. 'input' is the jquery element selector for the searchbox.
 
 Filtering Callbacks
 -------------------
@@ -210,7 +217,13 @@ View function:
     var view = function(person){
         return $.tmpl(jquery_template, person)
     };
+ 
+Live Search integration 
+-----------------------
 
+Add search option in filter setting.
+
+    search: {input: '#searchbox'}
 
 Demo
 ----
@@ -239,6 +252,9 @@ v1.1
 
 v1.2
  - Filtering Callbacks
+
+v1.3
+ - Search with filtering
 
 
 Contributing

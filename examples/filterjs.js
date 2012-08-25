@@ -122,7 +122,7 @@ function filterInit(filter_type){
 
   var filter_callbacks = {
     logger: function(result){
-       console.log(result);
+        //console.log(result);
     },
 
     show_result_count: function(result){
@@ -144,6 +144,7 @@ function filterInit(filter_type){
           timeleft: ['#timeleft_filter .EVENT.change .SELECT.:input .TYPE.range', 'timeleft'],
           link_filter: ['#link_filter .EVENT.change .SELECT.:input .TYPE.range', 'amount']
           },
+       search: {input: '#search_box' },
        and_filter_on: true, //If any filter selection is zero then select none. For 'OR' filter set 'false'
        callbacks: filter_callbacks //Filter callback execute in filter init and each filtering event.
   };

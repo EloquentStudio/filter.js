@@ -153,4 +153,9 @@ h1, h2, h3, h4, h5, h6, p, ol, ul {
   font-family: 'crimson Text', serif;
   font-weight: normal;
 }
-
+.searchbox{
+  line-height: 20px;
+  width: 170px;
+  height: 20px;
+  font-size: 15px;
+}
