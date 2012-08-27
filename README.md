@@ -88,7 +88,7 @@ then no elements are shown.For 'and_filter_on' => 'false' zero result category i
     and_filter_on: true  //AND opration
     and_filter_on: false //OR Opration
 
-For Live Search,
+For Instant Search,
   
     search: { input: '#searchbox'}
 
@@ -217,8 +217,8 @@ View function:
     var view = function(person){
         return $.tmpl(jquery_template, person)
     };
- 
-Live Search integration 
+
+Instant Search integration 
 -----------------------
 
 Add search option in filter setting.
