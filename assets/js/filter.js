@@ -1,6 +1,6 @@
 /*
  * Filter.js
- * version: 1.2 (10/01/2012)
+ * version: 1.3 (24/08/2012)
  *
  * Licensed under the MIT:
  *   http://www.opensource.org/licenses/mit-license.php
@@ -18,6 +18,7 @@
         this.view = view;
         this.parentNode = parentNode;
         this.settings = settings || {};
+        //this.last_result = null;
 
         if (this.dataModel.constructor == Object){
           this.dataModel = [this.dataModel];
@@ -40,7 +41,7 @@
         return new _filterJS(dataModel, parentNode, view, settings);
     };
 
-    FilterJS.VERSION = 1.2;
+    FilterJS.VERSION = 1.3;
 
     //Register new html tag
     FilterJS.registerHtmlElement = function(tag_name){
@@ -113,11 +114,18 @@
         bindEvents: function() {
             var base = this;
             base.settings.selector.forEach(function(selector, index) {
-                $(selector.element).live(selector.events,
-                function(e) {
+                $(selector.element).live(selector.events, function(e) {
                     base.filter();
                 });
             })
+
+           if(base.settings.search){
+              $(base.settings.search.input).live('keyup', function(e){
+                  //var search_result = base.search(this, base.last_result || base.settings.all_objects);
+                  //base.hideShow(search_result);
+                  base.filter();
+              });
+           }
         },
 
         //Unbind fileter events
@@ -153,10 +161,16 @@
 
             if(select_none && base.settings.and_filter_on) filter_out = [];
 
+            //Search
+            if(base.settings.search){
+              filter_out = base.search(base.settings.search.input, filter_out);
+            }
             base.hideShow(filter_out);
 
             //Callbacks
             base.execCallBacks(filter_out);
+
+            //base.last_result = filter_out;
         },
 
         //Compare and collect objects
@@ -284,6 +298,22 @@
             });
         },
 
+        search: function(ele, filter_result){
+          var base = this;
+          var val = $(ele).val().trim();
+          
+          if(!val.length) return filter_result;
+
+          var id_str = "#" + base.settings.root + '_';
+
+          return $.map(filter_result, function(id){
+              if($(id_str + id).text().toUpperCase().indexOf(val.toUpperCase()) >= 0){
+                return id;
+              }
+          });
+
+        },
+
         execCallBacks: function(result){
             var base = this;
             if(!base.settings.callbacks) return;
@@ -300,6 +330,7 @@
               }
             );
         }
+
 
     };
 
