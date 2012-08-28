@@ -259,7 +259,7 @@ v1.3
 Sponsors and Supporters
 -----------------------
 
-- Instant searchfield filtering sponsored by [W/E consultants](www.w-e.nl)
+- Instant searchfield filtering sponsored by [W/E consultants](http://www.w-e.nl)
 
 Contributing
 ------------
