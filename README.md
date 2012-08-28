@@ -256,6 +256,10 @@ v1.2
 v1.3
  - Search with filtering
 
+Sponsors and Supporters
+-----------------------
+
+- Instant searchfield filtering sponsored by [W/E consultants](www.w-e.nl)
 
 Contributing
 ------------
