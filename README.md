@@ -221,9 +221,17 @@ View function:
 Instant Search integration 
 -----------------------
 
-Add search option in filter setting.
+Default search config: This will search each filtered item html text. 
+Add default search option in filter setting.
 
     search: {input: '#searchbox'}
+
+Custome search for particular fields. 
+Custome search config for above html template 'a' tag(filtering item), if we want to search by only 'name' and 'age' 
+
+'field_selector' is html element selector inside the item html.
+
+    search: {input: '#searchbox', field_selector: '.name, .age' }
 
 Demo
 ----
@@ -255,6 +263,9 @@ v1.2
 
 v1.3
  - Search with filtering
+
+v1.3.1
+ - Custom search for particular field
 
 Sponsors and Supporters
 -----------------------
