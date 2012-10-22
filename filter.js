@@ -300,7 +300,7 @@
 
         search: function(search_config, filter_result){
           var base = this;
-          var val = $(search_config.input).val().trim();
+          var val = $.trim($(search_config.input).val());
           
           if(!val.length) return filter_result;
 
