@@ -325,7 +325,7 @@
 
             filtered_objects = [];
             $.each(base.dataModel, function(i, v){
-              if(result.indexOf(v[base.settings.root].id) != -1){
+              if(v && result.indexOf(v[base.settings.root].id) != -1){
                 filtered_objects.push(v[base.settings.root]);
               }
             });
