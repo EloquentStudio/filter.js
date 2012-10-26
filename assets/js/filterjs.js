@@ -121,7 +121,7 @@ function filterInit(filter_type){
   };
 
   var filter_callbacks = {
-    logger: function(result){console.log(result);}
+    //logger: function(result){console.log(result);}
   };
 
   var settings = {

@@ -1,6 +1,6 @@
 /*
  * Filter.js
- * version: 1.3 (24/08/2012)
+ * version: 1.3.1 (7/10/2012)
  *
  * Licensed under the MIT:
  *   http://www.opensource.org/licenses/mit-license.php
@@ -163,7 +163,7 @@
 
             //Search
             if(base.settings.search){
-              filter_out = base.search(base.settings.search.input, filter_out);
+              filter_out = base.search(base.settings.search, filter_out);
             }
             base.hideShow(filter_out);
 
@@ -298,16 +298,21 @@
             });
         },
 
-        search: function(ele, filter_result){
+        search: function(search_config, filter_result){
           var base = this;
-          var val = $(ele).val().trim();
+          var val = $.trim($(search_config.input).val());
           
           if(!val.length) return filter_result;
 
           var id_str = "#" + base.settings.root + '_';
 
           return $.map(filter_result, function(id){
-              if($(id_str + id).text().toUpperCase().indexOf(val.toUpperCase()) >= 0){
+              var $item = $(id_str + id);
+              if(search_config.field_selector){
+                $item = $item.find(search_config.field_selector) 
+              }
+
+              if($item.text().toUpperCase().indexOf(val.toUpperCase()) >= 0){
                 return id;
               }
           });
@@ -320,7 +325,7 @@
 
             filtered_objects = [];
             $.each(base.dataModel, function(i, v){
-              if(result.indexOf(v[base.settings.root].id) != -1){
+              if(v && result.indexOf(v[base.settings.root].id) != -1){
                 filtered_objects.push(v[base.settings.root]);
               }
             });

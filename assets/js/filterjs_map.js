@@ -48,7 +48,7 @@ function filterInit(filter_type){
        googleMap.updateMarkers(result) 
     },
     logger: function(result){
-       $.each(result, function(i,v){ console.log(v.id)})
+       //$.each(result, function(i,v){ console.log(v.id)})
     }
 
   };
