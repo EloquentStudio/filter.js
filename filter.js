@@ -1,6 +1,6 @@
 /*
  * Filter.js
- * version: 1.3.1 (7/10/2012)
+ * version: 1.3.2 (4/11/2012)
  *
  * Licensed under the MIT:
  *   http://www.opensource.org/licenses/mit-license.php
@@ -35,13 +35,22 @@
         if(this.settings.exec_callbacks_on_init &&  this.settings.callbacks){
           this.execCallBacks(this.settings.all_objects);
         }
+
+        if(!this.settings.filter_types){
+          this.settings.filter_types = {};
+        }
+
+        if(!this.settings.filter_types['range']){
+          this.settings.filter_types['range'] = this.rangeFilter;
+        }
+            
     };
 
     var FilterJS = function(dataModel, parentNode, view, settings) {
         return new _filterJS(dataModel, parentNode, view, settings);
     };
 
-    FilterJS.VERSION = 1.3;
+    FilterJS.VERSION = '1.3.1';
 
     //Register new html tag
     FilterJS.registerHtmlElement = function(tag_name){
@@ -177,35 +186,39 @@
         findObjects: function(filter_name, categories, filter_type) {
             var base = this;
             var out = [];
+            var category_map = base.settings.object_map[filter_name]; 
+            var filter_type_function = base.settings.filter_types[filter_type];
 
-            $.each(categories, function(index, category) {
+            $.each(categories, function(index, category_value) {
                 var cat;
 
-                if (filter_type == 'range') {
-                    var range = category.split('-');
-
-                    if (range.length == 2) {
-                        if (range[0] == 'below') range[0] = -Infinity;
-                        if (range[1] == 'above') range[1] = Infinity;
-
-                        cat = $.map(base.settings.object_map[filter_name],
-                          function(n, v) {
-                              if (Number(v) >= range[0] && Number(v) <= range[1]){
-                                return base.settings.object_map[filter_name][v];
-                              }
-                          });
-                    }
-                }
-                else {
-                    cat = base.settings.object_map[filter_name][category];
+                if(filter_type){
+                  cat = $.map(category_map, function(n,v){
+                          if(filter_type_function(category_value, v)){
+                            return category_map[v];
+                          }
+                  });
+                } else {
+                   cat = category_map[category_value];
                 }
 
-                if (cat) {
+                if(cat) {
                     out = out.concat(cat);
                 }
             });
 
             return out;
+        },
+
+        rangeFilter: function(category_value, v){
+          var range = category_value.split('-');
+          if(range.length == 2){
+             if (range[0] == 'below') range[0] = -Infinity;
+             if (range[1] == 'above') range[1] = Infinity;
+             if (Number(v) >= range[0] && Number(v) <= range[1]){
+               return true;
+             }
+          }
         },
 
         //Find objects in array
@@ -299,11 +312,11 @@
         },
 
         search: function(search_config, filter_result){
-          var base = this;
           var val = $.trim($(search_config.input).val());
           
           if(!val.length) return filter_result;
 
+          var base = this;
           var id_str = "#" + base.settings.root + '_';
 
           return $.map(filter_result, function(id){
@@ -335,7 +348,6 @@
               }
             );
         }
-
 
     };
 

@@ -47,7 +47,8 @@ Filter criteria is defined in the follwing ways:
         },
        callbacks = filter_callbacks, //Define below.
        and_filter_on: false,
-       search: { input: '#searchbox' }
+       search: { input: '#searchbox' }, 
+       filter_types: filter_type_functions //Define below
     };
 
 The detailed explaination is here:
@@ -219,7 +220,7 @@ View function:
     };
 
 Instant Search integration 
------------------------
+---------------------------
 
 Default search config: This will search each filtered item html text. 
 Add default search option in filter setting.
@@ -232,6 +233,34 @@ Custome search config for above html template 'a' tag(filtering item), if we wan
 'field_selector' is html element selector inside the item html.
 
     search: {input: '#searchbox', field_selector: '.name, .age' }
+
+Custome Filter Types
+--------------------
+
+Default filter are only equalto and range.If you want to add custom filter type like age-range, date-range.
+We can define multiple filter types and set to filter setting like this and each key is filter type.
+Filter type function has two arguments, first one is filter category value and second one is value.
+
+    //In filter setting
+    age: ['#age_list input:checkbox .EVENT.click .SELECT.:checked .TYPE.age-range', 'age'] 
+    filter_types: filter_type_functions
+
+    //Filter types defination
+    var filter_type_functions = {
+      
+      //i.e category_value you can get value like 20-30 and for age 25
+      age-range: function(category_value, age){
+        var range = category_value.split('-');
+        if (Number(age) >= range[0] && Number(age) <= range[1]){
+          return true;
+        }
+      },
+
+      date-range: function(category_value, date){
+        //Your code
+      }
+    };
+
 
 Demo
 ----
@@ -247,6 +276,7 @@ Examples
 [GoodInKind Services](http://www.goodinkind.com/services)
 [GoodInKind NonProfits](http://www.goodinkind.com/nonprofits)
 [Dealacer (require soft registration)](http://dealacre.com/)
+[Tischefrei (search page)](http://neu.tischefrei.de/)
 
 
 If you use this, please send me an email, I shall add your link here!
@@ -266,6 +296,9 @@ v1.3
 
 v1.3.1
  - Custom search for particular field
+
+V1.3.2
+ - Custom filter types i.e for data filtering
 
 Sponsors and Supporters
 -----------------------
