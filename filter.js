@@ -50,7 +50,7 @@
         return new _filterJS(dataModel, parentNode, view, settings);
     };
 
-    FilterJS.VERSION = '1.3.1';
+    FilterJS.VERSION = '1.3.2';
 
     //Register new html tag
     FilterJS.registerHtmlElement = function(tag_name){
