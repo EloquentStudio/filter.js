@@ -121,7 +121,19 @@ function filterInit(filter_type){
   };
 
   var filter_callbacks = {
-    //logger: function(result){console.log(result);}
+    //logger: function(result){ console.log(result)
+  };
+
+  /*
+   * Custom filter type for time range
+   * Params: category_value i.e '0-10'
+   *         days(from json data) i.e 4
+   */
+  var timeRangeFilter = function(category_value, days){
+    var range = category_value.split('-');
+    if (Number(days) >= range[0] && Number(days) <= range[1]){
+      return true;
+    }
   };
 
   var settings = {
@@ -130,12 +142,13 @@ function filterInit(filter_type){
           nonprofit: ['#nonprofit_list input:checkbox .EVENT.click .SELECT.:checked' , 'nonprofit.nonprofit_categories.ARRAY.category_id'],
           price: ['#price_list input:checkbox .EVENT.click .SELECT.:checked .TYPE.range', 'amount'],
           amount: ['#price_filter .EVENT.change .SELECT.:input .TYPE.range', 'amount'],
-          timeleft: ['#timeleft_filter .EVENT.change .SELECT.:input .TYPE.range', 'timeleft'],
+          timeleft: ['#timeleft_filter .EVENT.change .SELECT.:input .TYPE.time_range', 'timeleft'],
           link_filter: ['#link_filter .EVENT.change .SELECT.:input .TYPE.range', 'amount']
           },
        search: {input: '#search_box' },
-       and_filter_on: true //If any filter selection is zero then select none. For 'OR' filter set 'false'
-      // callbacks: filter_callbacks //Filter callback execute in filter init and each filtering event.
+       and_filter_on: true, //If any filter selection is zero then select none. For 'OR' filter set 'false'
+       callbacks: filter_callbacks, //Filter callback execute in filter init and each filtering event.
+       filter_types: { time_range: timeRangeFilter }
   };
 
 
