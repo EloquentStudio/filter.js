@@ -43,9 +43,9 @@ Filter criteria is defined in the follwing ways:
       filter_criteria: {
               country: ['#country_list input:checkbox .EVENT.click .SELECT.:checked', 'country_id'],
               age: ['#age_list input:checkbox .EVENT.click .SELECT.:checked .TYPE.range', 'age'],
-              states: ['#state_list input:checkbox .EVENT.click .SELECT.:checked', 'states.ARRAY.state_id'],
+              states: ['#state_list input:checkbox .EVENT.click .SELECT.:checked', 'states.ARRAY.state_id']
         },
-       callbacks = filter_callbacks, //Define below.
+       callbacks: filter_callbacks, //Define below.
        and_filter_on: false,
        search: { input: '#searchbox' }, 
        filter_types: filter_type_functions //Define below
@@ -227,14 +227,14 @@ Add default search option in filter setting.
 
     search: {input: '#searchbox'}
 
-Custome search for particular fields. 
-Custome search config for above html template 'a' tag(filtering item), if we want to search by only 'name' and 'age' 
+Custom search for particular fields. 
+Custom search config for above html template 'a' tag(filtering item), if we want to search by only 'name' and 'age' 
 
 'field_selector' is html element selector inside the item html.
 
     search: {input: '#searchbox', field_selector: '.name, .age' }
 
-Custome Filter Types
+Custom Filter Types
 --------------------
 
 Default filter are only equalto and range.If you want to add custom filter type like age-range, date-range.
