@@ -305,6 +305,9 @@ Sponsors and Supporters
 
 - Instant searchfield filtering sponsored by [W/E consultants](http://www.w-e.nl)
 
+
+<a href='http://www.pledgie.com/campaigns/19522'><img alt='Click here to lend your support to: Filter.js Support and make a donation at www.pledgie.com !' src='http://www.pledgie.com/campaigns/19522.png?skin_name=chrome' border='0' /></a>
+
 Contributing
 ------------
 Please send me a pull request so that this can be improved.
