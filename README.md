@@ -37,7 +37,7 @@ you can simply use the registerHtmlElement method to add this to your HTML views
     //Use arguments attributes, content
     this.article({class: 'new'}, 'demo')
   
-Filter criteria is defined in the follwing ways: 
+Filter criteria is defined in the follwing ways:(.EVENT. and .SELECT. option are not mandatory) 
 
     var settings = {
       filter_criteria: {
@@ -58,15 +58,21 @@ For category selections:
 
 Selector: '#country_list input:checkbox': All the checkboxes in the div with id="country_list"
 
-Event   : .EVENT.click : This is the event on the selector that will trigger the filter.
+Event   : .EVENT.click : This is the event on the selector that will trigger the filter. This options is not mandatory. 
+If this optons is not given automatically bind checkbox, radio bind with click event, select box and hidden fields with change event.
 
-Selection Criteria: .SELECT.:checked : The criteria for filtering. (In this case, all selected checkboxes)
+Selection Criteria: .SELECT.:checked : The criteria for filtering. (In this case, all selected checkboxes). This option alos not mandatory.
+Default selected checkbox, radio button selected. 
 
 JSON attribute: country_id : This is a JSON attribute defined in JSON objects for which filtering is done.
 
 For Range selections,
 
     age: ['#age_list input:checkbox .EVENT.click .SELECT.:checked .TYPE.range', 'age'],
+
+    OR
+
+    age: ['#age_list input:checkbox .TYPE.range', 'age'],
 
 The only thing that changes here is the additional field 
 
@@ -78,7 +84,7 @@ Example:
 
 For Array selections,
 
-    states: ['#state_list input:checkbox .EVENT.click .SELECT.:checked', 'states.ARRAY.state_id'],
+    states: ['#state_list input:checkbox', 'states.ARRAY.state_id'],
 
 If we need to look into a JSON array for the search criteria, we can use the .ARRAY. selector.
 This would look into the states array and filter on the state_id
@@ -105,7 +111,7 @@ Define callback in settings. Callbacks executes after each filtering events.(In 
           googleMap.updateMarkers(result);
         },
         logger: function(result){
-          $.each(result, function(i,v){ console.log(v.id)})
+          console.log(result);
         },
         //Tinysort integration
         tiny_sort: function() {
@@ -142,7 +148,7 @@ hidden input value.
 
 Add filter criteria to setting.
 
-    link_filter: ['#link_filter .EVENT.change .SELECT.:input .TYPE.range', 'amount']
+    link_filter: ['#link_filter .TYPE.range', 'amount']
 
 To clear filter. data-value set to data-taget element which is hidden field associated with link.
 
@@ -196,9 +202,6 @@ View function:
         return Mustache.to_html(mustache_template, person);
     };
 
-Jquery Template integration
----------------------------
-
 [https://github.com/jquery/jquery-tmpl](https://github.com/jquery/jquery-tmpl)
 
 Define jquery template in html page.
@@ -218,6 +221,8 @@ View function:
     var view = function(person){
         return $.tmpl(jquery_template, person)
     };
+
+In Example you can also find template using Handlebars.js, Hogan.js.
 
 Instant Search integration 
 ---------------------------
@@ -300,10 +305,16 @@ v1.3.1
 V1.3.2
  - Custom filter types i.e for data filtering
 
+v1.4.0
+ - JSON data record with or without root. i.e [{name: 'Jiren'}...] or [{info: {name: 'Jiren'}}...]
+ - Upgraded Jquery to 1.9.1
+ - Code optimization for performance
+
 Sponsors and Supporters
 -----------------------
 
 - Instant searchfield filtering sponsored by [W/E consultants](http://www.w-e.nl)
+- [Josh Software](http://www.joshsoftware.com)
 
 Contributing
 ------------

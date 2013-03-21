@@ -1,10 +1,10 @@
 var fJS;
 jQuery(document).ready(function($) {
 
-   $('#category_all, #nonprofit_all, #price_all').closest('ul').children().find(':checkbox').attr('checked', true);
+   $('#category_all, #nonprofit_all, #price_all').closest('ul').children().find(':checkbox').prop('checked', true);
 
-   $('#category_all, #nonprofit_all, #price_all').click(function(){
-     $(this).closest('ul').children().find(':checkbox').attr('checked', $(this).is(':checked'));
+   $('#category_all, #nonprofit_all, #price_all').on('click',function(){
+     $(this).closest('ul').children().find(':checkbox').prop('checked', $(this).is(':checked'));
    });
 
    $('#price_filter').val('0-500');
@@ -17,8 +17,7 @@ jQuery(document).ready(function($) {
       step: 5,
       slide: function( event, ui ) {
         $( "#price_range_label" ).html('$' + ui.values[ 0 ] + ' - $' + ui.values[ 1 ] );
-        $('#price_filter').val(ui.values[0] + '-' + ui.values[1]);
-        $('#price_filter').trigger('change');
+        $('#price_filter').val(ui.values[0] + '-' + ui.values[1]).trigger('change');
       }   
    });
 
@@ -31,59 +30,71 @@ jQuery(document).ready(function($) {
       values:[0, 3],
       slide: function( event, ui ) {
         $( "#timeleft_range_label" ).html(ui.values[ 0 ] + ' days - ' + ui.values[ 1 ] + ' days' );
-        $('#timeleft_filter').val(ui.values[0] + '-' + ui.values[1]);
-         fJS.filter();
+        $('#timeleft_filter').val(ui.values[0] + '-' + ui.values[1]).trigger('change');
       }   
    });
 
-   $('#filter_by_link, #clear_link_filter').click(function(e){
-     e.preventDefault();
-     $($(this).data('target')).val($(this).data('value'));
-     fJS.filter();
+   $('#filter_by_link, #clear_link_filter').on('click', function(e){
+     var $link = $(this);
+     var $target = $($link.data('target'));
+
+     $target.val($link.data('value')).trigger('change');
+
+     return false;
    });
 
+   $('#mustache_renderer').prop('checked', true);
 
-   fJS = filterInit();
-
-   //For Demo
-   $('#native_renderer').attr('checked', true);
-   $('#native_renderer').click(function(){
-       renderByType('#native_renderer')
+   //Rendering by tempate type
+   $('#renderer_types input').on('click', function(){
+     var $ele = $(this)
+     renderByType('#' + $ele.attr('id'), $ele.val());
    });
 
-   $('#mustache_renderer').click(function(){
-       renderByType('#mustache_renderer', 'mustache')
-   });
-
-   $('#jtempl_renderer').click(function(){
-       renderByType('#jtempl_renderer', 'jtempl')
-   });
-
+   fJS = filterInit('mustache');
 });
 
 function renderByType(id, type){
-  $('#renderer_types :checkbox').attr('checked', false);
-  $(id).attr('checked', true);
+  $('#renderer_types :checkbox').prop('checked', false); 
+  $(id).prop('checked', true);
   $('#service_list').html('');
+
   fJS.unbindEvents();
   fJS = filterInit(type);
 }
 
-
-function filterInit(filter_type){
+function filterInit(template_type){
 
   var calulate_day_left = function(days){
     if(days == 0) return 'Last Day';
     else if(days == 1) return '1 day Left';
     else return days + ' day Left';
   };
+  
+  var template, html = $.trim($("#template").html());
 
-
+  if(template_type == 'hogan'){
+    template = Hogan.compile(html);
+  } else if(template_type == 'handlebars'){
+    template = Handlebars.compile(html);
+  }else if(template_type == 'mustache'){
+    template = Mustache.compile(html);
+  }
+  
   var view = function(service){
     service.timeleft = Math.floor(Math.random()*10);
+    service.timeleft_str = calulate_day_left(service.timeleft);
+    service.short_title = service.title.length < 27 ? service.title : service.title.substring(0,27) +'...';
+    service.short_nonprofit_name = service.nonprofit.name.length < 27 ? service.nonprofit.name : service.nonprofit.name.substring(0,27) +'...';
+
+    return (template_type == 'hogan' ? template.render(service): template(service));
+  };
+
+  var customView = function(service){
     var service_title = service.title.length < 27 ? service.title : service.title.substring(0,27) +'...';
     var nonprofit_name = service.nonprofit.name.length < 27 ? service.nonprofit.name : service.nonprofit.name.substring(0,27) +'...';
-    
+    service.timeleft = Math.floor(Math.random()*10);
+
     clear     = this.div({'class': 'clear'});
     fs_price  = this.div({'class': 'fs_price'}, '$' + service.amount );
     fs_head   = this.span({'class': 'fs_head'}, service_title);
@@ -93,44 +104,20 @@ function filterInit(filter_type){
     fs_left   = this.div({'class': 'fs_left'}, [fs_head, fs_for, fs_disc, time_left]);
     fs_box    = this.div({'class': 'fs_box'}, [fs_left, fs_price, clear ] );
 
-    return this.link('/demo/' + service.to_param ,{'title': service.title}, fs_box);
-  };
-
-  //Mustache
-  var mustache_template = $("#mustache_template").html(); 
-
-  var mustacheView = function(service){
-    service.timeleft = Math.floor(Math.random()*10);
-    service.timeleft_str = calulate_day_left(service.timeleft);
-    service.short_title = service.title.length < 27 ? service.title : service.title.substring(0,27) +'...';
-    service.short_nonprofit_name = service.nonprofit.name.length < 27 ? service.nonprofit.name : service.nonprofit.name.substring(0,27) +'...';
-      
-    return Mustache.to_html(mustache_template, service);
-  };
-
-  //JQuery Template
-  var jquery_template = $('#jtempl_template');
-
-  var jtemplView = function(service){
-    service.timeleft = Math.floor(Math.random()*10);
-    service.timeleft_str = calulate_day_left(service.timeleft);
-    service.short_title = service.title.length < 27 ? service.title : service.title.substring(0,27) +'...';
-    service.short_nonprofit_name = service.nonprofit.name.length < 27 ? service.nonprofit.name : service.nonprofit.name.substring(0,27) +'...';
-      
-    return $.tmpl(jquery_template, service);
-  };
+    return this.link('/demo/' + service.to_param ,{'title': service.title}, fs_box)
+  }
 
   var filter_callbacks = {
     logger: function(result){
-        console.log(result);
+      //console.log(result);
     },
 
     show_result_count: function(result){
-        $('.result_count').text('Found : ' + result.length);
+      $('.result_count').text('Found : ' + result.length);
     },
                      
     tiny_sort: function() {
-       $('a[data-fjs]').tsort('.fs_head:visible', {order: 'asc'})
+      $('a[data-fjs]').tsort('.fs_head:visible', {order: 'asc'});
     }
             
   };
@@ -148,30 +135,25 @@ function filterInit(filter_type){
   };
 
   var settings = {
-      filter_criteria: {
-          category: ['#category_list input:checkbox .EVENT.click .SELECT.:checked', 'service_categories.ARRAY.category_id'],
-          nonprofit: ['#nonprofit_list input:checkbox .EVENT.click .SELECT.:checked' , 'nonprofit.nonprofit_categories.ARRAY.category_id'],
-          price: ['#price_list input:checkbox .EVENT.click .SELECT.:checked .TYPE.range', 'amount'],
-          amount: ['#price_filter .EVENT.change .SELECT.:input .TYPE.range', 'amount'],
-          timeleft: ['#timeleft_filter .EVENT.change .SELECT.:input .TYPE.time_range', 'timeleft'],
-          link_filter: ['#link_filter .EVENT.change .SELECT.:input .TYPE.range', 'amount']
-          },
-       search: {input: '#search_box' },
-       and_filter_on: true, //If any filter selection is zero then select none. For 'OR' filter set 'false'
-       callbacks: filter_callbacks, //Filter callback execute in filter init and each filtering event.
-       filter_types: { time_range: timeRangeFilter }
+    filter_criteria: {
+      category: ['#category_list input:checkbox', 'service_categories.ARRAY.category_id'],
+      nonprofit: ['#nonprofit_list input:checkbox' , 'nonprofit.nonprofit_categories.ARRAY.category_id'],
+      price: ['#price_list input:checkbox  .TYPE.range', 'amount'],
+      amount: ['#price_filter .TYPE.range', 'amount'],
+      timeleft: ['#timeleft_filter .TYPE.time_range', 'timeleft'],
+      link_filter: ['#link_filter .TYPE.range', 'amount']
+    },
+    search: {input: '#search_box' },
+    and_filter_on: true, //If any filter selection is zero then select none. For 'OR' filter set 'false'
+    callbacks: filter_callbacks, //Filter callback execute in filter init and each filtering event.
+    filter_types: { time_range: timeRangeFilter }
   };
 
+  //Note: For testing using root
+  //services = $.map(services, function(e,i){ return {service: e}})
 
-  if(filter_type == 'mustache'){
-    return FilterJS(services, "#service_list", mustacheView, settings);
-  }
-  else if(filter_type == 'jtempl'){
-    return FilterJS(services, "#service_list", jtemplView, settings);
-  }
-  else{
-    return FilterJS(services, "#service_list", view, settings);
-  }
-  
+  if(template_type == 'custom') view = customView;
+
+  return FilterJS(services, "#service_list", view, settings);
 }
 
