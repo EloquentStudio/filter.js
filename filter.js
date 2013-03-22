@@ -46,9 +46,9 @@
       this.root = 'fjs';
     }
 
-    this.render();
+    this.render(this.data);
     this.parseOptions();
-    this.buildCategoryMap();
+    this.buildCategoryMap(this.data);
     this.bindEvents();
 
     if(this.options.exec_callbacks_on_init && this.options.callbacks)
@@ -65,13 +65,13 @@
   _FilterJS.prototype = {
 
     //Render Html using JSON data
-    render: function(container) {
+    render: function(data) {
       var $container = $(this.container), record, el;
 
-      if (!this.container || !this.view) return;
+      if (!data) return;
 
-      for(var i = 0, l = this.data.length; i < l; i++){
-        record = this.getRecord(i);
+      for(var i = 0, l = data.length; i < l; i++){
+        record = this.getRecord(i, data);
         el = $(this.view(record));
         el.attr({'id': this.root + '_' + record.id, 'data-fjs': true});
         el = $container.append(el);
@@ -214,11 +214,11 @@
       }
     },
 
-    buildCategoryMap: function() {
+    buildCategoryMap: function(data) {
       var filter_criteria = this.options.filter_criteria, record, categories, obj, x;
 
-      for(var i = 0, l = this.data.length; i < l; i++){
-        record = this.getRecord(i);
+      for(var i = 0, l = data.length; i < l; i++){
+        record = this.getRecord(i, data);
         this.record_ids.push(record.id);
 
         for (name in filter_criteria) {
@@ -239,12 +239,12 @@
     },
 
     hideShow: function(ids) {
-      var id_prefix = "#" + this.root + '_', i = 0, l = ids.length;
+      var e_id = "#" + this.root + '_', i = 0, l = ids.length;
 
       $(this.container + " > *[data-fjs]").hide();
 
       for (i; i < l; i++)
-        $(id_prefix + ids[i]).show();
+        $(e_id + ids[i]).show();
     },
 
     search: function(search_config, filter_result){
@@ -282,19 +282,17 @@
     },
 
     //Get record by index
-    getRecord: function(i){
-      return (this.has_root ? this.data[i][this.root] : this.data[i]);
+    getRecord: function(i, data){
+      return (this.has_root ? data[i][this.root] : data[i]);
     },
 
     //Collect Records by id array
     getRecordsByIds: function(ids){
-      var records = [], r, r_id, i = 0, l = this.data.length;
+      var records = [], r, i = 0, l = this.data.length;
 
       for(i; i < l; i++){
-        r = this.data[i];
-        r_id = this.has_root ? r[this.root].id : r.id;
-
-        if(ids.indexOf(r_id) != -1) records.push(r)
+        r = this.getRecord(i, this.data);
+        if(ids.indexOf(r.id) != -1) records.push(r)
       }
 
       return records; 
@@ -343,6 +341,33 @@
       attrs['src'] = url;
       return this.content_tag('img', attrs)
     },
+
+    addData: function(data){
+      var i = 0, l = data.length, r, uniq_data = [], e_id = '#' + this.root + '_';
+
+      for(i, l; i < l; i++){
+        r = this.getRecord(i, data);
+        if($(e_id + r.id).length == 0) uniq_data.push(data[i]);
+      }
+
+      if(uniq_data.length){
+        this.data = this.data.concat(uniq_data);
+        this.render(uniq_data);
+        this.buildCategoryMap(uniq_data);
+      }
+    },
+
+		stream: function(){
+      /*
+      var url = this.options.url;        
+
+      $.get(url)
+      .done(function(data){
+      })
+      .fail(function(data){
+      });
+      */
+		}
 
   };
 

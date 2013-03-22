@@ -134,7 +134,7 @@ function filterInit(template_type){
     }
   };
 
-  var settings = {
+  var options = {
     filter_criteria: {
       category: ['#category_list input:checkbox', 'service_categories.ARRAY.category_id'],
       nonprofit: ['#nonprofit_list input:checkbox' , 'nonprofit.nonprofit_categories.ARRAY.category_id'],
@@ -154,6 +154,6 @@ function filterInit(template_type){
 
   if(template_type == 'custom') view = customView;
 
-  return FilterJS(services, "#service_list", view, settings);
+  return FilterJS(services, "#service_list", view, options);
 }
 
