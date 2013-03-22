@@ -281,7 +281,7 @@ Examples
 [GoodInKind Services](http://www.goodinkind.com/services)
 [GoodInKind NonProfits](http://www.goodinkind.com/nonprofits)
 [Dealacer (require soft registration)](http://dealacre.com/)
-[Tischefrei (search page)](http://neu.tischefrei.de/)
+[Tischefrei (search page)](http://tischefrei.de)
 
 
 If you use this, please send me an email, I shall add your link here!
