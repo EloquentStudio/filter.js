@@ -18,6 +18,11 @@
     <div class="container">
       <div class="sidebar_bar">
         <div class="sidebar_left_find">
+          <span>Initializing Time: </span><strong id="init_time"></strong>
+          <br/>
+          <span>Filtering Time   : </span><strong id="filter_time">0 ms</strong>
+        </div>
+        <div class="sidebar_left_find">
           <div class="sidebar_list">
             <h3>View Renderer Types</h3>
             <ul id="renderer_types"> 
@@ -42,14 +47,14 @@
         </div>  
         <div class="sidebar_left_find">
           <div class="sidebar_list">
-            <h3>Search</h3>
+            <h3>Keyword Search</h3>
             <input type="text" id="search_box" class="searchbox" placeholder="Type here...."/>
           </div>
         </div>  
         <div class="sidebar_left_find">
           <div class="sidebar_list">
             <h3>Filter by Price</h3>
-            <span id="price_range_label" style="margin:50px;">$0-$100</span>
+            <span id="price_range_label" style="margin:50px;">$0-$1000</span>
             <div id="price_slider"></div>
             <input type="hidden" id="price_filter"/>
           </div>

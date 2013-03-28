@@ -266,6 +266,14 @@ Filter type function has two arguments, first one is filter category value and s
       }
     };
 
+Add more data to existing filter
+--------------------------------
+
+If you are streaming json data using ajax then you can add data like this
+
+    fJS.addData(data) 
+
+    Here fJS is Filter.js object and data is json records.
 
 Demo
 ----
@@ -309,6 +317,9 @@ v1.4.0
  - JSON data record with or without root. i.e [{name: 'Jiren'}...] or [{info: {name: 'Jiren'}}...]
  - Upgraded Jquery to 1.9.1
  - Code optimization for performance
+
+v1.4.1
+ - Add json data to existing filter object.
 
 Sponsors and Supporters
 -----------------------
