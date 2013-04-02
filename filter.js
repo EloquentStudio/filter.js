@@ -40,8 +40,9 @@
       property_count += 1;
     }
 
+    console.log(this.root)
     if (property_count == 1){
-      this.getRecord = function(i, d){ return d[this.root][i]; }
+      this.getRecord = function(i, d){ return d[i][this.root]; }
     }else{
       this.getRecord = function(i, d){ return d[i]; }
       this.root = 'fjs';
