@@ -5,6 +5,6 @@
 #   git config --global core.excludesfile ~/.gitignore_global
 
 /_tmp
-/_gh_pages
+/_gh-pages
 *.DS_Store
 *.swp

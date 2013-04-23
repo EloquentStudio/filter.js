@@ -1,6 +1,6 @@
 /*
  * Filter.js
- * version: 1.4.1 (28/3/2013)
+ * version: 1.5 (22/4/2013)
  *
  * Licensed under the MIT:
  *   http://www.opensource.org/licenses/mit-license.php
@@ -19,7 +19,7 @@
     return new _FilterJS(data, container, view, options);
   };
 
-  FilterJS.VERSION = '1.4.1';
+  FilterJS.VERSION = '1.5.0';
 
   window.FilterJS = FilterJS;
 
@@ -40,7 +40,6 @@
       property_count += 1;
     }
 
-    console.log(this.root)
     if (property_count == 1){
       this.getRecord = function(i, d){ return d[i][this.root]; }
     }else{
@@ -60,6 +59,13 @@
 
     if (!this.options.filter_types['range'])
       this.options.filter_types['range'] = this.rangeFilter;
+
+    this.options.streaming = this.options.streaming || {};
+    if (this.options.streaming.data_url){
+      this.options.streaming.stream_after = (this.options.streaming.stream_after || 2)*1000;
+      this.options.streaming.batch_size = this.options.streaming.batch_size || false;
+      this.timer = this.setStreamingTimer();
+    }
     
     return this;
   };
@@ -258,13 +264,14 @@
 
       var serach_in = search_config.serach_in;
       var id_prefix = '#' + this.root + '_';
+      val = val.toUpperCase();
 
       return $.map(filter_result, function(id){
         var $ele = $(id_prefix + id);
 
         if (serach_in) $ele = $ele.find(serach_in); 
 
-        if ($ele.text().toUpperCase().indexOf(val.toUpperCase()) >= 0) return id;
+        if ($ele.text().toUpperCase().indexOf(val) >= 0) return id;
       });
     },
 
@@ -344,6 +351,9 @@
     addData: function(data){
       var i = 0, l = data.length, r, uniq_data = [], e_id = '#' + this.root + '_';
 
+      if (this.options.streaming.before_add) 
+        this.options.streaming.before_add.call(this, data);
+
       for (i, l; i < l; i++){
         r = this.getRecord(i, data);
         if ($(e_id + r.id).length == 0) uniq_data.push(data[i]);
@@ -354,6 +364,44 @@
         this.render(uniq_data);
         this.buildCategoryMap(uniq_data);
       }
+
+      if (this.options.streaming.after_add) 
+        this.options.streaming.after_add.call(this, data);
+
+       this.filter();
+    },
+
+    setStreamingTimer: function(){
+      var self = this, 
+          timer_func = this.options.streaming.batch_size ? setInterval : setTimeout;
+
+      return timer_func(function(){
+        self.streamData();
+      }, this.options.streaming.stream_after);
+    },
+
+    clearStreamingTimer: function(){
+      if (this.timer) clearTimeout(this.timer);
+    },
+
+    streamData: function(){
+      var self = this, 
+          params = this.options.params || {},
+          opts = this.options.streaming;
+
+      params['offset'] = this.data.length;
+
+      if (opts.batch_size) params['limit'] = opts.batch_size;
+      if (this.options.search) params['q'] = $.trim($(this.options.search.input).val()); 
+
+
+      $.getJSON(opts.data_url, params).done(function(data){
+        if (data && data.length > 0){
+          self.addData(data);
+        }else{
+          clearTimeout(self.timer);
+        }
+      });
     }
 
   };

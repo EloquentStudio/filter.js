@@ -40,8 +40,8 @@ function filterInit() {
 
   var settings = {
     filter_criteria: {
-                       amount: ['#price_filter .TYPE.range', 'amount']
-                     },
+      amount: ['#price_filter .TYPE.range', 'amount']
+    },
     search: {input: '#search_box' },
     and_filter_on: true,
   };

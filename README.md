@@ -274,14 +274,40 @@ If you are streaming json data using ajax then you can add data like this
     fJS.addData(data) 
 
     Here fJS is Filter.js object and data is json records.
+ 
+Add data using ajax streaming
+-----------------------------
+
+Add streaming option to above define 'settings'. 
+
+    streaming: {
+      data_url: 'persons.json',        //JSON data url
+      stream_after: 1,                 // strat streaming data after in seconds
+      batch_size: 50,                  // Fetch reacord limit
+      before_add: function(data){      // callback: Process data/update html/.etc before adding data to filter.
+         //do your processing
+      },
+      after_add: function(data){       // callback: Process data/update html/.etc after adding data to filter.
+        //do your processing
+      }
+    }
+
+- Only 'data_url' is mandatory.
+- 'stream_after' default value is 2 sec.
+- 'before_add' and 'after_add' are callbacks
+- Streaming ajax request format
+  
+   persons.json?offset=0&limit=50&q='search text'
 
 Demo
 ----
 To see the sample demo, clone this repo and open demo/filterjs.html in your browser
 
-[Filter](http://jiren.github.com/filter.js/filterjs.html)
+[Filter](http://jiren.github.io/filter.js/filterjs.html)
 
-[Filter with google map](http://jiren.github.com/filter.js/filterjs-map.html)
+[Filter with google map](http://jiren.github.io/filter.js/filterjs-map.html)
+
+[Filter with streaming](http://jiren.github.io/filter.js/stream.html)
 
 Examples
 --------
@@ -320,6 +346,9 @@ v1.4.0
 
 v1.4.1
  - Add json data to existing filter object.
+
+v1.5
+  Streaming data using ajax.
 
 Sponsors and Supporters
 -----------------------
