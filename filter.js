@@ -1,6 +1,6 @@
 /*
  * Filter.js
- * version: 1.4 (16/3/2013)
+ * version: 1.5 (22/4/2013)
  *
  * Licensed under the MIT:
  *   http://www.opensource.org/licenses/mit-license.php
@@ -13,13 +13,13 @@
 
 (function(window) {
 
-  "use strict";
+  'use strict';
 
   var FilterJS = function(data, container, view, options) {
     return new _FilterJS(data, container, view, options);
   };
 
-  FilterJS.VERSION = '1.4.0';
+  FilterJS.VERSION = '1.5.0';
 
   window.FilterJS = FilterJS;
 
@@ -35,29 +35,37 @@
 
     if (this.data.constructor != Array) this.data = [this.data];
 
-    for(name in this.data[0]){
+    for (name in this.data[0]){
       this.root = name;
       property_count += 1;
     }
 
-    if(property_count == 1){
-      this.has_root = true;
+    if (property_count == 1){
+      this.getRecord = function(i, d){ return d[i][this.root]; }
     }else{
+      this.getRecord = function(i, d){ return d[i]; }
       this.root = 'fjs';
     }
 
-    this.render();
+    this.render(this.data);
     this.parseOptions();
-    this.buildCategoryMap();
+    this.buildCategoryMap(this.data);
     this.bindEvents();
 
-    if(this.options.exec_callbacks_on_init && this.options.callbacks)
+    if (this.options.exec_callbacks_on_init && this.options.callbacks)
       this.execCallBacks(this.record_ids);
 
     this.options.filter_types = this.options.filter_types || {};
 
-    if(!this.options.filter_types['range'])
+    if (!this.options.filter_types['range'])
       this.options.filter_types['range'] = this.rangeFilter;
+
+    this.options.streaming = this.options.streaming || {};
+    if (this.options.streaming.data_url){
+      this.options.streaming.stream_after = (this.options.streaming.stream_after || 2)*1000;
+      this.options.streaming.batch_size = this.options.streaming.batch_size || false;
+      this.timer = this.setStreamingTimer();
+    }
     
     return this;
   };
@@ -65,15 +73,15 @@
   _FilterJS.prototype = {
 
     //Render Html using JSON data
-    render: function(container) {
+    render: function(data) {
       var $container = $(this.container), record, el;
 
-      if (!this.container || !this.view) return;
+      if (!data) return;
 
-      for(var i = 0, l = this.data.length; i < l; i++){
-        record = this.getRecord(i);
+      for (var i = 0, l = data.length; i < l; i++){
+        record = this.getRecord(i, data);
         el = $(this.view(record));
-        el.attr({'id': this.root + '_' + record.id, 'data-fjs': true});
+        el.attr({id: this.root + '_' + record.id, 'data-fjs': true});
         el = $container.append(el);
       }
     },
@@ -82,13 +90,13 @@
     bindEvents: function() {
       var self = this, s = this.options.selectors, i = 0, l = s.length;
 
-      for(i; i < l; i++){
+      for (i; i < l; i++){
         $(s[i].element).on(s[i].events, function(e) {
           self.filter();
         });
       }
 
-      if(this.options.search){
+      if (this.options.search){
         $(this.options.search.input).on('keyup', function(e){
           self.filter();
         });
@@ -96,26 +104,29 @@
     },
 
     //Unbind fileter events
-    unbindEvents: function() {
+    clear: function() {
       var s = this.options.selectors, i = 0, l = s.length;
 
-      for(i; i < l; i++)
+      for (i; i < l; i++)
         $(s[i].element).off(s[i].events);
 
-      if(this.options.search) $(this.options.search.input).off('keyup');
+      if (this.options.search) $(this.options.search.input).off('keyup');
+
+      this.category_map = null;
+      this.record_ids = null;
     },
                   
     //Find elements accroding to selection criteria.
-    filter: function() {
+    filter: function(){
       var result, s, selected_vals, records, selected_none = false, i = 0, l = this.options.selectors.length;
 
-      for(i; i < l; i++){
-        s = this.options.selectors[i]
+      for (i; i < l; i++){
+        s = this.options.selectors[i];
         selected_vals = $(s.element).filter(s.select).map(function() {
           return $(this).val();
         });
 
-        if(selected_vals.length) {
+        if (selected_vals.length) {
           records = this.findObjects(selected_vals, this.categories_map[s.name], this.options.filter_types[s.type]);
 
           result = $.grep((result || this.record_ids), function(v) {
@@ -126,31 +137,31 @@
         }
       }
 
-      if(selected_none && this.options.and_filter_on) result = [];
+      if (selected_none && this.options.and_filter_on) result = [];
 
-      if(this.options.search) result = this.search(this.options.search, result);
+      if (this.options.search) result = this.search(this.options.search, result);
       
       this.hideShow(result);
 
-      if(this.options.callbacks) this.execCallBacks(result);
+      if (this.options.callbacks) this.execCallBacks(result);
     },
 
     //Compare and collect objects
     findObjects: function(category_vals, category_map, filter_type_func) {
       var r = [], ids, category_val, i = 0, l = category_vals.length;
 
-      for(i; i < l; i++){
+      for (i; i < l; i++){
         category_val = category_vals[i];
         
-        if(filter_type_func){
+        if (filter_type_func){
           ids = $.map(category_map, function(n,v){
-            if(filter_type_func(category_val, v)) return n;
+            if (filter_type_func(category_val, v)) return n;
           });
         } else {
           ids = category_map[category_val];
         }
 
-        if(ids) r = r.concat(ids);
+        if (ids) r = r.concat(ids);
       }
 
       return r;
@@ -162,7 +173,7 @@
 
       eval_str = fields[0];
 
-      for(i; i < l; i++) {
+      for (i; i < l; i++) {
         eval_str += ".filter_collect('" + fields[i] + "')";
       }
 
@@ -174,7 +185,7 @@
       var filter_criteria = this.options.filter_criteria, selector, criteria, ele, ele_type;
       this.options.selectors = [];
 
-      for(name in filter_criteria) {
+      for (name in filter_criteria) {
         selector = {};
         criteria = filter_criteria[name];
 
@@ -187,22 +198,22 @@
         ele = $(selector.element);
         ele_type = ele.attr('type');
 
-        if(!selector.select){
-          if(ele.get(0).tagName == 'INPUT'){
-            if(ele_type == 'checkbox' || ele_type == 'radio'){
+        if (!selector.select){
+          if (ele.get(0).tagName == 'INPUT'){
+            if (ele_type == 'checkbox' || ele_type == 'radio'){
               selector.select = ':checked';
-            }else if(ele_type == 'hidden'){
+            }else if (ele_type == 'hidden'){
               selector.select = ':input';
             }
-          }else if(ele.get(0).tagName == 'SELECT'){
+          }else if (ele.get(0).tagName == 'SELECT'){
              selector.selector = 'select';
           }
         }
 
-        if(!selector.events){
-          if(ele_type == 'checkbox' ||ele_type == 'radio'){
+        if (!selector.events){
+          if (ele_type == 'checkbox' ||ele_type == 'radio'){
             selector.events = 'click';
-          }else if(ele_type == 'hidden' || ele.get(0).tagName == 'SELECT'){
+          }else if (ele_type == 'hidden' || ele.get(0).tagName == 'SELECT'){
             selector.events = 'change';
           }
         }
@@ -214,11 +225,11 @@
       }
     },
 
-    buildCategoryMap: function() {
+    buildCategoryMap: function(data) {
       var filter_criteria = this.options.filter_criteria, record, categories, obj, x;
 
-      for(var i = 0, l = this.data.length; i < l; i++){
-        record = this.getRecord(i);
+      for (var i = 0, l = data.length; i < l; i++){
+        record = this.getRecord(i, data);
         this.record_ids.push(record.id);
 
         for (name in filter_criteria) {
@@ -226,9 +237,8 @@
           obj = this.categories_map[name];
 
           if (categories && categories.constructor == Array) {
-            for(var j = 0, lj = categories.length; j < lj; j++){
+            for (var j = 0, lj = categories.length; j < lj; j++){
               x = categories[j];
-
               obj[x] ? obj[x].push(record.id) : obj[x] = [record.id];
             }
           } else {
@@ -239,40 +249,41 @@
     },
 
     hideShow: function(ids) {
-      var id_prefix = "#" + this.root + '_', i = 0, l = ids.length;
+      var e_id = '#' + this.root + '_', i = 0, l = ids.length;
 
-      $(this.container + " > *[data-fjs]").hide();
+      $(this.container + ' > *[data-fjs]').hide();
 
       for (i; i < l; i++)
-        $(id_prefix + ids[i]).show();
+        $(e_id + ids[i]).show();
     },
 
     search: function(search_config, filter_result){
       var val = $.trim($(search_config.input).val());
           
-      if(!val.length) return filter_result;
+      if (val.length < 2) return filter_result;
 
       var serach_in = search_config.serach_in;
-      var id_prefix = "#" + this.root + '_';
+      var id_prefix = '#' + this.root + '_';
+      val = val.toUpperCase();
 
       return $.map(filter_result, function(id){
         var $ele = $(id_prefix + id);
 
-        if(serach_in) $ele = $ele.find(serach_in); 
+        if (serach_in) $ele = $ele.find(serach_in); 
 
-        if($ele.text().toUpperCase().indexOf(val.toUpperCase()) >= 0) return id;
+        if ($ele.text().toUpperCase().indexOf(val) >= 0) return id;
       });
     },
 
     execCallBacks: function(result){
-      for(name in this.options.callbacks)
+      for (name in this.options.callbacks)
         this.options.callbacks[name].call(this, result);
     },
 
     rangeFilter: function(category_value, v){
       var range = category_value.split('-');
 
-      if(range.length == 2){
+      if (range.length == 2){
         if (range[0] == 'below') range[0] = -Infinity;
         if (range[1] == 'above') range[1] = Infinity;
         if (Number(v) >= range[0] && Number(v) <= range[1]){
@@ -281,20 +292,13 @@
       }
     },
 
-    //Get record by index
-    getRecord: function(i){
-      return (this.has_root ? this.data[i][this.root] : this.data[i]);
-    },
-
     //Collect Records by id array
     getRecordsByIds: function(ids){
-      var records = [], r, r_id, i = 0, l = this.data.length;
+      var records = [], r, i = 0, l = this.data.length;
 
-      for(i; i < l; i++){
-        r = this.data[i];
-        r_id = this.has_root ? r[this.root].id : r.id;
-
-        if(ids.indexOf(r_id) != -1) records.push(r)
+      for (i; i < l; i++){
+        r = this.getRecord(i, this.data);
+        if (ids.indexOf(r.id) != -1) records.push(r)
       }
 
       return records; 
@@ -313,7 +317,7 @@
       if (attrs) $el.attr(attrs);
       if (content) {
         if (content.constructor == Array) {
-          for(i, j = content.length; i < j; i++){
+          for (i, j = content.length; i < j; i++){
             if (c = content[i]) $el.append(c.constructor == String ? c : $(c));
           }
         }
@@ -344,6 +348,62 @@
       return this.content_tag('img', attrs)
     },
 
+    addData: function(data){
+      var i = 0, l = data.length, r, uniq_data = [], e_id = '#' + this.root + '_';
+
+      if (this.options.streaming.before_add) 
+        this.options.streaming.before_add.call(this, data);
+
+      for (i, l; i < l; i++){
+        r = this.getRecord(i, data);
+        if ($(e_id + r.id).length == 0) uniq_data.push(data[i]);
+      }
+
+      if (uniq_data.length){
+        this.data = this.data.concat(uniq_data);
+        this.render(uniq_data);
+        this.buildCategoryMap(uniq_data);
+      }
+
+      if (this.options.streaming.after_add) 
+        this.options.streaming.after_add.call(this, data);
+
+       this.filter();
+    },
+
+    setStreamingTimer: function(){
+      var self = this, 
+          timer_func = this.options.streaming.batch_size ? setInterval : setTimeout;
+
+      return timer_func(function(){
+        self.streamData();
+      }, this.options.streaming.stream_after);
+    },
+
+    clearStreamingTimer: function(){
+      if (this.timer) clearTimeout(this.timer);
+    },
+
+    streamData: function(){
+      var self = this, 
+          params = this.options.params || {},
+          opts = this.options.streaming;
+
+      params['offset'] = this.data.length;
+
+      if (opts.batch_size) params['limit'] = opts.batch_size;
+      if (this.options.search) params['q'] = $.trim($(this.options.search.input).val()); 
+
+
+      $.getJSON(opts.data_url, params).done(function(data){
+        if (data && data.length > 0){
+          self.addData(data);
+        }else{
+          clearTimeout(self.timer);
+        }
+      });
+    }
+
   };
 
   FilterJS.registerHtmlElement = function(tag_name){
@@ -367,9 +427,9 @@
  */
 Array.prototype.filter_collect = function(field, arr) {
   var arr = arr || [];
-  for (var i = 0; i < this.length; i++){
+  for (var i = 0, l = this.length; i < l; i++){
     var obj = this[i];
-    if(obj.constructor == Array){
+    if (obj.constructor == Array){
       obj.filter_collect(field, arr);
     }
     else {

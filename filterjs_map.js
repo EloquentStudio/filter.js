@@ -135,9 +135,9 @@ var googleMap = {
       var m = this.markers[id];
 
       if(m.map){
-        lat = lat + m.getPosition().lat();
-        lng = lng + m.getPosition().lng();
-        count = count + 1;
+        lat += m.getPosition().lat();
+        lng += m.getPosition().lng();
+        count++;
       }
     }
 

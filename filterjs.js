@@ -7,27 +7,27 @@ jQuery(document).ready(function($) {
      $(this).closest('ul').children().find(':checkbox').prop('checked', $(this).is(':checked'));
    });
 
-   $('#price_filter').val('0-500');
-   $('#price_range_label').html('$0-$500');
-   $( "#price_slider" ).slider({
+   $('#price_filter').val('0-1000');
+   $('#price_range_label').html('$0-$1000');
+   $("#price_slider").slider({
       range:true,
       min: 0,
       max: 1000,
-      values:[0, 500],
+      values:[0, 1000],
       step: 5,
       slide: function( event, ui ) {
-        $( "#price_range_label" ).html('$' + ui.values[ 0 ] + ' - $' + ui.values[ 1 ] );
+        $("#price_range_label").html('$' + ui.values[ 0 ] + ' - $' + ui.values[ 1 ] );
         $('#price_filter').val(ui.values[0] + '-' + ui.values[1]).trigger('change');
       }   
    });
 
-   $('#timeleft_filter').val('0-3');
-   $('#timeleft_range_label').html('0 days - 3 days');
-   $( "#timeleft_slider" ).slider({
+   $('#timeleft_filter').val('0-10');
+   $('#timeleft_range_label').html('0 days - 10 days');
+   $("#timeleft_slider").slider({
       range:true,
       min: 0,
       max: 10,
-      values:[0, 3],
+      values:[0, 10],
       slide: function( event, ui ) {
         $( "#timeleft_range_label" ).html(ui.values[ 0 ] + ' days - ' + ui.values[ 1 ] + ' days' );
         $('#timeleft_filter').val(ui.values[0] + '-' + ui.values[1]).trigger('change');
@@ -59,9 +59,9 @@ function renderByType(id, type){
   $(id).prop('checked', true);
   $('#service_list').html('');
 
-  fJS.unbindEvents();
+  fJS.clear();
   fJS = filterInit(type);
-}
+};
 
 function filterInit(template_type){
 
@@ -154,6 +154,29 @@ function filterInit(template_type){
 
   if(template_type == 'custom') view = customView;
 
-  return FilterJS(services, "#service_list", view, options);
+  //var temp = services.slice();
+  //for(var i = 0; i < 5; i++){
+  //  temp = temp.concat(services.slice());
+  //}
+
+  var fjs, d1 = new Date(), d2;
+  fjs = FilterJS(services, "#service_list", view, options);
+  //fjs = FilterJS(temp, "#service_list", view, options);
+
+  d2 = new Date();
+  $('#init_time').text((d2.getTime() - d1.getTime()) + 'ms' );
+
+  var filter_func = fjs.filter;
+
+  fjs.filter = function(){
+    var d2, d1 = new Date();
+
+    filter_func.call(fjs);
+    d2 = new Date();
+
+    $('#filter_time').text((d2.getTime() - d1.getTime()) + 'ms' );
+  };
+
+  return fjs;
 }
 
