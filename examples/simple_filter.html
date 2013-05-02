@@ -24,9 +24,24 @@
         <div class="sidebar_left_find">
           <div class="sidebar_list">
             <h3>Filter by Price</h3>
-            <span id="price_range_label" style="margin:50px;">$0-$100</span>
+            <span id="price_range_label" style="margin:50px;">$0-$500</span>
             <div id="price_slider"></div>
-            <input type="hidden" id="price_filter"/>
+            <input type="hidden" id="price_filter" value="100-500"/>
+          </div>
+        </div>
+        <div class="sidebar_left_find">
+          <div class="sidebar_list">
+            <h3>Filter by Status</h3>
+            <ul id="status">
+              <li>
+                <input id="active" value="active" type="checkbox">
+                <span >Active</span>
+              </li>
+              <li>
+                <input id="inactive" value="inactive" type="checkbox">
+                <span>Inactive</span>
+              </li>
+            <ul>
           </div>
         </div>
       </div>
@@ -38,150 +53,58 @@
         //<![CDATA[
         var services = [
         {
-            "to_param": "1-mr-ona-howe",
-            "group_number": null,
-            "is_schedulelater": false,
             "permalink": "1-mr-ona-howe",
-            "start_date": "2011-08-27",
-            "total_transactions": null,
-            "end_time": null,
-            "positive_reviews": 0,
-            "booking_capacity": 2,
-            "is_virtual": false,
-            "request_id": null,
             "title": "Mr. Ona Howe",
-            "total_reviews": 0,
-            "estimated_duration": 0,
-            "thumbnail": "/images/category/cat_image_thumb.jpg",
-            "amount": 453,
-            "donated_amount": null,
-            "booked_seats": 0,
+            "amount": 100,
+            "status": "active",
+            "is_public": true,
             "id": 1,
-            "user_id": 3,
-            "is_public": true,
-            "service_categories": [
-                {
-                    "to_param": "1",
-                    "category_id": 33
-                }
-            ],
-            "end_date": "2011-07-30",
-            "nonprofit_id": 15,
-            "status": "active",
-            "start_time": null,
-            "nonprofit": {
-                "name": "Eldon Zulauf",
-                "to_param": "15-eldon-zulauf",
-                "nonprofit_categories": [
-                    {
-                        "to_param": "15",
-                        "category_id": 11
-                    }
-                ],
-                "thumbnail": "/images/missing/nonprofit_medium.jpg"
-            }
+            "nonprofit": "Eldon Zulauf"
         },
         {
-            "to_param": "2-darien-hoeger",
-            "group_number": null,
-            "is_schedulelater": true,
             "permalink": "2-darien-hoeger",
-            "start_date": "2011-08-23",
-            "total_transactions": null,
-            "end_time": null,
-            "positive_reviews": 0,
-            "booking_capacity": 0,
-            "is_virtual": false,
-            "request_id": null,
             "title": "Darien Hoeger",
-            "total_reviews": 0,
-            "estimated_duration": 0,
-            "thumbnail": "/images/category/cat_image_thumb.jpg",
             "amount": 201,
-            "donated_amount": null,
-            "booked_seats": 0,
             "id": 2,
-            "user_id": 3,
-            "is_public": true,
-            "service_categories": [
-                {
-                    "to_param": "2",
-                    "category_id": 33
-                }
-            ],
-            "end_date": "2011-09-03",
-            "nonprofit_id": 16,
-            "status": "active",
-            "start_time": null,
-            "nonprofit": {
-                "name": "Beryl McDermott",
-                "to_param": "16-beryl-mcdermott",
-                "nonprofit_categories": [
-                    {
-                        "to_param": "16",
-                        "category_id": 26
-                    }
-                ],
-                "thumbnail": "/images/missing/nonprofit_medium.jpg"
-            }
+            "status": "inactive",
+            "nonprofit": "Beryl McDermott"
         },
         {
-            "to_param": "3-mrs-frederique-kris",
-            "group_number": null,
-            "is_schedulelater": true,
             "permalink": "3-mrs-frederique-kris",
-            "start_date": "2011-08-08",
-            "total_transactions": null,
-            "end_time": null,
-            "positive_reviews": 0,
-            "booking_capacity": 0,
-            "is_virtual": false,
-            "request_id": null,
             "title": "Mrs. Frederique Kris",
-            "total_reviews": 0,
-            "estimated_duration": 0,
-            "thumbnail": "/images/category/cat_image_thumb.jpg",
             "amount": 500,
-            "donated_amount": null,
-            "booked_seats": 0,
             "id": 3,
-            "user_id": 3,
-            "is_public": true,
-            "service_categories": [
-                {
-                    "to_param": "3",
-                    "category_id": 27
-                }
-            ],
-            "end_date": "2011-08-16",
-            "nonprofit_id": 15,
             "status": "active",
-            "start_time": null,
-            "nonprofit": {
-                "name": "Eldon Zulauf",
-                "to_param": "15-eldon-zulauf",
-                "nonprofit_categories": [
-                    {
-                        "to_param": "15",
-                        "category_id": 11
-                    }
-                ],
-                "thumbnail": "/images/missing/nonprofit_medium.jpg"
-            }
-        }];
+            "nonprofit": "Eldon Zulauf"
+        },
+        {
+            "permalink": "4-jedediah-pouros",
+            "title": "Jedediah Pouros",
+            "amount": 300,
+            "id": 4,
+            "status": "inactive",
+            "nonprofit": "Mabel Tillman I"
+        },
+        {
+            "permalink": "5-mrs-daisy-macejkovic",
+            "title": "Mrs. Daisy Macejkovic",
+            "amount": 410,
+            "id": 5,
+            "status": "active",
+            "nonprofit": "Mr. Ayden O'Keefe"
+        } ];
         //]]>
       </script>
       <div class="clear"></div>
     </div>
 
     <script id="template" type="text/html">
-       <a title="{{title}}" href="/demo/{{to_param}}">
+       <a title="{{title}}" href="/demo/{{permalink}}">
          <div class="fs_box">
            <div class="fs_left">
-             <span class="fs_head">{{short_title}}</span>
+             <span class="fs_head">{{title}}</span>
              <span class="fs_for">for</span>
-             <span class="fs_disc">{{short_nonprofit_name}}</span>
-             <span class="fs_disc">{{timeleft_str}}</span>
+             <span class="fs_disc">{{nonprofit}}</span>
            </div>
            <div class="fs_price">${{amount}}</div>
            <div class="clear"></div>

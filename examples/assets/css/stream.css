@@ -238,4 +238,7 @@ select:focus, textarea:focus, input:focus{
   margin-left: 20px;
 }
 
+.criteria select{
+  margin-left: 10px;
+}
 

@@ -162,11 +162,7 @@
             if (filter_type_func(category_val, v)) return n;
           });
         } else {
-          if (category_map.constructor == Array) {
-            ids = category_map;
-          } else {
-            ids = category_map[category_val];
-          }
+          ids = category_map.constructor == Array ? category_map : category_map[category_val];
         }
 
         if (ids) r = r.concat(ids);
