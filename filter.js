@@ -91,9 +91,7 @@
       var self = this, s = this.options.selectors, i = 0, l = s.length;
 
       for (i; i < l; i++){
-        $(s[i].element).on(s[i].events, function(e) {
-          self.filter();
-        });
+        this.bindSelectorEvent(s[i], self);
       }
 
       if (this.options.search){
@@ -101,6 +99,12 @@
           self.filter();
         });
       }
+    },
+
+    bindSelectorEvent: function(selector, context) {
+      $(selector.element).on(selector.events, function(e) {
+        context.filter();
+      });
     },
 
     //Unbind fileter events
@@ -158,7 +162,7 @@
             if (filter_type_func(category_val, v)) return n;
           });
         } else {
-          ids = category_map[category_val];
+          ids = category_map.constructor == Array ? category_map : category_map[category_val];
         }
 
         if (ids) r = r.concat(ids);
@@ -180,49 +184,65 @@
       return eval_str;
     },
 
+    addIdFilterCriteria: function(name, criteria, ids_or_mapping) {
+      this.categories_map[name] = {};
+
+      var selector = this.parseSelectorOptions({name: name}, [criteria]);
+      ids_or_mapping = ids_or_mapping || $(selector.element).data('ids') || [];
+
+      this.options.selectors.push(selector);
+      this.categories_map[name] = ids_or_mapping;
+
+      this.bindSelectorEvent(selector, this);
+    },
+
     //Create map accroding to selection criteria.
     parseOptions: function() {
       var filter_criteria = this.options.filter_criteria, selector, criteria, ele, ele_type;
       this.options.selectors = [];
 
       for (name in filter_criteria) {
-        selector = {};
+
         criteria = filter_criteria[name];
-
-        selector.element = criteria[0].split(/.EVENT.|.SELECT.|.TYPE./)[0];
-        selector.events = (criteria[0].match(/.EVENT.(\S*)/) || [])[1];
-        selector.select = (criteria[0].match(/.SELECT.(\S*)/) || [])[1];
-        selector.type = (criteria[0].match(/.TYPE.(\S*)/) || [])[1];
-        selector.name = name;
-
-        ele = $(selector.element);
-        ele_type = ele.attr('type');
-
-        if (!selector.select){
-          if (ele.get(0).tagName == 'INPUT'){
-            if (ele_type == 'checkbox' || ele_type == 'radio'){
-              selector.select = ':checked';
-            }else if (ele_type == 'hidden'){
-              selector.select = ':input';
-            }
-          }else if (ele.get(0).tagName == 'SELECT'){
-             selector.selector = 'select';
-          }
-        }
-
-        if (!selector.events){
-          if (ele_type == 'checkbox' ||ele_type == 'radio'){
-            selector.events = 'click';
-          }else if (ele_type == 'hidden' || ele.get(0).tagName == 'SELECT'){
-            selector.events = 'change';
-          }
-        }
+        selector = this.parseSelectorOptions({name: name}, criteria);
 
         this.options.selectors.push(selector);
 
         criteria.push(this.buildEvalString(criteria[1]));
         this.categories_map[name] = {};
       }
+    },
+
+    parseSelectorOptions: function(selector, criteria) {
+      selector.element = criteria[0].split(/.EVENT.|.SELECT.|.TYPE./)[0];
+      selector.events = (criteria[0].match(/.EVENT.(\S*)/) || [])[1];
+      selector.select = (criteria[0].match(/.SELECT.(\S*)/) || [])[1];
+      selector.type = (criteria[0].match(/.TYPE.(\S*)/) || [])[1];
+
+      var ele = $(selector.element),
+          ele_type = ele.attr('type');
+
+      if (!selector.select){
+        if (ele.get(0).tagName == 'INPUT'){
+          if (ele_type == 'checkbox' || ele_type == 'radio'){
+            selector.select = ':checked';
+          }else if (ele_type == 'hidden'){
+            selector.select = ':input';
+          }
+        }else if (ele.get(0).tagName == 'SELECT'){
+           selector.select = 'select';
+        }
+      }
+
+      if (!selector.events){
+        if (ele_type == 'checkbox' ||ele_type == 'radio'){
+          selector.events = 'click';
+        }else if (ele_type == 'hidden' || ele.get(0).tagName == 'SELECT'){
+          selector.events = 'change';
+        }
+      }
+
+      return selector;
     },
 
     buildCategoryMap: function(data) {

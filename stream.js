@@ -1,9 +1,8 @@
 jQuery(document).ready(function($) {
 
-  var template = Mustache.compile($.trim($("#template").html()))
-      ,$container = $('.movies');
-
-  var all_genre = ["Crime", "Drama", "Thriller", "Adventure", "Western", "Action", "Biography", "History", "War", "Fantasy", "Sci-Fi", "Mystery", "Romance", "Family", "Horror", "Film-Noir", "Comedy", "Animation", "Musical", "Music", "Sport"];
+  var all_genre = ["Crime", "Drama", "Thriller", "Adventure", "Western", "Action", "Biography", 
+        "History", "War", "Fantasy", "Sci-Fi", "Mystery", "Romance", "Family", "Horror", 
+        "Film-Noir", "Comedy", "Animation", "Musical", "Music", "Sport"];
   var genre_template = Mustache.compile($.trim($("#genre_template").html()))
       ,$genre_container = $('#genre_criteria') 
 
@@ -32,18 +31,6 @@ jQuery(document).ready(function($) {
     slide: function( event, ui ) {
       $("#runtime_range_label" ).html(ui.values[ 0 ] + ' mins. - ' + ui.values[ 1 ] + ' mins.');
       $('#runtime_filter').val(ui.values[0] + '-' + ui.values[1]).trigger('change');
-    }
-  });
-
-  $("#year_slider").slider({ 
-    min: 1920,
-    max: (new Date()).getFullYear(),
-    values:[1920, (new Date()).getFullYear()],
-    step: 10,
-    range:true,
-    slide: function( event, ui ) {
-      $("#year_range_label" ).html(ui.values[ 0 ] + ' - ' + ui.values[ 1 ]);
-      $('#year_filter').val(ui.values[0] + '-' + ui.values[1]).trigger('change');
     }
   });
 
@@ -88,11 +75,10 @@ var MovieFilter = function(data){
       before_add: function(data){
         var offset = this.data.length;
 
-        if (offset == 450) {
-          this.clearStreamingTimer();
-        }
-
-        $.each(data, function(i, m) { m.id = offset+1;})
+        if (offset == 450) this.clearStreamingTimer();
+        
+        for(var i = 0, l = data.length; i < l; i++)
+          data[i].id = offset + i + 1;
       },
       after_add: function(data){
         var percent = (this.data.length - 250)*100/250;
