@@ -53,9 +53,22 @@ var MovieFilter = function(data){
     return template(movie);
   };
   var callbacks = {
-    show_search_count: function(result){
+    after_filter: function(result){
       $('#total_movies').text(result.length);
     },
+    before_add: function(data){
+      var offset = this.data.length;
+
+      if (offset == 450) this.clearStreamingTimer();
+      
+      for(var i = 0, l = data.length; i < l; i++)
+        data[i].id = offset + i + 1;
+    },
+    after_add: function(data){
+      var percent = (this.data.length - 250)*100/250;
+      $('#stream_progress').text(percent + '%').attr('style', 'width: '+ percent +'%;');
+      if (percent == 100) $('#stream_progress').parent().fadeOut(1000);
+    }
   };
 
   options = {
@@ -71,20 +84,7 @@ var MovieFilter = function(data){
     streaming: {
       data_url: 'data/top_movies_data.json', 
       stream_after: 1,
-      batch_size: 50,
-      before_add: function(data){
-        var offset = this.data.length;
-
-        if (offset == 450) this.clearStreamingTimer();
-        
-        for(var i = 0, l = data.length; i < l; i++)
-          data[i].id = offset + i + 1;
-      },
-      after_add: function(data){
-        var percent = (this.data.length - 250)*100/250;
-        $('#stream_progress').text(percent + '%').attr('style', 'width: '+ percent +'%;');
-        if (percent == 100) $('#stream_progress').parent().fadeOut(1000);
-      }
+      batch_size: 50
     }
   }
 

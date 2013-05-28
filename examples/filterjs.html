@@ -38,10 +38,6 @@
               <input id="handlebars_renderer"  type="checkbox" name="rendering_type" value="handlebars">
               <span >Handlebars.js Rendering</span>
               </li>
-              <li>
-              <input id="custom_renderer"  type="checkbox" name="rendering_type" value="custom">
-              <span >Custom filter.js Rendering</span>
-              </li>
             </ul>
           </div>
         </div>  
@@ -263,9 +259,9 @@ type="checkbox">
        <a title="{{title}}" href="/demo/{{to_param}}">
          <div class="fs_box">
            <div class="fs_left">
-             <span class="fs_head">{{short_title}}</span>
+             <span class="fs_head">{{title}}</span>
              <span class="fs_for">for</span>
-             <span class="fs_disc">{{short_nonprofit_name}}</span>
+             <span class="fs_disc">{{nonprofit_name}}</span>
              <span class="fs_disc">{{timeleft_str}}</span>
            </div>
            <div class="fs_price">${{amount}}</div>

@@ -18,25 +18,21 @@ Capture the JSON data (maybe using @people.to_json).Here 'id' field is mandatory
                  ]
 
 View function call for every object of the people array. It will render 
-the HTML template.
+the HTML template.We can Mustache.js, Hogan.js, Handlebars.js for render view or just make html string and return from the view function.
+
+Without any rendering framework
 
     var view = function(person){
+        return "<a href='/demo/"+  person.id +"'>" +  
+               "<div class='name'>" + person.name + "</div>" + 
+               "<div class='age'>" + person.age + "</div>" + 
+               "<div class='country'>" + person.country + "</div>" + 
+               "</a>";
+    }
 
-      name    = this.span({'class': 'name'}, person.name);
-      age     = this.span({'class': 'age'},  person.age);
-      country = this.div({'class': 'country'}, person.country);
-    
-      return this.link('/demo/' + person.id ,{'title': person.name}, [name,age,country]);
-    };
 
-Suppose you require some HTML element which is not currently supported in filter.js,
-you can simply use the registerHtmlElement method to add this to your HTML views.
+Below explain rendering using Mustache.js.    
 
-    FilterJS.registerHtmlElement('article');
-
-    //Use arguments attributes, content
-    this.article({class: 'new'}, 'demo')
-  
 Filter criteria is defined in the follwing ways:(.EVENT. and .SELECT. option are not mandatory) 
 
     var settings = {
@@ -107,23 +103,27 @@ Filtering Callbacks
 Define callback in settings. Callbacks executes after each filtering events.(In examples folder: 'filterjs-map.html')
 
     var filter_callbacks = {
-        gmap: function(result){
+        after_init: function(record_ids){
+           //Call after init of filter.
+        },
+        after_filter: function(result){
           googleMap.updateMarkers(result);
+          //Tinysort integration
+          $('a[data-fjs]').tsort('.fs_price:visible', {order: 'asc'})
         },
-        logger: function(result){
-          console.log(result);
+        before_add: function(data){
+          //Process data before adding to filter while streaming.
         },
-        //Tinysort integration
-        tiny_sort: function() {
-           $('a[data-fjs]').tsort('.fs_price:visible', {order: 'asc'})
-        }
+        after_add: function(data){
+          //Call after adding data to filter.
+        },
     };
 
-If want to execute callback on init set configuration in setting
 
-    exec_callbacks_on_init: true
-  
-
+after_init   : Call after initialize of filter. Args: array of data record ids.
+after_filter : Call after filter event done.Args: array of filter data record ids.
+before_add   : Call before adding data to filter while streaming.One usecase is manupulate data before add to filter.Args: json data
+after_add    : Call after adding data to filter while streaming.Args: json data.
 
 
 Triggering the filter
@@ -184,7 +184,7 @@ Mustache.js integration
 
 [https://github.com/janl/mustache.js](https://github.com/janl/mustache.js)
 
-Define mustache.js template in html page.
+Define Mustache.js template in html page.
 
     <script id="person_template" type="text/mustache">
       <a href="/demo/{{id}}" title="{{name}}">
@@ -200,26 +200,6 @@ View function:
 
     var view = function(person){
         return Mustache.to_html(mustache_template, person);
-    };
-
-[https://github.com/jquery/jquery-tmpl](https://github.com/jquery/jquery-tmpl)
-
-Define jquery template in html page.
-
-    <script id="person_template" type="text/x-jquery-tmpl">
-      <a href="/demo/${id}" title="${name}">
-        <span class="name">${name}</span>
-        <span class="age">${age}</span>
-        <div class="country">${country}</div>
-      </a>
-    </script>
-
-View function:
-
-    var jquery_template = $("#person_template"); //Find template data.
-
-    var view = function(person){
-        return $.tmpl(jquery_template, person)
     };
 
 In Example you can also find template using Handlebars.js, Hogan.js.
@@ -312,9 +292,6 @@ To see the sample demo, clone this repo and open demo/filterjs.html in your brow
 Examples
 --------
 
-[GoodInKind Services](http://www.goodinkind.com/services)
-[GoodInKind NonProfits](http://www.goodinkind.com/nonprofits)
-[Dealacer (require soft registration)](http://dealacre.com/)
 [Tischefrei (search page)](http://tischefrei.de)
 
 
@@ -349,6 +326,9 @@ v1.4.1
 
 v1.5
   Streaming data using ajax.
+
+v1.5.1
+  Chnage callbacks format.
 
 Sponsors and Supporters
 -----------------------

@@ -65,8 +65,8 @@ jQuery(document).ready(function($) {
   // in the loaded data and define the filter afterwards
 
   // 1) In this case the ids for the filter are defined as a data attribute on the element (data-ids)
-    mf.addIdFilterCriteria('in_cinema',         '#in_cinema');
-    mf.addIdFilterCriteria('straight_to_video', '#straight_to_video');
+    mf.addFilterCriteria('in_cinema',         '#in_cinema');
+    mf.addFilterCriteria('straight_to_video', '#straight_to_video');
 
   // 2) In this case we load the filter manually but this can easily come from
   // an ajax request as well and then build the filter
@@ -85,7 +85,7 @@ jQuery(document).ready(function($) {
     });
 
     // No we bind the filter logic
-    mf.addIdFilterCriteria('top_worst', '#top_worst', top_worst_movie_filter_criteria_by_key);
+    mf.addFilterCriteria('top_worst', '#top_worst', top_worst_movie_filter_criteria_by_key);
 
 });
 
