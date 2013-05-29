@@ -84,40 +84,15 @@ function filterInit(template_type){
   var view = function(service){
     service.timeleft = Math.floor(Math.random()*10);
     service.timeleft_str = calulate_day_left(service.timeleft);
-    service.short_title = service.title.length < 27 ? service.title : service.title.substring(0,27) +'...';
-    service.short_nonprofit_name = service.nonprofit.name.length < 27 ? service.nonprofit.name : service.nonprofit.name.substring(0,27) +'...';
 
     return (template_type == 'hogan' ? template.render(service): template(service));
   };
 
-  var customView = function(service){
-    var service_title = service.title.length < 27 ? service.title : service.title.substring(0,27) +'...';
-    var nonprofit_name = service.nonprofit.name.length < 27 ? service.nonprofit.name : service.nonprofit.name.substring(0,27) +'...';
-    service.timeleft = Math.floor(Math.random()*10);
-
-    clear     = this.div({'class': 'clear'});
-    fs_price  = this.div({'class': 'fs_price'}, '$' + service.amount );
-    fs_head   = this.span({'class': 'fs_head'}, service_title);
-    fs_for    = this.span({'class': 'fs_for'}, 'for');
-    fs_disc   = this.span({'class': 'fs_disc'}, nonprofit_name);
-    time_left   = this.span({'class': 'fs_disc'},  calulate_day_left(service.timeleft));
-    fs_left   = this.div({'class': 'fs_left'}, [fs_head, fs_for, fs_disc, time_left]);
-    fs_box    = this.div({'class': 'fs_box'}, [fs_left, fs_price, clear ] );
-
-    return this.link('/demo/' + service.to_param ,{'title': service.title}, fs_box)
-  }
-
   var filter_callbacks = {
-    logger: function(result){
-      //console.log(result);
-    },
-
-    show_result_count: function(result){
+    after_filter: function(result) {
       $('.result_count').text('Found : ' + result.length);
-    },
-                     
-    tiny_sort: function() {
       $('a[data-fjs]').tsort('.fs_head:visible', {order: 'asc'});
+      //console.log(result);
     }
             
   };
@@ -151,8 +126,6 @@ function filterInit(template_type){
 
   //Note: For testing using root
   //services = $.map(services, function(e,i){ return {service: e}})
-
-  if(template_type == 'custom') view = customView;
 
   //var temp = services.slice();
   //for(var i = 0; i < 5; i++){

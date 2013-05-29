@@ -1,6 +1,6 @@
 /*
  * Filter.js
- * version: 1.5 (22/4/2013)
+ * version: 1.5.1 (22/4/2013)
  *
  * Licensed under the MIT:
  *   http://www.opensource.org/licenses/mit-license.php
@@ -19,7 +19,13 @@
     return new _FilterJS(data, container, view, options);
   };
 
-  FilterJS.VERSION = '1.5.0';
+  FilterJS.VERSION = '1.5.1';
+
+  $.fn.filterjs = function(data, view, options) {
+    var $this = $(this);
+    if ($this.data('fjs')) return;
+    $this.data('fjs', new _FilterJS(data, $this, view, options));
+  };
 
   window.FilterJS = FilterJS;
 
@@ -52,9 +58,8 @@
     this.buildCategoryMap(this.data);
     this.bindEvents();
 
-    if (this.options.exec_callbacks_on_init && this.options.callbacks)
-      this.execCallBacks(this.record_ids);
-
+    this.options.callbacks = this.options.callbacks || {};
+    this.execCallBack('after_init', this.record_ids);
     this.options.filter_types = this.options.filter_types || {};
 
     if (!this.options.filter_types['range'])
@@ -73,7 +78,7 @@
   _FilterJS.prototype = {
 
     //Render Html using JSON data
-    render: function(data) {
+    render: function(data, offset) {
       var $container = $(this.container), record, el;
 
       if (!data) return;
@@ -147,7 +152,7 @@
       
       this.hideShow(result);
 
-      if (this.options.callbacks) this.execCallBacks(result);
+      this.execCallBack('after_filter', result);
     },
 
     //Compare and collect objects
@@ -184,7 +189,7 @@
       return eval_str;
     },
 
-    addIdFilterCriteria: function(name, criteria, ids_or_mapping) {
+    addFilterCriteria: function(name, criteria, ids_or_mapping) {
       this.categories_map[name] = {};
 
       var selector = this.parseSelectorOptions({name: name}, [criteria]);
@@ -295,9 +300,9 @@
       });
     },
 
-    execCallBacks: function(result){
-      for (name in this.options.callbacks)
-        this.options.callbacks[name].call(this, result);
+    execCallBack: function(type, result){
+      if(this.options.callbacks[type]) 
+        this.options.callbacks[type].call(this, result)
     },
 
     rangeFilter: function(category_value, v){
@@ -324,55 +329,10 @@
       return records; 
     },
 
-    /**
-     * Tag to make html elements.
-     * i.e this.content_tag('span', {class: 'logo_text'}, "Logo Text")
-     * First argument is tag name
-     * Second argument is attributes class,title,id etc.	
-     * Last argument is array of html elements or text.
-     **/
-    content_tag: function(tag, attrs, content) {
-      var $el = $(document.createElement(tag)), i = 0, j,c;
-
-      if (attrs) $el.attr(attrs);
-      if (content) {
-        if (content.constructor == Array) {
-          for (i, j = content.length; i < j; i++){
-            if (c = content[i]) $el.append(c.constructor == String ? c : $(c));
-          }
-        }
-        else {
-          $el.html(content);
-        }
-      }
-      return $el[0];
-    },
-
-    /**
-     * Link Tag:
-     * i.e. this.link('/test/1' ,{'title': 'title'}, 'link text')	
-     **/
-    link: function(url, attrs, content) {
-      attrs = attrs || {};
-      attrs['href'] = url;
-      return this.content_tag('a', attrs, content)
-    },
-
-    /** 
-     * Image Tag:
-     * i.e. this.image('/test.png', {class: 'image'})
-     **/
-    image: function(url, attrs) {
-      attrs = attrs || {};
-      attrs['src'] = url;
-      return this.content_tag('img', attrs)
-    },
-
     addData: function(data){
       var i = 0, l = data.length, r, uniq_data = [], e_id = '#' + this.root + '_';
 
-      if (this.options.streaming.before_add) 
-        this.options.streaming.before_add.call(this, data);
+      this.execCallBack('before_add', data)
 
       for (i, l; i < l; i++){
         r = this.getRecord(i, data);
@@ -385,10 +345,8 @@
         this.buildCategoryMap(uniq_data);
       }
 
-      if (this.options.streaming.after_add) 
-        this.options.streaming.after_add.call(this, data);
-
-       this.filter();
+      this.execCallBack('after_add', data)
+      this.filter();
     },
 
     setStreamingTimer: function(){
@@ -414,27 +372,13 @@
       if (opts.batch_size) params['limit'] = opts.batch_size;
       if (this.options.search) params['q'] = $.trim($(this.options.search.input).val()); 
 
-
       $.getJSON(opts.data_url, params).done(function(data){
-        if (data && data.length > 0){
-          self.addData(data);
-        }else{
-          clearTimeout(self.timer);
-        }
+        (data && data.length > 0) ? self.addData(data) : clearTimeout(self.timer)
       });
     }
 
-  };
+}
 
-  FilterJS.registerHtmlElement = function(tag_name){
-    _FilterJS.prototype[tag_name] = function(attrs, content){
-      return _FilterJS.prototype.content_tag(tag_name, attrs, content);
-    }
-  };
-
-  $.each(['div', 'span', 'li', 'ul', 'p'], function(i, t){
-    FilterJS.registerHtmlElement(t);
-  });
 
 })(this);
 

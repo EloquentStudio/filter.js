@@ -6,6 +6,7 @@
     <link href="assets/css/style.css" media="screen" rel="stylesheet" type="text/css">
     <script src="assets/js/jquery.min.js" type="text/javascript"></script>
     <script src="assets/js/jquery-ui-1.10.2.custom.min.js" type="text/javascript"></script>
+    <script src="vendors/mustache.js" type="text/javascript"></script>
     <script src="filter.js" type="text/javascript"></script>
     <script src="http://maps.googleapis.com/maps/api/js?key=AIzaSyBWcRdeBybFQUpx5tyfIw1QbwskiRuFsdc&sensor=true"
       type="text/javascript"></script>
@@ -97,6 +98,20 @@
           </script>
       <div class="clear"></div>
     </div>
+    <script id="template" type="text/html">
+       <a title="{{title}}" href="/demo/{{to_param}}">
+         <div class="fs_box">
+           <div class="fs_left">
+             <span class="fs_head">{{title}}</span>
+             <span class="fs_for">for</span>
+             <span class="fs_disc">{{nonprofit_name}}</span>
+             <span class="fs_disc">{{timeleft_str}}</span>
+           </div>
+           <div class="fs_price">${{amount}}</div>
+           <div class="clear"></div>
+        </div>
+      </a>
+    </script>
 
 </body>
 </html>

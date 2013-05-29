@@ -10,46 +10,27 @@ jQuery(document).ready(function(){
 });
 
 function filterInit(filter_type){
-
-  var calulate_day_left = function(days){
-    if(days == 0) return 'Last Day';
-    else if(days == 1) return '1 day Left';
-    else return days + ' day Left';
-  };
+  var template, html = $.trim($("#template").html());
+  template = Mustache.compile(html);
 
   var view = function(service){
-    var service_title = service.title.length < 27 ? service.title : service.title.substring(0,27) +'...'
-    var nonprofit_name = service.nonprofit.name.length < 27 ? service.nonprofit.name : service.nonprofit.name.substring(0,27) +'...'
     var lat_lng = googleMap.ranndomLatLng();
-    
-    service.timeleft = Math.floor(Math.random()*10);
-    clear     = this.div({'class': 'clear'});
-    fs_price  = this.div({'class': 'fs_price'}, '$' + service.amount );
-    fs_head   = this.span({'class': 'fs_head'}, service_title);
-    fs_for    = this.span({'class': 'fs_for'}, 'for');
-    fs_disc   = this.span({'class': 'fs_disc'}, nonprofit_name);
-    time_left   = this.span({'class': 'fs_disc'},  calulate_day_left(service.timeleft));
-    fs_left   = this.div({'class': 'fs_left'}, [fs_head, fs_for, fs_disc, time_left]);
-    fs_box    = this.div({'class': 'fs_box'}, [fs_left, fs_price, clear ] );
-
     service.lat = lat_lng[0];
     service.lng = lat_lng[1];
-    
+    service.timeleft = Math.floor(Math.random()*10);
+    service.timeleft_str = service.timeleft == 0 ? 'Last day' : service.timeleft > 0 ? (service.timeleft + ' days left') : '1 Day Left'
+
     googleMap.addMarker(service);
 
-    return this.link('/demo/' + service.to_param ,{'title': service.title}, fs_box);
+    return template(service);
   };
 
   var filter_callbacks = {
-    gmap: function(result){
+    after_filter: function(result){
       $('#result_count').text('Found : ' + result.length);
       googleMap.updateMarkers(result); 
-    },
-
-    logger: function(result){
       //console.log(result);
     }
-
   };
 
   var settings = {
@@ -58,7 +39,6 @@ function filterInit(filter_type){
     },
     and_filter_on: true, //If any filter selection is zero then select none. For 'OR' filter set 'false'
     callbacks: filter_callbacks //Filter callback execute in filter init and each filtering event.
-    //exec_callbacks_on_init: true
   };
 
   googleMap.init();
