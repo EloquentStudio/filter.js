@@ -120,10 +120,10 @@ Define callback in settings. Callbacks executes after each filtering events.(In 
     };
 
 
-after_init   : Call after initialize of filter. Args: array of data record ids.
-after_filter : Call after filter event done.Args: array of filter data record ids.
-before_add   : Call before adding data to filter while streaming.One usecase is manupulate data before add to filter.Args: json data
-after_add    : Call after adding data to filter while streaming.Args: json data.
+- after_init   : Call after initialize of filter. Args: array of data record ids.
+- after_filter : Call after filter event done.Args: array of filter data record ids.
+- before_add   : Call before adding data to filter while streaming.One usecase is manupulate data before add to filter.Args: json data
+- after_add    : Call after adding data to filter while streaming.Args: json data.
 
 
 Triggering the filter
