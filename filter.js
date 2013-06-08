@@ -124,32 +124,38 @@
       this.category_map = null;
       this.record_ids = null;
     },
-                  
+
     //Find elements accroding to selection criteria.
     filter: function(){
       var result, s, selected_vals, records, selected_none = false, i = 0, l = this.options.selectors.length;
 
       for (i; i < l; i++){
         s = this.options.selectors[i];
-        selected_vals = $(s.element).filter(s.select).map(function() {
-          return $(this).val();
-        });
+	// Apply filter unless element's value is 'all'.
+	// This approach is useful when we need a reset option (e.g. "All")
+	// for a select box. If element's value matched as 'all', then it will
+	// neither apply filter nor will give zero results for that value.
+	if($(s.element).filter(s.select).val() != "all") {
+	  selected_vals = $(s.element).filter(s.select).map(function() {
+	    return $(this).val();
+	  });
 
-        if (selected_vals.length) {
-          records = this.findObjects(selected_vals, this.categories_map[s.name], this.options.filter_types[s.type]);
+	  if (selected_vals.length) {
+	    records = this.findObjects(selected_vals, this.categories_map[s.name], this.options.filter_types[s.type]);
 
-          result = $.grep((result || this.record_ids), function(v) {
-            return (records.indexOf(v) != -1);
-          });
-        }else{
-          selected_none = true;
+	    result = $.grep((result || this.record_ids), function(v) {
+	      return (records.indexOf(v) != -1);
+	    });
+	  }else{
+	    selected_none = true;
+	  }
         }
       }
 
       if (selected_none && this.options.and_filter_on) result = [];
 
       if (this.options.search) result = this.search(this.options.search, result);
-      
+
       this.hideShow(result);
 
       this.execCallBack('after_filter', result);
