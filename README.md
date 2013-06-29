@@ -215,9 +215,9 @@ Add default search option in filter setting.
 Custom search for particular fields. 
 Custom search config for above html template 'a' tag(filtering item), if we want to search by only 'name' and 'age' 
 
-'field_selector' is html element selector inside the item html.
+'search_in' is html element selector inside the item html.
 
-    search: {input: '#searchbox', field_selector: '.name, .age' }
+    search: {input: '#searchbox', search_in: '.name, .age' }
 
 Custom Filter Types
 --------------------

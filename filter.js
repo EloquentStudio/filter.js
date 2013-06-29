@@ -287,14 +287,14 @@
           
       if (val.length < 2) return filter_result;
 
-      var serach_in = search_config.serach_in;
+      var search_in = search_config.search_in;
       var id_prefix = '#' + this.root + '_';
       val = val.toUpperCase();
 
       return $.map(filter_result, function(id){
         var $ele = $(id_prefix + id);
 
-        if (serach_in) $ele = $ele.find(serach_in); 
+        if (search_in) $ele = $ele.find(search_in); 
 
         if ($ele.text().toUpperCase().indexOf(val) >= 0) return id;
       });
