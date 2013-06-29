@@ -328,7 +328,7 @@ v1.5
   Streaming data using ajax.
 
 v1.5.1
-  Chnage callbacks format.
+  Change callbacks format.
 
 Sponsors and Supporters
 -----------------------
