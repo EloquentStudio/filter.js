@@ -215,9 +215,20 @@ Add default search option in filter setting.
 Custom search for particular fields. 
 Custom search config for above html template 'a' tag(filtering item), if we want to search by only 'name' and 'age' 
 
-'field_selector' is html element selector inside the item html.
+'search_in' is html element selector inside the item html.
 
-    search: {input: '#searchbox', field_selector: '.name, .age' }
+    search: {input: '#searchbox', search_in: '.name, .age' }
+
+min_length:
+
+Inspired by the 'minLength' option in Jquery's Autocomplete Widget, the 'min_length' specifies the minimum number of characters a user must type before a search is performed.
+'1' is the default value and is useful for local data with just a few items, but a higher value should be used when a single character search could match a few thousand items.
+
+Code examples:
+
+Initialize the filter with the 'min_length' option specified:
+
+	search: { input: '#searchbox', search_in: 'div.fs_head', min_length: 3 },
 
 Custom Filter Types
 --------------------
@@ -328,8 +339,11 @@ v1.5
   Streaming data using ajax.
 
 v1.5.1
-  Chnage callbacks format.
-
+  Change callbacks format.
+  
+v1.5.2
+  Initialize the filter with the min_length option specified.
+  
 Sponsors and Supporters
 -----------------------
 
