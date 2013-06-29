@@ -219,6 +219,17 @@ Custom search config for above html template 'a' tag(filtering item), if we want
 
     search: {input: '#searchbox', search_in: '.name, .age' }
 
+min_length:
+
+Inspired by the 'minLength' option in Jquery's Autocomplete Widget, the 'min-length' specifies the minimum number of characters a user must type before a search is performed.
+'1' is the default value and is useful for local data with just a few items, but a higher value should be used when a single character search could match a few thousand items.
+
+Code examples:
+
+Initialize the filter with the 'min-length' option specified:
+
+	search: { input: '#searchbox', search_in: 'div.fs_head', min_length: 3 },
+
 Custom Filter Types
 --------------------
 
@@ -329,7 +340,10 @@ v1.5
 
 v1.5.1
   Change callbacks format.
-
+  
+v1.5.2
+  Initialize the filter with the min-length option specified.
+  
 Sponsors and Supporters
 -----------------------
 
