@@ -11,6 +11,8 @@ jQuery(document).ready(function(){
 
 function filterInit(filter_type){
 
+  var template = Mustache.compile($.trim($("#template").html()));
+
   var view = function(service){
     var lat_lng = googleMap.ranndomLatLng();
     service.lat = lat_lng[0];
