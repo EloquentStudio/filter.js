@@ -69,7 +69,7 @@
     if (this.options.streaming.data_url){
       this.options.streaming.stream_after = (this.options.streaming.stream_after || 2)*1000;
       this.options.streaming.batch_size = this.options.streaming.batch_size || false;
-      this.timer = this.setStreamingTimer();
+      this.streamData(this.options.streaming.stream_after);
     }
     
     return this;
@@ -283,23 +283,23 @@
     },
 
     search: function (search_config, filter_result) {
-		var val = $.trim($(search_config.input).val());
-		var search_in = search_config.search_in;
-		var min_length = $.isNumeric(search_config.min_length) ? search_config.min_length : 1;
+  		var val = $.trim($(search_config.input).val());
+	  	var search_in = search_config.search_in;
+		  var min_length = $.isNumeric(search_config.min_length) ? search_config.min_length : 1;
 
-		if (val.length < min_length) return filter_result;
+		  if (val.length < min_length) return filter_result;
 
-		var id_prefix = '#' + this.root + '_';
-		val = val.toUpperCase();
+		  var id_prefix = '#' + this.root + '_';
+		  val = val.toUpperCase();
 
-		return $.map(filter_result, function (id) {
-			var $ele = $(id_prefix + id);
+		  return $.map(filter_result, function (id) {
+			  var $ele = $(id_prefix + id);
 
-			if (search_in) $ele = $ele.find(search_in);
-
-			if ($ele.text().toUpperCase().indexOf(val) >= 0) return id;
-		});
-	},
+			  if (search_in) $ele = $ele.find(search_in);
+  
+	  		if ($ele.text().toUpperCase().indexOf(val) >= 0) return id;
+		  });
+	  },
 
     execCallBack: function(type, result){
       if(this.options.callbacks[type]) 
@@ -331,22 +331,21 @@
     },
 
     addData: function(data){
+      if (data == undefined || data.length == 0 ) return;
+
       var i = 0, l = data.length, r, uniq_data = [], e_id = '#' + this.root + '_';
 
       this.execCallBack('before_add', data)
 
-      for (i, l; i < l; i++){
-        r = this.getRecord(i, data);
-        if ($(e_id + r.id).length == 0) uniq_data.push(data[i]);
-      }
+      //for (i, l; i < l; i++){
+      //  r = this.getRecord(i, data);
+      //  if ($(e_id + r.id).length == 0) uniq_data.push(data[i]);
+      //}
 
-      if (uniq_data.length){
-        this.data = this.data.concat(uniq_data);
-        this.render(uniq_data);
-        this.buildCategoryMap(uniq_data);
-      }
-
-      this.execCallBack('after_add', data)
+      this.data = this.data.concat(data);
+      this.render(data);
+      this.buildCategoryMap(data);
+      this.execCallBack('after_add', this.data)
       this.filter();
     },
 
@@ -363,7 +362,7 @@
       if (this.timer) clearTimeout(this.timer);
     },
 
-    streamData: function(){
+    fetchData: function(){
       var self = this, 
           params = this.options.params || {},
           opts = this.options.streaming;
@@ -374,8 +373,41 @@
       if (this.options.search) params['q'] = $.trim($(this.options.search.input).val()); 
 
       $.getJSON(opts.data_url, params).done(function(data){
-        (data && data.length > 0) ? self.addData(data) : clearTimeout(self.timer)
+
+        if (params.limit != null && (!data || !data.length)){
+          self.stopStreaming();
+        }else{
+          self.setStreamInterval();
+          self.addData(data);
+        }
+
+      }).fail(function(e){
+        self.stopStreaming();
       });
+    },
+
+    setStreamInterval: function(){
+      var self = this;
+      if(self.options.streaming.stop_streaming == true) return;
+
+      self.timer = setTimeout(function(){
+        self.fetchData();
+      }, self.options.streaming.stream_after);
+    },
+
+    stopStreaming: function(){
+      this.options.streaming.stop_streaming = true;
+      if (this.timer) clearTimeout(this.timer);
+    },
+
+    resumeStreaming: function(){
+      this.options.streaming.stop_streaming = false;
+      this.streamData(this.options.streaming.stream_after);
+    },
+
+    streamData: function(time){
+      this.setStreamInterval();
+      if(!this.options.streaming.batch_size) this.stopStreaming();
     }
 
 }
