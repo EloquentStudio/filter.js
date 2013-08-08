@@ -60,6 +60,7 @@
 
     this.options.callbacks = this.options.callbacks || {};
     this.execCallBack('after_init', this.record_ids);
+    this.execCallBack('after_add', this.data);
     this.options.filter_types = this.options.filter_types || {};
 
     if (!this.options.filter_types['range'])
@@ -345,7 +346,7 @@
       this.data = this.data.concat(data);
       this.render(data);
       this.buildCategoryMap(data);
-      this.execCallBack('after_add', this.data)
+      this.execCallBack('after_add', data)
       this.filter();
     },
 
