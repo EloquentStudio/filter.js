@@ -290,6 +290,11 @@ Add streaming option to above define 'settings'.
   
    persons.json?offset=0&limit=50&q='search text'
 
+Options
+-------
+
+- Default primary key for indexing array is 'id' field or json object. To change this field set 'id_field' option.
+
 Demo
 ----
 To see the sample demo, clone this repo and open demo/filterjs.html in your browser

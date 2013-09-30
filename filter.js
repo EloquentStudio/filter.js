@@ -53,6 +53,7 @@
       this.root = 'fjs';
     }
 
+    this.id_field = this.options.id_field || 'id';
     this.render(this.data);
     this.parseOptions();
     this.buildCategoryMap(this.data);
@@ -87,7 +88,7 @@
       for (var i = 0, l = data.length; i < l; i++){
         record = this.getRecord(i, data);
         el = $(this.view(record));
-        el.attr({id: this.root + '_' + record.id, 'data-fjs': true});
+        el.attr({id: this.root + '_' + record[this.id_field], 'data-fjs': true});
         el = $container.append(el);
       }
     },
@@ -256,7 +257,7 @@
 
       for (var i = 0, l = data.length; i < l; i++){
         record = this.getRecord(i, data);
-        this.record_ids.push(record.id);
+        this.record_ids.push(record[this.id_field]);
 
         for (name in filter_criteria) {
           categories = eval('record.' + filter_criteria[name][2]);
@@ -265,10 +266,10 @@
           if (categories && categories.constructor == Array) {
             for (var j = 0, lj = categories.length; j < lj; j++){
               x = categories[j];
-              obj[x] ? obj[x].push(record.id) : obj[x] = [record.id];
+              obj[x] ? obj[x].push(record[this.id_field]) : obj[x] = [record[this.id_field]];
             }
           } else {
-            obj[categories] ? obj[categories].push(record.id) : obj[categories] = [record.id];
+            obj[categories] ? obj[categories].push(record[this.id_field]) : obj[categories] = [record[this.id_field]];
           }
         }
       }
@@ -325,7 +326,7 @@
 
       for (i; i < l; i++){
         r = this.getRecord(i, this.data);
-        if (ids.indexOf(r.id) != -1) records.push(r)
+        if (ids.indexOf(r[this.id_field]) != -1) records.push(r)
       }
 
       return records; 
