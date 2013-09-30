@@ -34,6 +34,7 @@ function filterInit() {
     },
     search: {input: '#search_box' },
     and_filter_on: true,
+    id_field: 'id' //Default is id. This is only for usecase
   };
 
   return FilterJS(services, "#service_list", view, settings);
