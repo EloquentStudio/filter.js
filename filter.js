@@ -130,25 +130,27 @@
     //Find elements accroding to selection criteria.
     filter: function(){
       var result, s, selected_vals, records, selected_none = false, i = 0, l = this.options.selectors.length;
+
+      //Check if criteria option is specified
       if(l) {
-      for (i; i < l; i++){
-          s = this.options.selectors[i];
-          selected_vals = $(s.element).filter(s.select).map(function() {
-            return $(this).val();
-          });
-
-          if (selected_vals.length) {
-            records = this.findObjects(selected_vals, this.categories_map[s.name], this.options.filter_types[s.type]);
-
-            result = $.grep((result || this.record_ids), function(v) {
-              return (records.indexOf(v) != -1);
+        for (i; i < l; i++){
+            s = this.options.selectors[i];
+            selected_vals = $(s.element).filter(s.select).map(function() {
+              return $(this).val();
             });
-          }else{
-            selected_none = true;
-          }
-        }
 
-        if (selected_none && this.options.and_filter_on) result = [];
+            if (selected_vals.length) {
+              records = this.findObjects(selected_vals, this.categories_map[s.name], this.options.filter_types[s.type]);
+
+              result = $.grep((result || this.record_ids), function(v) {
+                return (records.indexOf(v) != -1);
+              });
+            }else{
+              selected_none = true;
+            }
+          }
+
+          if (selected_none && this.options.and_filter_on) result = [];
       }
       else{
         result = this.record_ids;
