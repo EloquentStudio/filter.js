@@ -73,6 +73,8 @@
       this.options.streaming.batch_size = this.options.streaming.batch_size || false;
       this.streamData(this.options.streaming.stream_after);
     }
+
+    this.filter();
     
     return this;
   };
