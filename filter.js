@@ -368,24 +368,24 @@
 		if(filter){
 			// rerun filter
 			this.filter();
-		}
 
-		// add jquery on click event to select a page
-		$('.page').on('click', function(){
-			if($(this).hasClass('disabled')){
-				return false;
-			}
-			var page = parseInt(jQuery(this).text());
-			if($(this).hasClass('next')){
-				page = fJS.page+1;
-			}else{
-				if($(this).hasClass('prev')){
-					page = fJS.page-1;
+			// add jquery on click event to select a page
+			$('.page').on('click', function(){
+				if($(this).hasClass('disabled')){
+					return false;
 				}
-			}
-			fJS.pagination(page);
-			return false;
-		});
+				var page = parseInt(jQuery(this).text());
+				if($(this).hasClass('next')){
+					page = fJS.page+1;
+				}else{
+					if($(this).hasClass('prev')){
+						page = fJS.page-1;
+					}
+				}
+				fJS.pagination(page);
+				return false;
+			});
+		}
 	},
 
     search: function (search_config, filter_result) {
