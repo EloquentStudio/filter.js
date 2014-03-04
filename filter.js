@@ -38,6 +38,10 @@
     this.options = options || {};
     this.categories_map = {}
     this.record_ids = [];
+	this.page = 1;
+	this.pages = 1;
+  	this.perPage = options.perPage || 5;
+  	this.range = options.range || 5;
 
     if (this.data.constructor != Array) this.data = [this.data];
 
@@ -74,7 +78,7 @@
       this.streamData(this.options.streaming.stream_after);
     }
 
-    this.filter();
+    this.pagination(this.page);
     
     return this;
   };
@@ -112,11 +116,12 @@
 
     bindSelectorEvent: function(selector, context) {
       $(selector.element).on(selector.events, function(e) {
-        context.filter();
+        //Set page = 1 on new filter-settings
+        context.pagination(1);
       });
     },
 
-    //Unbind fileter events
+    //Unbind filter events
     clear: function() {
       var s = this.options.selectors, i = 0, l = s.length;
 
@@ -283,13 +288,104 @@
     },
 
     hideShow: function(ids) {
-      var e_id = '#' + this.root + '_', i = 0, l = ids.length;
+      var e_id = '#' + this.root + '_',
+		  from = this.page*this.perPage-this.perPage,
+		  until = this.page*this.perPage,
+		  results = ids.length;
 
       $(this.container + ' > *[data-fjs]').hide();
 
-      for (i; i < l; i++)
-        $(e_id + ids[i]).show();
+      for (from; from < until; from++){
+		  $(e_id + ids[from]).show();
+	  }
+
+	  this.pages = Math.ceil(results/this.perPage);
+	  this.pagination(this.page, false);
     },
+
+	pagination: function(page, filter){
+		//Set default value
+		if(filter == undefined){
+			filter = true;
+		}
+
+		//Hide pagination if there are no results
+		if(this.pages < 1){
+			$(this.container + ' > .pagination').hide();
+			if(filter){
+				this.filter();
+			}
+			return false;
+		}
+
+		$(this.container + ' > .pagination').show();
+		if(page > this.pages || this.pages < 1){
+			page = 1;
+		}
+		this.page = page;
+
+		//Create prev-link
+		var content = '<a href="#" class="page prev';
+		if(this.page-1 <= 0){
+			content += ' disabled';
+		}
+		content += '">&laquo;</a> ';
+
+		for(var i=1; i <= this.pages; i++){
+			//Shrink pages below range
+			if(i > 1 && i < this.page-this.range && i < this.range*2+3 && i < this.pages-(this.range*2+2)){
+				content += '<a href="#" class="page disabled">&hellip;</a> ';
+				if(this.page-this.range > this.pages-(this.range*2+2)){
+					i = this.pages-(this.range*2+2);
+				}else{
+					i = this.page-this.range;
+				}
+			}
+
+			//Shrink pages higher range
+			if(i > this.page+this.range && i < this.pages && i > this.range*2+3 && this.page <= this.pages-(this.range*2)+2){
+				content += '<a href="#" class="page disabled">&hellip;</a>';
+				i = this.pages;
+			}
+
+			//Display range
+			content += '<a href="#" class="page';
+			if(i == this.page){
+				content += ' cur disabled';
+			}
+			content += '">' + i + '</a> ';
+		}
+
+		//Create next-link
+		content += '<a href="#" class="page next';
+		if(this.page+1 > this.pages){
+			content += ' disabled';
+		}
+		content += '">&raquo;</a>';
+
+		$(this.container + ' > .pagination').html(content);
+		if(filter){
+			//Rerun filter
+			this.filter();
+
+			//Add jquery on click event to select a page
+			$('.page').on('click', function(){
+				if($(this).hasClass('disabled')){
+					return false;
+				}
+				var page = parseInt(jQuery(this).text());
+				if($(this).hasClass('next')){
+					page = fJS.page+1;
+				}else{
+					if($(this).hasClass('prev')){
+						page = fJS.page-1;
+					}
+				}
+				fJS.pagination(page);
+				return false;
+			});
+		}
+	},
 
     search: function (search_config, filter_result) {
   		var val = $.trim($(search_config.input).val());
@@ -355,7 +451,7 @@
       this.render(data);
       this.buildCategoryMap(data);
       this.execCallBack('after_add', data)
-      this.filter();
+      this.pagination(this.page);
     },
 
     setStreamingTimer: function(){
