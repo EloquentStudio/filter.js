@@ -6,7 +6,7 @@
  *   http://www.opensource.org/licenses/mit-license.php
  *
  * Copyright 2013 Jiren Patel[ joshsoftware.com ]
- *
+ * 
  * Dependency:
  *  jQuery(v1.8 >=)
  */
@@ -79,7 +79,7 @@
     }
 
     this.pagination(this.page);
-
+    
     return this;
   };
 
@@ -116,9 +116,9 @@
 
     bindSelectorEvent: function(selector, context) {
       $(selector.element).on(selector.events, function(e) {
-        // set page = 1 on new filter-settings
+        //Set page = 1 on new filter-settings
         this.page = 1;
-		context.filter();
+        context.filter();
       });
     },
 
@@ -134,7 +134,7 @@
       this.category_map = null;
       this.record_ids = null;
     },
-
+                  
     //Find elements accroding to selection criteria.
     filter: function(){
       var result, s, selected_vals, records, selected_none = false, i = 0, l = this.options.selectors.length;
@@ -165,7 +165,7 @@
       }
 
       if (this.options.search) result = this.search(this.options.search, result);
-
+      
       this.hideShow(result);
       this.execCallBack('after_filter', result);
     },
@@ -176,7 +176,7 @@
 
       for (i; i < l; i++){
         category_val = category_vals[i];
-
+        
         if (filter_type_func){
           ids = $.map(category_map, function(n,v){
             if (filter_type_func(category_val, v)) return n;
@@ -305,12 +305,12 @@
     },
 
 	pagination: function(page, filter){
-		// set default value
+		//Set default value
 		if(filter == undefined){
 			filter = true;
 		}
 
-		// hide pagination if there are no results
+		//Hide pagination if there are no results
 		if(this.pages < 1){
 			$(this.container + ' > .pagination').hide();
 			if(filter){
@@ -325,7 +325,7 @@
 		}
 		this.page = page;
 
-		// create prev-link
+		//Create prev-link
 		var content = '<a href="#" class="page prev';
 		if(this.page-1 <= 0){
 			content += ' disabled';
@@ -333,7 +333,7 @@
 		content += '">&laquo;</a> ';
 
 		for(var i=1; i <= this.pages; i++){
-			// shrink pages below range
+			//Shrink pages below range
 			if(i > 1 && i < this.page-this.range && i < this.range*2+3 && i < this.pages-(this.range*2+2)){
 				content += '<a href="#" class="page disabled">&hellip;</a> ';
 				if(this.page-this.range > this.pages-(this.range*2+2)){
@@ -343,13 +343,13 @@
 				}
 			}
 
-			// shrink pages higher range
+			//Shrink pages higher range
 			if(i > this.page+this.range && i < this.pages && i > this.range*2+3 && this.page <= this.pages-(this.range*2)+2){
 				content += '<a href="#" class="page disabled">&hellip;</a>';
 				i = this.pages;
 			}
 
-			// display range
+			//Display range
 			content += '<a href="#" class="page';
 			if(i == this.page){
 				content += ' cur disabled';
@@ -357,7 +357,7 @@
 			content += '">' + i + '</a> ';
 		}
 
-		// create next-link
+		//Create next-link
 		content += '<a href="#" class="page next';
 		if(this.page+1 > this.pages){
 			content += ' disabled';
@@ -366,10 +366,10 @@
 
 		$(this.container + ' > .pagination').html(content);
 		if(filter){
-			// rerun filter
+			//Rerun filter
 			this.filter();
 
-			// add jquery on click event to select a page
+			//Add jquery on click event to select a page
 			$('.page').on('click', function(){
 				if($(this).hasClass('disabled')){
 					return false;
@@ -402,13 +402,13 @@
 			  var $ele = $(id_prefix + id);
 
 			  if (search_in) $ele = $ele.find(search_in);
-
+  
 	  		if ($ele.text().toUpperCase().indexOf(val) >= 0) return id;
 		  });
 	  },
 
     execCallBack: function(type, result){
-      if(this.options.callbacks[type])
+      if(this.options.callbacks[type]) 
         this.options.callbacks[type].call(this, result)
     },
 
@@ -433,7 +433,7 @@
         if (ids.indexOf(r[this.id_field]) != -1) records.push(r)
       }
 
-      return records;
+      return records; 
     },
 
     addData: function(data){
@@ -456,7 +456,7 @@
     },
 
     setStreamingTimer: function(){
-      var self = this,
+      var self = this, 
           timer_func = this.options.streaming.batch_size ? setInterval : setTimeout;
 
       return timer_func(function(){
@@ -469,14 +469,14 @@
     },
 
     fetchData: function(){
-      var self = this,
+      var self = this, 
           params = this.options.params || {},
           opts = this.options.streaming;
 
       params['offset'] = this.data.length;
 
       if (opts.batch_size) params['limit'] = opts.batch_size;
-      if (this.options.search) params['q'] = $.trim($(this.options.search.input).val());
+      if (this.options.search) params['q'] = $.trim($(this.options.search.input).val()); 
 
       $.getJSON(opts.data_url, params).done(function(data){
 
