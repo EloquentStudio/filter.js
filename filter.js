@@ -117,8 +117,7 @@
     bindSelectorEvent: function(selector, context) {
       $(selector.element).on(selector.events, function(e) {
         //Set page = 1 on new filter-settings
-        this.page = 1;
-        context.filter();
+        context.pagination(1);
       });
     },
 
