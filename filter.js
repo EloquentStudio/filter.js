@@ -74,7 +74,10 @@
       this.streamData(this.options.streaming.stream_after);
     }
 
-    this.filter();
+    if(this.options.filter_on_init == undefined || this.options.filter_on_init == true){
+      this.options.filter_on_init = true;
+      this.filter();
+    }
     
     return this;
   };

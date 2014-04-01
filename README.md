@@ -43,6 +43,7 @@ Filter criteria is defined in the follwing ways:(.EVENT. and .SELECT. option are
         },
        callbacks: filter_callbacks, //Define below.
        and_filter_on: false,
+       filter_on_init: false,  //By default it is true.
        search: { input: '#searchbox' }, 
        filter_types: filter_type_functions //Define below
     };
