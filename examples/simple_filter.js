@@ -34,6 +34,7 @@ function filterInit() {
     },
     search: {input: '#search_box' },
     and_filter_on: true,
+    callbacks: {}, // define call backs here, if needed
     id_field: 'id' //Default is id. This is only for usecase
   };
 

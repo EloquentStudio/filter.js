@@ -92,6 +92,9 @@
         el = $(this.view(record));
         el.attr({id: this.root + '_' + record[this.id_field], 'data-fjs': true});
         el = $container.append(el);
+
+        // Perform operations needed after rendering each record
+        this.execCallBack('after_render_record', record);
       }
     },
 
