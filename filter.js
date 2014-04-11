@@ -40,8 +40,9 @@
     this.record_ids = [];
 	this.page = 1;
 	this.pages = 1;
-  	this.perPage = options.perPage || 5;
+  	this.perPage = options.perPage || 6;
   	this.range = options.range || 5;
+  	this.pagination_container = options.pagination_container || '#pagination';
 
     if (this.data.constructor != Array) this.data = [this.data];
 
@@ -109,14 +110,13 @@
 
       if (this.options.search){
         $(this.options.search.input).on('keyup', function(e){
-          self.filter();
+			self.pagination(1);
         });
       }
     },
 
     bindSelectorEvent: function(selector, context) {
       $(selector.element).on(selector.events, function(e) {
-        //Set page = 1 on new filter-settings
         context.pagination(1);
       });
     },
@@ -311,14 +311,11 @@
 
 		//Hide pagination if there are no results
 		if(this.pages < 1){
-			$(this.container + ' > .pagination').hide();
-			if(filter){
-				this.filter();
-			}
-			return false;
+			$(this.pagination_container).hide();
+		}else{
+			$(this.pagination_container).show();
 		}
 
-		$(this.container + ' > .pagination').show();
 		if(page > this.pages || this.pages < 1){
 			page = 1;
 		}
@@ -363,7 +360,7 @@
 		}
 		content += '">&raquo;</a>';
 
-		$(this.container + ' > .pagination').html(content);
+		$(this.pagination_container).html(content);
 		if(filter){
 			//Rerun filter
 			this.filter();
