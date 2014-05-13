@@ -1,6 +1,6 @@
 /*
  * Filter.js
- * version: 1.5.1 (22/4/2013)
+ * version: 1.5.2 (12/5/2014)
  *
  * Licensed under the MIT:
  *   http://www.opensource.org/licenses/mit-license.php
@@ -243,7 +243,7 @@
         if (ele.get(0).tagName == 'INPUT'){
           if (ele_type == 'checkbox' || ele_type == 'radio'){
             selector.select = ':checked';
-          }else if (ele_type == 'hidden'){
+          }else if (ele_type == 'hidden' || ele_type == 'text'){
             selector.select = ':input';
           }
         }else if (ele.get(0).tagName == 'SELECT'){
