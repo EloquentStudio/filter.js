@@ -30,7 +30,7 @@
   window.FilterJS = FilterJS;
 
   var _FilterJS = function(data, container, view, options) {
-    var property_count = 0;
+    var property_count = 0, name;
 
     this.data = data;
     this.view = view;
@@ -215,7 +215,7 @@
 
     //Create map accroding to selection criteria.
     parseOptions: function() {
-      var filter_criteria = this.options.filter_criteria, selector, criteria, ele, ele_type;
+      var filter_criteria = this.options.filter_criteria, selector, criteria, ele, ele_type, name;
       this.options.selectors = [];
 
       for (name in filter_criteria) {
