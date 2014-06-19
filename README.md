@@ -118,6 +118,12 @@ Define callback in settings. Callbacks executes after each filtering events.(In 
         after_add: function(data){
           //Call after adding data to filter.
         },
+        after_render_record: function(record) {
+          //Call after each record is rendered
+          if(record.amount > 500) {
+            $('#fjs_'+record.id+' .fs_price').addClass('red'); 
+          }
+        }
     };
 
 

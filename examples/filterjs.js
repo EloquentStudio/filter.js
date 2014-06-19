@@ -93,7 +93,21 @@ function filterInit(template_type){
       $('.result_count').text('Found : ' + result.length);
       $('a[data-fjs]').tsort('.fs_head:visible', {order: 'asc'});
       //console.log(result);
-    }
+    },
+    after_render_record: function(record) {
+      if(record.amount < 50) {  
+        $('#fjs_'+record.id+' .fs_price').addClass('black'); 
+      }
+      if(record.amount >= 50 && record.amount < 200) {  
+        $('#fjs_'+record.id+' .fs_price').addClass('blue'); 
+      }
+      if(record.amount >= 200 && record.amount < 500) {  
+        $('#fjs_'+record.id+' .fs_price').addClass('green'); 
+      }
+      if(record.amount >= 500) {  
+        $('#fjs_'+record.id+' .fs_price').addClass('red'); 
+      }
+    }// after_render_record ends here
             
   };
 

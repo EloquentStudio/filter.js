@@ -162,3 +162,39 @@ h1, h2, h3, h4, h5, h6, p, ol, ul {
 h2{
   text-align: center;
 }
+
+.fs_price.black{
+  color: black;
+}
+.fs_price.green{
+  color: green;
+}
+.fs_price.blue{
+  color: blue;
+}
+.fs_price.red{
+  color: red;
+}
+.price_status{
+  font-size: 90%;
+  font-weight: normal;
+  margin-right: 5px;
+  padding: 1px 0 3px;
+  margin-top: 2px;
+  width: 19px !important;
+  height: 12px;
+  text-decoration: none;
+  float: right;
+}
+.price_status.black{  
+  background-color: black;
+}
+.price_status.blue{  
+  background-color: blue;
+}
+.price_status.green{  
+  background-color: green;
+}
+.price_status.red{  
+  background-color: red;
+}
