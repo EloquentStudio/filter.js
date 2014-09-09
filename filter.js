@@ -26,14 +26,13 @@
 
     this.opts = options || {};
     this.callbacks = this.opts.callbacks || {};
-    this.records = records;
+    this.records = records || [];
     this.$container = $(container);
     this.view = this.opts.view || renderRecord;
     this.templateFn = this.template($(this.opts.template).html());
 
-    this.Model = JsonQuery(this.records);
-    //this.Model.setGetterFn('_fid', function(obj) { return obj._fid; } )
-    this.render(records);
+    this.Model = JsonQuery();
+    this.addRecords(this.records, 1);
 
     if(this.opts.search && this.opts.search.ele){
       this.searchFn = this.buildSearchFn(this.opts.search.fields);
@@ -91,9 +90,12 @@
   };
 
   F.addRecords = function(records){
-    this.records.concat(records);
-    this.render(records, this.records.length);
-  }
+    var index = this.records.length;
+
+    if(this.Model.addRecords(records)){
+      this.render(records, index++);
+    }
+  };
 
   var renderRecord = function(record, index){
     return this.templateFn(record);
@@ -101,6 +103,8 @@
 
   F.render = function(records, index){
     var self = this, ele;
+
+    if(!records.length){return; }
 
     if(this.callbacks.beforeRender){
       this.callbacks.beforeRender(records);
@@ -242,18 +246,22 @@
       query[_q] = vals ;
     });
 
-    $('.fjs_item').hide();
-
-    var result = this.Model.where(query).exec(function(r){
-      $('#fjs_' + r._fid).show();
-    });
-
-    this.last_result = result;
+    this.last_result = this.Model.where(query).all
+    this.show(this.last_result);
 
     if(this.callbacks.afterFilter){
-      this.callbacks.afterFilter(result);
+      this.callbacks.afterFilter(this.last_result);
     }
     return query;
+  };
+
+  //HideShow element
+  F.show = function(result, type){
+    $('.fjs_item').hide();
+
+    for(var i = 0, l = result.length; i < l; i++){
+      $('#fjs_' + result[i]._fid).show();
+    }
   };
 
   //Search
@@ -287,21 +295,20 @@
   F.search = function(text, records){
     text = $.trim(text);
 
-    if(!text.length || text.length < 2){ return records; }
+    if(!text.length || text.length < 2){ return; }
 
     records = records || this.lastResult();
-
     text = text.toLocaleUpperCase();
-    $('.fjs_item').hide();
 
     var result = [];
 
     for(var i = 0, l = records.length; i < l; i++){
       if(this.searchFn(text, records[i])){
-        $('#fjs_' + records[i]._fid).show();
         result.push(records[i]);
       }
     }
+
+    this.show(result);
 
     if(this.callbacks.afterFilter){
       this.callbacks.afterFilter(result);
