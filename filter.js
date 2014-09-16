@@ -207,6 +207,7 @@
     bindFilterEvent(criteria, this);
 
     criteria._q = criteria.field + (criteria.type == 'range' ? '.$bt' : '')
+    criteria.active = true;
 
     this.criterias.push(criteria);
 
@@ -226,6 +227,34 @@
       criteria = this.criterias.splice(index, 1)[0];
       $('body').off(criteria.event, criteria.ele)
     }
+  };
+
+  var changeCriteriaStatus = function(names, active){
+    var self = this;
+
+    if(!names){ return; }
+
+    if(!$.isArray(names)){
+      names = [names]
+    }
+
+    $.each(names, function(){
+      var name = this;
+
+      $.each(self.criterias, function(){
+        if(this.field == name){
+          this.active = active;
+        }
+      })
+    });
+  };
+
+  F.deactivateCriteria = function(names){
+    changeCriteriaStatus.call(self, names, false);
+  };
+
+  F.activateCriteria = function(names){
+    changeCriteriaStatus.call(this, names, true);
   };
 
   var getSelectedValues = function(criteria){
@@ -250,11 +279,13 @@
     var query = {}, vals, _q;
 
     $.each(this.criterias, function(){
-      vals = getSelectedValues(this);
+      if(this.active){
+        vals = getSelectedValues(this);
 
-      if(vals || vals.length){
-        _q = ($.isArray(vals) && !this.type) ? (this._q + '.$in') : this._q;
-        query[_q] = vals ;
+        if(vals || vals.length){
+          _q = ($.isArray(vals) && !this.type) ? (this._q + '.$in') : this._q;
+          query[_q] = vals ;
+        }
       }
     });
 

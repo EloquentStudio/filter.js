@@ -9,3 +9,4 @@
 *.DS_Store
 *.swp
 _extra
+node_modules
