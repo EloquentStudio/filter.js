@@ -26,26 +26,28 @@
 
     this.opts = options || {};
     this.callbacks = this.opts.callbacks || {};
-    this.records = records || [];
     this.$container = $(container);
     this.view = this.opts.view || renderRecord;
     this.templateFn = this.template($(this.opts.template).html());
-
-    this.Model = JsonQuery();
-    this.addRecords(this.records, 1);
-
-    if(this.opts.search && this.opts.search.ele){
-      this.searchFn = this.buildSearchFn(this.opts.search.fields);
-      bindSearchEvent(this.opts.search.ele, this);
-    }
-
     this.criterias = [];
+
     $.each(this.opts.criterias || [], function(){
       self.addCriteria(this);
     });
+
+    this.Model = JsonQuery();
+    this.addRecords(records);
   };
 
   var F = FJS.prototype;
+
+  Object.defineProperty(F, 'records', {
+    get: function(){ return this.Model.records; }
+  });
+
+  Object.defineProperty(F, 'recordsCount', {
+    get: function(){ return this.Model.records.length; }
+  });
 
   //View Template
   // Ref: Underscopre.js
@@ -85,16 +87,41 @@
          .replace(/\n/g, '\\n')
          .replace(/\t/g, '\\t')
          + "');}return __p.join('');";
+
     var func = new Function('obj', tmpl);
     return data ? func(data) : function(data) { return func(data) };
   };
 
+  //Callback
+  F.execCallback = function(name, records){
+    if(this.callbacks[name]) {
+      this.callbacks[name].call(this, records);
+    }
+  };
+
+  F.addCallback = function(name, fns){
+    if(name && fns){
+      this.callbacks[name] = fns;
+    }
+  };
+
+  //Add Data
   F.addRecords = function(records){
     var index = this.records.length;
+    var has_scheme = !!this.Model.schema;
+
+    this.execCallback('beforeAddRecords', records);
 
     if(this.Model.addRecords(records)){
+      if(!this.has_scheme){
+        this.initSearch(this.opts.search);
+      }
+
       this.render(records, index++);
+      this.filter();
     }
+
+    this.execCallback('afterAddRecords', records);
   };
 
   var renderRecord = function(record, index){
@@ -106,17 +133,13 @@
 
     if(!records.length){return; }
 
-    if(this.callbacks.beforeRender){
-      this.callbacks.beforeRender(records);
-    }
+    this.execCallback('beforeRender', records);
 
     index = index || 0;
+    var cName = 'beforeRecordRender';
 
     $.each(records, function(i){
-      if(self.callbacks.beforeItemRender){
-        self.callbacks.beforeItemRender(this);
-      }
-
+      self.execCallback(cName, this);
       this._fid = (index++);
 
       ele = $($.trim(self.view.call(self, this, i)));
@@ -149,19 +172,6 @@
     $('body').on(criteria.event, criteria.ele, function(e) {
       context.filter();
     });
-  };
-
-  var bindSearchEvent = function(searchBox, context){
-    $('body').on('keyup', searchBox, function(e){
-      //context.filter('search');
-      context.search($(this).val());
-    });
-  };
-
-  F.addCallback = function(name, fns){
-    if(name && fns){
-      this.callbacks[name] = fns;
-    }
   };
 
   F.addCriteria = function(criterias){
@@ -233,7 +243,7 @@
   };
 
   F.lastResult = function(){
-    return (this.last_result || this.Model.records);
+    return (this.last_result || this.records);
   };
 
   F.filter = function(){
@@ -241,17 +251,22 @@
 
     $.each(this.criterias, function(){
       vals = getSelectedValues(this);
-      _q = ($.isArray(vals) && !this.type) ? (this._q + '.$in') : this._q;
 
-      query[_q] = vals ;
+      if(vals || vals.length){
+        _q = ($.isArray(vals) && !this.type) ? (this._q + '.$in') : this._q;
+        query[_q] = vals ;
+      }
     });
 
-    this.last_result = this.Model.where(query).all
-    this.show(this.last_result);
+    this.last_result = this.Model.where(query).all;
 
-    if(this.callbacks.afterFilter){
-      this.callbacks.afterFilter(this.last_result);
+    if(this.searchFilter(this.last_result)){
+      return query;
     }
+
+    this.show(this.last_result);
+    this.execCallback('afterFilter', this.last_result);
+
     return query;
   };
 
@@ -265,6 +280,31 @@
   };
 
   //Search
+  var bindSearchEvent = function(searchBox, context){
+    $('body').on('keyup', searchBox, function(e){
+      context.filter();
+      //context.searchFilter(true);
+    });
+  };
+
+  F.initSearch = function(opts){
+    if(!opts && !opts.ele){
+      return;
+    }
+
+    if(!opts.start_length){
+      this.opts.search.start_length = 2
+    }
+
+    this.$search_ele = $(this.opts.search.ele);
+
+    if(this.$search_ele.length){
+      this.has_search = true;
+      this.searchFn = this.buildSearchFn(opts.fields);
+      bindSearchEvent(opts.ele, this);
+    }
+  };
+
   F.buildSearchFn = function(fields){
      var self = this, getterFns = [];
 
@@ -292,12 +332,27 @@
      }
   };
 
+  F.searchFilter = function(records) {
+    if(!this.has_search){
+      return;
+    }
+
+    var text = $.trim(this.$search_ele.val()),
+        result;
+
+    if(text.length < this.opts.search.start_length){
+      return false;
+    }
+
+    result = this.search(text, records || this.lastResult());
+
+    this.show(result);
+    this.execCallback('afterFilter', result);
+
+    return true;
+  };
+
   F.search = function(text, records){
-    text = $.trim(text);
-
-    if(!text.length || text.length < 2){ return; }
-
-    records = records || this.lastResult();
     text = text.toLocaleUpperCase();
 
     var result = [];
@@ -308,10 +363,79 @@
       }
     }
 
-    this.show(result);
+    return result;
+  };
 
-    if(this.callbacks.afterFilter){
-      this.callbacks.afterFilter(result);
+  //Streaming
+  F.setStreaming = function(opts){
+    if(!opts) {return;}
+
+    this.opts.streaming = opts;
+
+    if(opts.data_url){
+      opts.stream_after = (opts.stream_after || 2)*1000;
+      opts.batch_size = opts.batch_size || false;
+      this.streamData(opts.stream_after);
+    }
+
+  };
+
+  var fetchData = function(){
+    var self = this,
+        params = this.opts.params || {},
+        opts = this.opts.streaming;
+
+    params.offset = this.recordsCount;
+
+    if (opts.batch_size) {
+      params.limit = opts.batch_size;
+    }
+
+    if (this.has_search){
+      params['q'] = $.trim(this.$search_ele.val());
+    }
+
+    $.getJSON(opts.data_url, params).done(function(records){
+      if (params.limit != null && (!records || !records.length)){
+        self.stopStreaming();
+      }else{
+        self.setStreamInterval();
+        self.addRecords(records);
+      }
+
+    }).fail(function(e){
+        self.stopStreaming();
+    });
+  };
+
+  F.setStreamInterval = function(){
+    var self = this;
+
+    if(self.opts.streaming.stop == true){ return; }
+
+    self.streamingTimer = setTimeout(function(){
+      fetchData.call(self);
+    }, self.opts.streaming.stream_after);
+  };
+
+  F.stopStreaming = function(){
+    this.opts.streaming.stop = true;
+
+    if (this.streamingTimer){
+      clearTimeout(this.streamingTimer);
+    }
+  };
+
+  F.resumeStreaming = function(){
+    this.opts.streaming.stop = false;
+    this.streamData(this.opts.streaming.stream_after);
+  };
+
+  F.streamData = function(time){
+    this.setStreamInterval();
+
+    if(!this.opts.streaming.batch_size){
+      this.stopStreaming();
     }
   };
 
