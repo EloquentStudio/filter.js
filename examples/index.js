@@ -5,6 +5,7 @@ $(document).ready(function(){
   var FJS = FilterJS(movies, '#movies', {
     template: '#movie-template',
     search: {ele: '#searchbox'},
+    //search: {ele: '#searchbox', fields: ['runtime']}, // With specific fields
     callbacks: {
       afterFilter: function(result){
         $('#total_movies').text(result.length);
