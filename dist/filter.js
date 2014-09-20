@@ -265,7 +265,7 @@
     });
 
     if(criteria.type == 'range'){
-      vals = vals[0].split('-')
+      vals = vals[0].split('-');
     }
 
     return vals;
