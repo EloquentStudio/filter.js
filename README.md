@@ -268,7 +268,7 @@ fjs.setStreaming({
 ### NOTE
 ---------
 
-- Old filter.js in [v1.5.2][https://github.com/jiren/filter.js/tree/v1.5.2] git tag.
+- Old filter.js in [v1.5.2](https://github.com/jiren/filter.js/tree/v1.5.2) git tag.
 
 
 Demo
