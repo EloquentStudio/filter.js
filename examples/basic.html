@@ -1,0 +1,121 @@
+<!DOCTYPE HTML>
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta content="text/html; charset=UTF-8" http-equiv="Content-Type">
+    <link href="assets/css/jquery-ui-1.10.2.custom.min.css" media="screen" rel="stylesheet" type="text/css">
+    <script src="assets/js/jquery-1.11.1.min.js" type="text/javascript"></script>
+    <script src="assets/js/jquery-ui-1.10.2.custom.min.js" type="text/javascript"></script>
+    <!-- development_start -->
+    <script src="../lib/json_query.js" type="text/javascript"></script>
+    <script src="../filter.js" type="text/javascript"></script>
+    <!-- development_end -->
+
+    <!-- ghpages_start
+    <script src="filter.min.js" type="text/javascript"></script>
+    ghpages_end -->
+    <script src="basic.js" type="text/javascript"></script>
+    <script src="assets/js/jquery.tinysort.min.js" type="text/javascript"></script>
+    <link href="assets/css/style.css" media="screen" rel="stylesheet" type="text/css">
+  </head>
+  <body>
+    <div><h1 class="header_name">Filter.js</h1></div>
+    <div class="container">
+      <div class="sidebar_bar">
+        <div class="sidebar_left_find">
+          <div class="sidebar_list">
+            <h3>Search</h3>
+            <input type="text" id="search_box" class="searchbox" placeholder="Type here...."/>
+          </div>
+        </div>
+        <div class="sidebar_left_find">
+          <div class="sidebar_list">
+            <h3>Filter by Price</h3>
+            <span id="price_range_label" style="margin:50px;">$0-$500</span>
+            <div id="price_slider"></div>
+            <input type="hidden" id="price_filter" value="100-500"/>
+          </div>
+        </div>
+        <div class="sidebar_left_find">
+          <div class="sidebar_list">
+            <h3>Filter by Status</h3>
+            <ul id="status">
+              <li>
+                <input id="active" value="active" type="checkbox">
+                <span >Active</span>
+              </li>
+              <li>
+                <input id="inactive" value="inactive" type="checkbox">
+                <span>Inactive</span>
+              </li>
+            <ul>
+          </div>
+        </div>
+      </div>
+      <div class="featured_services_find">
+        <h1 class="result_count"></h1>
+        <div class="featured_list_find" id="service_list"></div>
+      </div>
+      <script>
+        //<![CDATA[
+        var services = [
+        {
+            "permalink": "1-mr-ona-howe",
+            "title": "Mr. Ona Howe",
+            "amount": 100,
+            "status": "active",
+            "is_public": true,
+            "id": 1,
+            "nonprofit": "Eldon Zulauf"
+        },
+        {
+            "permalink": "2-darien-hoeger",
+            "title": "Darien Hoeger",
+            "amount": 201,
+            "id": 2,
+            "status": "inactive",
+            "nonprofit": "Beryl McDermott"
+        },
+        {
+            "permalink": "3-mrs-frederique-kris",
+            "title": "Mrs. Frederique Kris",
+            "amount": 500,
+            "id": 3,
+            "status": "active",
+            "nonprofit": "Eldon Zulauf"
+        },
+        {
+            "permalink": "4-jedediah-pouros",
+            "title": "Jedediah Pouros",
+            "amount": 300,
+            "id": 4,
+            "status": "inactive",
+            "nonprofit": "Mabel Tillman I"
+        },
+        {
+            "permalink": "5-mrs-daisy-macejkovic",
+            "title": "Mrs. Daisy Macejkovic",
+            "amount": 410,
+            "id": 5,
+            "status": "active",
+            "nonprofit": "Mr. Ayden O'Keefe"
+        } ];
+        //]]>
+      </script>
+      <div class="clear"></div>
+    </div>
+
+    <script id="template" type="text/html">
+        <a title="<%= title %>" href="/demo/<%= permalink %>">
+         <div class="fs_box">
+           <div class="fs_left">
+             <span class="fs_head"><%= title %></span>
+             <span class="fs_for">for</span>
+             <span class="fs_disc"><%= nonprofit %></span>
+           </div>
+           <div class="fs_price">$<%= amount %></div>
+           <div class="clear"></div>
+        </div>
+      </a>
+    </script>
+  </body>
+</html>
