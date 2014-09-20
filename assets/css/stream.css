@@ -31,7 +31,7 @@ select:focus, textarea:focus, input:focus{
   top: 0;
   left: 0;
   bottom: 0;
-  overflow-y: auto;
+  overflow-y: scroll;
   min-height: 600px;
 /*
   box-shadow: inset -1px 0 0 #e5e5e5;
