@@ -1,3 +1,16 @@
+/*
+ * Filter.js
+ * version: 2.0.0 (21/9/2014)
+ *
+ * Licensed under the MIT:
+ *   http://www.opensource.org/licenses/mit-license.php
+ *
+ * Copyright 2014 Jiren Patel[jirenpatel@gmail.com]
+ *
+ * Dependency:
+ *  jQuery(v1.9 >=)
+ */
+
 (function(window){
   'use strict';
 
