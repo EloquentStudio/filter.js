@@ -139,7 +139,7 @@ Json object:
 
 #### Remove criteria.
 
-Using `removeCriterai`, remove criteria dynamically. It take one argument `filed` name. i.e removing year criteria.
+Using `removeCriteria`, remove criteria dynamically. It take one argument `filed` name. i.e removing year criteria.
 
 ```
 fjs.removeCriteria('year')
