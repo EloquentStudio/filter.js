@@ -329,7 +329,7 @@
   var bindSearchEvent = function(searchBox, context){
     $('body').on('keyup', searchBox, function(e){
       if (lastSearchId) {
-        cancelTimeout(lastSearchId);
+        clearTimeout(lastSearchId);
       }
       lastSearchId = setTimeout(function() {
         context.filter();
