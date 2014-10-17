@@ -323,10 +323,17 @@
     }
   };
 
+  var lastSearchId; 
+  var SEARCH_TIMEOUT = 1000; // Large value while testing.
   //Search
   var bindSearchEvent = function(searchBox, context){
     $('body').on('keyup', searchBox, function(e){
-      context.filter();
+      if (lastSearchId) {
+        cancelTimeout(lastSearchId);
+      }
+      lastSearchId = setTimeout(function() {
+        context.filter();
+      }, SEARCH_TIMEOUT);
       //context.searchFilter(true);
     });
   };
