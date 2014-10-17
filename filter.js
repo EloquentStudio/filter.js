@@ -323,17 +323,15 @@
     }
   };
 
-  var lastSearchId; 
-  var SEARCH_TIMEOUT = 1000; // Large value while testing.
   //Search
-  var bindSearchEvent = function(searchBox, context){
+  var bindSearchEvent = function(searchBox, timeout, context){
     $('body').on('keyup', searchBox, function(e){
-      if (lastSearchId) {
-        clearTimeout(lastSearchId);
+      if (context.searchTimeoutId) {
+        clearTimeout(context.searchTimeoutId);
       }
-      lastSearchId = setTimeout(function() {
+      context.searchTimeoutId = setTimeout(function() {
         context.filter();
-      }, SEARCH_TIMEOUT);
+      }, timeout);
       //context.searchFilter(true);
     });
   };
@@ -352,7 +350,7 @@
     if(this.$search_ele.length){
       this.has_search = true;
       this.searchFn = this.buildSearchFn(opts.fields);
-      bindSearchEvent(opts.ele, this);
+      bindSearchEvent(opts.ele, opts.timeout || 0, this);
     }
   };
 
