@@ -324,9 +324,14 @@
   };
 
   //Search
-  var bindSearchEvent = function(searchBox, context){
+  var bindSearchEvent = function(searchBox, timeout, context){
     $('body').on('keyup', searchBox, function(e){
-      context.filter();
+      if (context.searchTimeoutId) {
+        clearTimeout(context.searchTimeoutId);
+      }
+      context.searchTimeoutId = setTimeout(function() {
+        context.filter();
+      }, timeout);
       //context.searchFilter(true);
     });
   };
@@ -345,7 +350,7 @@
     if(this.$search_ele.length){
       this.has_search = true;
       this.searchFn = this.buildSearchFn(opts.fields);
-      bindSearchEvent(opts.ele, this);
+      bindSearchEvent(opts.ele, opts.timeout || 0, this);
     }
   };
 

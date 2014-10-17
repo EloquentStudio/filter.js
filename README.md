@@ -212,10 +212,16 @@ For search needed textbox element selector. By default search will work on all j
 
 ```
 
-Default search will trigger after 2 char. This can be configure using `start_length` option.
+Default search will trigger after 2 char. This can be configured using `start_length` option.
 
 ```
 search: {ele: '#searchbox', fields: ['name', 'runtime'], start_length: 4 }
+```
+
+Default search will start searching immediately after user types. A timeout can be configured using `timeout` option (in milliseconds).
+
+```
+search: {ele: '#searchbox', fields: ['name', 'runtime'], timeout: 100 }
 ```
 
 
