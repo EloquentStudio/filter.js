@@ -325,7 +325,7 @@
 
   //Search
   var bindSearchEvent = function(searchBox, timeout, context){
-    $('body').on('keyup', searchBox, function(e){
+    var handler = function(e){
       if (context.searchTimeoutId) {
         clearTimeout(context.searchTimeoutId);
       }
@@ -333,7 +333,15 @@
         context.filter();
       }, timeout);
       //context.searchFilter(true);
-    });
+    };
+    $('body').on('keyup', searchBox, handler);
+    return handler;
+  };
+
+  var unbindSearchEvent = function(searchBox, handler){
+    if (handler) {
+      $('body').off('keyup', searchBox, handler);
+    }
   };
 
   F.initSearch = function(opts){
@@ -350,7 +358,8 @@
     if(this.$search_ele.length){
       this.has_search = true;
       this.searchFn = this.buildSearchFn(opts.fields);
-      bindSearchEvent(opts.ele, opts.timeout || 0, this);
+      unbindSearchEvent(opts.ele, this.searchHandler);
+      this.searchHandler = bindSearchEvent(opts.ele, opts.timeout || 0, this);
     }
   };
 
