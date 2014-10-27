@@ -274,7 +274,12 @@
     var vals = [];
 
     criteria.$ele.filter(criteria.selector).each(function() {
-      vals.push($(this).val());
+			var value = $(this).val();
+			if (value instanceof Array) {
+				vals = vals.concat(value);
+			} else {
+				vals.push(value);
+			}
     });
 
     if(criteria.type == 'range'){
