@@ -12,7 +12,12 @@ module.exports = function(grunt) {
         }
       }
     },
-
+    remotefile: {
+      remote_file_task: {
+        url: 'https://raw.githubusercontent.com/jiren/JsonQuery/master/json_query.js', 
+        dest: 'lib/json_query.js'
+      },
+    },
     concat: {
       options: {
         separator: ';',
@@ -27,10 +32,11 @@ module.exports = function(grunt) {
 
   grunt.loadNpmTasks('grunt-contrib-concat');
   grunt.loadNpmTasks('grunt-contrib-uglify');
+  grunt.loadNpmTasks('grunt-remotefile');
 
   // Default task
-  grunt.registerTask('default', ['concat', 'uglify']);
+  grunt.registerTask('default', ['remotefile', 'concat', 'uglify']);
 
   // Build task
-  grunt.registerTask('build', ['concat', 'uglify']);
+  grunt.registerTask('build', ['remotefile', 'concat', 'uglify']);
 };

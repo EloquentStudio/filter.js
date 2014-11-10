@@ -324,9 +324,14 @@
   };
 
   //Search
-  var bindSearchEvent = function(searchBox, context){
+  var bindSearchEvent = function(searchBox, timeout, context){
     $('body').on('keyup', searchBox, function(e){
-      context.filter();
+      if (context.searchTimeoutId) {
+        clearTimeout(context.searchTimeoutId);
+      }
+      context.searchTimeoutId = setTimeout(function() {
+        context.filter();
+      }, timeout);
       //context.searchFilter(true);
     });
   };
@@ -345,7 +350,7 @@
     if(this.$search_ele.length){
       this.has_search = true;
       this.searchFn = this.buildSearchFn(opts.fields);
-      bindSearchEvent(opts.ele, this);
+      bindSearchEvent(opts.ele, opts.timeout || 0, this);
     }
   };
 
@@ -507,6 +512,18 @@
 
   JsonQuery.VERSION = '0.0.2'
 
+  function log(obj){
+    if(console && console.log){
+      console.log(obj);
+    }
+  }
+
+  if(!Object.defineProperty){
+    Object.defineProperty = function(obj, name, opts){
+      obj[name] = opts.get
+    }
+  }
+
   var each = function(objs, callback, context){
     if (objs.length === +objs.length) {
       for (var i = 0, l = objs.length; i < l; i++) {
@@ -531,7 +548,7 @@
 
   var _JsonQuery = function(records, opts){
     this.records = records || [];
-    this.getterFns = {};
+    this.getterFns = opts.getterFns || {};
     this.lat = opts.latitude || 'latitude';
     this.lng = opts.longitude || 'longitude'
     this.id = opts.id;
@@ -558,7 +575,11 @@
       return 'String';
     }
 
-    var type = toString.call(val).slice(8, -1);
+    /*
+     * @info Fix for IE 10 & 11
+     * @bug Invalid calling object
+     */
+    var type = Object.prototype.toString.call(val).slice(8, -1);
 
     if(type == 'String' && val.match(/\d{4}-\d{2}-\d{2}/)){
       return 'Date';
@@ -590,22 +611,36 @@
     }
   };
 
+  var parseDate = function(dates){
+    if(dates.constructor.name == 'Array'){
+      return dates.map(function(d){  return (d ? new Date(d) : null ) });
+    }
+    return (dates ? new Date(dates) : null);
+  };
+
   var buildPropGetters = function(record){
     var selector, type, val;
 
     for(selector in this.schema){
       type = this.schema[selector];
-      this.getterFns[selector] = buildGetPropFn.call(this, selector, type);
 
-      //Remap if it is array
-      val = this.getterFns[selector](record);
-      if(getDataType(val) == 'Array'){
-        this.schema[selector] = 'Array';
+      try{
+        if(!this.getterFns[selector]){
+          this.getterFns[selector] = buildGetPropFn.call(this, selector, type);
+        }
+
+        //Remap if it is array
+        val = this.getterFns[selector](record);
+        if(getDataType(val) == 'Array'){
+          this.schema[selector] = 'Array';
+        }
+      }catch(err){
+        console.log("Error while generating getter function for selector : " + selector + " NOTE: Define manually");
       }
     }
   };
 
-  var buildGetPropFn = function(field, type){
+  var buildGetPropFnOld = function(field, type){
     var i = 0, nestedPath, accessPath = "", accessFnBody, map;
 
     nestedPath = field.split('.');
@@ -630,6 +665,54 @@
     return new Function('obj', accessFnBody);
   };
 
+  var countArrHierarchy = function(schema, nestedPath){
+    var lastArr = 0,
+        arrCount = 0,
+        path,
+        pathLength = nestedPath.length - 1;
+
+    for(var i = nestedPath.length - 1; i >= 0; i--){
+      path = nestedPath.slice(0, i + 1).join('.');
+
+      if(schema[path] == 'Array' && i < pathLength){
+        lastArr = i;
+        arrCount = arrCount + 1;
+      }
+    }
+    return (arrCount > 1 ? (lastArr  + 1) : -1);
+  };
+
+  var buildGetPropFn = function(field, type){
+    var accessPath = '',
+        nestedPath = field.split('.'),
+        path,
+        lastArr = countArrHierarchy(this.schema, nestedPath),
+        prefix,
+        accessFnBody;
+
+    for(var i = nestedPath.length - 1; i >= 0; i--){
+      path = nestedPath.slice(0, i + 1).join('.');
+      prefix = "['" + nestedPath[i] +"']";
+
+      if(this.schema[path] == 'Array'){
+        if(lastArr == i){
+          accessPath = prefix + (accessPath.length ? ".map(function(r" + i +"){  objs.push(r" + i + accessPath + ")})" : '');
+        }else{
+          accessPath = prefix + (accessPath.length ? ".map(function(r" + i +"){  return r" + i + accessPath + "})" : '');
+        }
+      }else{
+        accessPath = prefix + accessPath;
+      }
+    }
+
+    if(lastArr > -1){
+      accessFnBody = 'var objs = []; obj' + accessPath + ';' + (this.schema['path'] == 'Date' ?  'return parseDate(objs)'  :  'return objs;');
+    }else{
+      accessFnBody = 'return ' + (this.schema['path'] == 'Date' ? 'parseDate(obj'+ accessPath +');' : 'obj'+ accessPath +';') ;
+    }
+
+    return new Function('obj', accessFnBody);
+  };
 
   JQ.operators = {
     eq: function(v1, v2){ return v1 == v2},
@@ -676,7 +759,9 @@
   };
 
   JQ.addRecords = function(records){
-    if(!records || !records.length){ return false; }
+    if(!records || !records.length){
+      return false;
+    }
 
     if(getDataType(records) == 'Array'){
       this.records = this.records.concat(records);
@@ -688,7 +773,7 @@
       initSchema(this, records[0]);
     }
 
-    return this.records;
+    return true;
   };
 
   JQ._findAll = function(records, qField, cVal, cOpt){
@@ -1117,3 +1202,13 @@
   };
 
 })(this);
+
+//In IE indexOf method not define.
+if (!Array.prototype.indexOf) {
+  Array.prototype.indexOf = function(obj, start) {
+    for (var i = (start || 0), j = this.length; i < j; i++) {
+      if (this[i] === obj) { return i; }
+    }
+    return -1;
+  }
+}
