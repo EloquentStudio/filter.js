@@ -297,6 +297,7 @@ Sponsors and Supporters
 -----------------------
 
 - [Josh Software](http://www.joshsoftware.com)
+
 - Instant search field filtering sponsored by [W/E consultants](http://www.w-e.nl)
 
 Contributing
