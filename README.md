@@ -284,11 +284,11 @@ To see the sample demo, clone this repo and open demo/filterjs.html in your brow
 [Filter](http://jiren.github.io/filter.js/index.html)
 
 
-Examples
+USED BY
 --------
 
 [Tischefrei (search page)](http://tischefrei.de)
-
+[Roboty przemysłowe](http://roboty-przemyslowe.pl)
 
 If you use this, please send me an email, I shall add your link here!
 
