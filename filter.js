@@ -43,12 +43,14 @@
     this.view = this.opts.view || renderRecord;
     this.templateFn = this.template($(this.opts.template).html());
     this.criterias = [];
+    this._index = 1;
 
     $.each(this.opts.criterias || [], function(){
       self.addCriteria(this);
     });
 
     this.Model = JsonQuery();
+    this.Model.getterFns['_fid'] = function(r){ return r['_fid'];};
     this.addRecords(records);
   };
 
@@ -120,7 +122,6 @@
 
   //Add Data
   F.addRecords = function(records){
-    var index = this.records.length;
     var has_scheme = !!this.Model.schema;
 
     this.execCallback('beforeAddRecords', records);
@@ -130,30 +131,67 @@
         this.initSearch(this.opts.search);
       }
 
-      this.render(records, index++);
+      this.render(records);
       this.filter();
     }
 
     this.execCallback('afterAddRecords', records);
   };
 
+  F.removeRecords = function(criteria){
+    var ids;
+
+    if($.isPlainObject(criteria)){
+      ids = this.Model.where(criteria).pluck('_fid').all;
+    }else if($.isArray(criteria)){
+      ids = this.Model.where({'id.$in': criteria}).pluck('_fid').all;
+    }
+
+    if(!ids){
+      return false;
+    }
+
+    var records = this.Model.records, 
+        removedCount = 0,
+        idsLength = ids.length,
+        fid;
+
+    for(var i = records.length - 1; i > -1; i--){
+      fid = records[i]._fid
+
+      if(ids.indexOf(fid) > -1){
+        records.splice(i, 1);
+        removedCount ++;
+
+        $('#fjs_' + fid).remove();
+      } 
+
+      if(removedCount == idsLength){
+        break;
+      }
+    }
+
+    this.execCallback('afterRemove');
+
+    return true;
+  };
+
   var renderRecord = function(record, index){
     return this.templateFn(record);
   };
 
-  F.render = function(records, index){
+  F.render = function(records){
     var self = this, ele;
 
     if(!records.length){return; }
 
     this.execCallback('beforeRender', records);
 
-    index = index || 0;
     var cName = 'beforeRecordRender';
 
     $.each(records, function(i){
       self.execCallback(cName, this);
-      this._fid = (index++);
+      this._fid = (self._index++);
 
       ele = $($.trim(self.view.call(self, this, i)));
       ele.attr('id', 'fjs_' + this._fid);
