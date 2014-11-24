@@ -270,6 +270,24 @@ fjs.setStreaming({
 });
 ```
 
+Remove records from filtering
+-----------------------------
+
+- Remove using ids. ids are records `id` field.
+
+```
+  fjs.removeRecords([1,2,3]);
+
+```
+
+- Remove using [JsonQuery](https://github.com/jiren/JsonQuery) criteria
+
+```
+  fjs.removeRecords({year: 1980});
+
+  fjs.removeRecords({'year.$gt': 1980, 'rating': 8.5}); 
+```
+
 
 ### NOTE
 ---------
