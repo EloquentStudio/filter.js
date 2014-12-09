@@ -322,28 +322,8 @@ Demo
 To see the sample demo, clone this repo and open demo/filterjs.html in your browser
 
 [Filter](http://jiren.github.io/filter.js/index.html)
+[Pagination](http://github.die-coder.de/filter.js/examples/index.html)
 
-
-USED BY
---------
-
-[Tischefrei (search page)](http://tischefrei.de)
-
-[Roboty przemysłowe](http://roboty-przemyslowe.pl)
-
-If you use this, please send me an email, I shall add your link here!
-
-
-Sponsors and Supporters
------------------------
-
-- [Josh Software](http://www.joshsoftware.com)
-
-- Instant search field filtering sponsored by [W/E consultants](http://www.w-e.nl)
-
-Contributing
-------------
-Please send me a pull request so that this can be improved.
 
 License
 -------
