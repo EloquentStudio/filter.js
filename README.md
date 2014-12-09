@@ -6,6 +6,7 @@ Multiple filter criteria can be specified and used in conjunction with
 each other.
 
 Basic plugin is made by Jiren Patel (https://github.com/jiren), i added an pagination system.
+Demo: http://github.die-coder.de/filter.js/examples/index.html
 
 
 Usage
