@@ -49,12 +49,8 @@
       self.addCriteria(this);
     });
 
-    this.Model = JsonQuery();
-    this.Model.getterFns['_fid'] = function(r){ return r['_fid'];};
-    this.addRecords(records);
-
-    // Pagination
-    this.pagination = {
+	// pagination
+	this.pagination = {
 	  page: 1,
 	  prevText: this.opts.pagination.prevText || '&laquo;',
 	  nextText: this.opts.pagination.nextText || '&raquo;',
@@ -62,7 +58,12 @@
 	  range: this.opts.pagination.range || 5,
 	  pagination_container: this.opts.pagination.pagination_container || '.pagination',
 	  noresults_container: this.opts.pagination.noresults_container || '#noresults'
-    };
+	};
+	// pagination end
+
+    this.Model = JsonQuery();
+    this.Model.getterFns['_fid'] = function(r){ return r['_fid'];};
+    this.addRecords(records);
   };
 
   var F = FJS.prototype;
