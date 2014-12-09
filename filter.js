@@ -52,6 +52,17 @@
     this.Model = JsonQuery();
     this.Model.getterFns['_fid'] = function(r){ return r['_fid'];};
     this.addRecords(records);
+
+    // Pagination
+    this.pagination = {
+	  page: 1,
+	  prevText: this.opts.pagination.prevText || '&laquo;',
+	  nextText: this.opts.pagination.nextText || '&raquo;',
+	  perPage: this.opts.pagination.perPage || 12,
+	  range: this.opts.pagination.range || 5,
+	  pagination_container: this.opts.pagination.pagination_container || '.pagination',
+	  noresults_container: this.opts.pagination.noresults_container || '#noresults'
+    };
   };
 
   var F = FJS.prototype;
@@ -221,7 +232,10 @@
 
   var bindFilterEvent = function(criteria, context){
     $('body').on(criteria.event, criteria.ele, function(e) {
-      context.filter();
+	  if(context.pagination !== undefined){
+		  context.pagination.page = 1;
+	  }
+	  context.filter();
     });
   };
 
@@ -348,6 +362,7 @@
 
     this.show(this.last_result);
     this.execCallback('afterFilter', this.last_result);
+	this.pgResultCheck(this.last_result);
 
     return query;
   };
@@ -368,6 +383,9 @@
         clearTimeout(context.searchTimeoutId);
       }
       context.searchTimeoutId = setTimeout(function() {
+        if(this.pagination !== undefined){
+		  this.pagination.page = 1;
+		}
         context.filter();
       }, timeout);
       //context.searchFilter(true);
@@ -435,6 +453,7 @@
 
     this.show(result);
     this.execCallback('afterFilter', result);
+	this.pgResultCheck(result);
 
     return true;
   };
@@ -523,6 +542,116 @@
 
     if(!this.opts.streaming.batch_size){
       this.stopStreaming();
+    }
+  };
+
+  // Pagination
+  F.show = function(result, type){
+	$('.fjs_item').hide();
+
+	// prevent errors before init
+	if(this.pagination === undefined){
+      return false;
+	}
+
+    var pages = Math.ceil(result.length/this.pagination.perPage);
+	this.pagination.page = this.pagination.page > 0 && this.pagination.page <= pages ? this.pagination.page : 1;
+	var page = this.pagination.page;
+	var start = (page-1)*this.pagination.perPage;
+
+	for(var i = 0, l = result.length, current = start+i; current < l && i < this.pagination.perPage; i++){
+      current = start+i;
+	  if(result[current] !== undefined){
+	    $('#fjs_' + result[current]._fid).show();
+	  }
+	}
+
+	// hide pagination if there are no results
+	if(pages < 1){
+      $(this.pagination.pagination_container).hide();
+      return true;
+	}
+
+	$(this.pagination.pagination_container).show();
+
+	// previous page
+	var content = '<li';
+	if(page-1 <= 0){
+	  content += ' class="disabled"';
+	}
+	content += '><a href="#" class="prev">' + this.pagination.prevText + '</a></li>';
+
+	// quick-select
+	for(i = 1; i <= pages; i++){
+
+	  //Shrink pages below range
+	  if(i > 1 && i < page-this.pagination.range && i < this.pagination.range*2+3 && i < pages-(this.pagination.range*2+2)){
+	    content += '<li class="disabled"><a href="#">&hellip;</a></li>';
+	    if(page-this.pagination.range > pages-(this.pagination.range*2+2)){
+	  	  i = pages-(this.pagination.range*2+2);
+	    }else{
+	  	  i = page-this.pagination.range;
+	    }
+	  }
+
+	  //Shrink pages higher range
+	  if(i > page+this.pagination.range && i < pages && i > this.pagination.range*2+3 && page <= pages-(this.pagination.range*2)+2){
+	    content += '<li class="disabled"><a href="#">&hellip;</a></li>';
+	    i = pages;
+	  }
+
+	  //Display range
+	  content += '<li';
+	  if(i == page){
+	    content += ' class="active"';
+	  }
+	  content += '><a href="#">' + i + '</a>';
+	  content += '</li>';
+	}
+
+	// next page
+	content += '<li';
+	if(page+1 > pages){
+      content += ' class="disabled"';
+	}
+	content += '><a href="#" class="next">' + this.pagination.nextText + '</a></li>';
+
+	$(this.pagination.pagination_container).html(content);
+
+	var context = this;
+	// add jquery on click event to select a page
+	$(this.pagination.pagination_container + ' a').on('click', function(){
+      if($(this).hasClass('disabled')){
+        return false;
+      }
+
+      var page = parseInt(jQuery(this).text());
+      if($(this).hasClass('next')){
+        page = context.pagination.page+1;
+      }else{
+        if($(this).hasClass('prev')){
+          page = context.pagination.page-1;
+        }
+      }
+
+      context.pagination.page = page;
+      if(!context.searchFilter(context.lastResult())){
+	    context.show(context.lastResult());
+	  }
+      return false;
+	});
+  };
+
+  F.pgResultCheck = function(result){
+    // prevent errors before init
+	if(this.pagination === undefined){
+	  return false;
+	}
+
+	if(!result.length){
+	  $(this.pagination.noresults_container).show();
+	}else{
+	  $(this.pagination.noresults_container).hide();
     }
   };
 

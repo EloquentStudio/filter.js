@@ -5,6 +5,8 @@ Filter.js is client-side JSON objects filter and render html elements.
 Multiple filter criteria can be specified and used in conjunction with
 each other.
 
+Basic plugin is made by Jiren Patel (https://github.com/jiren), i added an pagination system.
+
 
 Usage
 -----
@@ -90,6 +92,25 @@ To render each json object require view template. In filter.js micro-templating 
        </div>
 	</script>
 ```
+
+### Pagination
+-------------------
+
+By default the plugin uses the following configuration.
+All settings are optional and can be changed within Filter Initialisation.
+
+```
+  {
+    page: 1,
+    prevText: '&laquo;',
+    nextText: '&raquo;',
+    perPage: 12,
+    range: 5,
+    pagination_container: '.pagination',
+    noresults_container: '#noresults'
+  } 
+```
+
 
 ### Filter Criteria
 -------------------
