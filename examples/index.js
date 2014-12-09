@@ -10,6 +10,15 @@ $(document).ready(function(){
       afterFilter: function(result){
         $('#total_movies').text(result.length);
       }
+	},
+	// pagination settings
+	pagination: {
+	  perPage: 6,
+	  range: 3,
+	  prevText: 'prev',
+	  nextText: 'next',
+	  pagination_container: '.pagination',
+	  noresults_container: '#noresults'
     }
   });
 

@@ -5,6 +5,9 @@ Filter.js is client-side JSON objects filter and render html elements.
 Multiple filter criteria can be specified and used in conjunction with
 each other.
 
+Basic plugin is made by Jiren Patel (https://github.com/jiren), i added an pagination system.
+Demo: http://github.die-coder.de/filter.js/examples/index.html
+
 
 Usage
 -----
@@ -90,6 +93,25 @@ To render each json object require view template. In filter.js micro-templating 
        </div>
 	</script>
 ```
+
+### Pagination
+-------------------
+
+By default the plugin uses the following configuration.
+All settings are optional and can be changed within Filter Initialisation.
+
+```
+  {
+    page: 1,
+    prevText: '&laquo;',
+    nextText: '&raquo;',
+    perPage: 12,
+    range: 5,
+    pagination_container: '.pagination',
+    noresults_container: '#noresults'
+  } 
+```
+
 
 ### Filter Criteria
 -------------------
@@ -300,28 +322,8 @@ Demo
 To see the sample demo, clone this repo and open demo/filterjs.html in your browser
 
 [Filter](http://jiren.github.io/filter.js/index.html)
+[Pagination](http://github.die-coder.de/filter.js/examples/index.html)
 
-
-USED BY
---------
-
-[Tischefrei (search page)](http://tischefrei.de)
-
-[Roboty przemysłowe](http://roboty-przemyslowe.pl)
-
-If you use this, please send me an email, I shall add your link here!
-
-
-Sponsors and Supporters
------------------------
-
-- [Josh Software](http://www.joshsoftware.com)
-
-- Instant search field filtering sponsored by [W/E consultants](http://www.w-e.nl)
-
-Contributing
-------------
-Please send me a pull request so that this can be improved.
 
 License
 -------
