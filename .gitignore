@@ -8,6 +8,6 @@
 /_gh_pages
 *.DS_Store
 *.swp
-_extra
+/_extra
 node_modules
 gh_page.rb

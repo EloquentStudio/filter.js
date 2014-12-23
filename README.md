@@ -288,6 +288,17 @@ Remove records from filtering
   fjs.removeRecords({'year.$gt': 1980, 'rating': 8.5}); 
 ```
 
+### Build and Development
+-------------------------
+
+- `npm install gulp -g`
+
+- Install packages `npm install`
+
+- To build `gulp buld`
+
+- For development `gulp`. This will start watch on files, also start webserver.
+
 
 ### NOTE
 ---------

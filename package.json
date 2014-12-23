@@ -1,17 +1,49 @@
 {
   "name": "filter.js",
   "version": "2.0.0",
-  "description": "Filter.js builder",
-  "author": "jiren",
+  "description": "A javascript library for filtering json object and rendering html",
+  "homepage": "https://github.com/jiren/filter.js",
+  "licenses": [
+    {
+      "type": "MIT",
+      "url": "https://github.com/jiren/filter.js/blob/master/LICENSE"
+    }
+  ],
+  "keywords": [
+    "filter",
+    "json",
+    "jquery"
+  ],
+  "author": {
+    "name": "Jiren Patel",
+    "email": "jirenpatel@gmail.com"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/jiren/filter.js.git"
+  },
+  "bugs": {
+    "url": "https://github.com/jiren/filter.js/issues"
+  },
+  "dependencies": {
+    "jquery": "x.x.x"
+  },
   "devDependencies": {
-    "grunt": "^0.4.5",
-    "grunt-cli": "~0.1.11",
-    "grunt-contrib-concat": "^0.5.0",
-    "grunt-contrib-jshint": "~0.7.2",
-    "grunt-contrib-uglify": "^0.6.0",
-    "grunt-contrib-watch": "^0.6.1",
-    "grunt-jslint": "~1.1.1",
-    "grunt-remotefile": "^0.1.0",
-    "grunt-simple-mocha": "^0.4.0"
+    "connect": ">= 3.3.3",
+    "serve-static": ">= 1.7.1",
+    "browser-sync": ">= 1.7.2",
+    "del": ">= 0.1.3",
+    "gulp": "3.8.10",
+    "gulp-uglify": ">= 1.0.1",
+    "gulp-newer": ">= 0.4.0",
+    "gulp-sourcemaps": ">= 1.2.8",
+    "gulp-changed": ">= 1.0.0",
+    "gulp-concat": ">= 2.4.2",
+    "gulp-download": ">= 0.0.1",
+    "gulp-header": ">= 1.2.1",
+    "gulp-rename": ">= 1.2.0",
+    "gulp-util": "*",
+    "run-sequence": ">= 1.0.2",
+    "map-stream": "*"
   }
 }
