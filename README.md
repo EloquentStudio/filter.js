@@ -295,7 +295,7 @@ Remove records from filtering
 
 - Install packages `npm install`
 
-- To build `gulp buld`
+- To build `gulp build`
 
 - For development `gulp`. This will start watch on files, also start webserver.
 
