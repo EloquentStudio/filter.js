@@ -1,0 +1,13 @@
+<nav>
+  <ul class="pagination">
+    <li>
+      <a href="#" data-page="previous" aria-label="Previous"><span aria-hidden="true">&laquo;</span></a>
+    </li>
+    <% for(var i = 1; i <= pages; i++ ){ %>
+      <li class="<%= i == current_page ? 'active' : '' %>"><a href="#" data-page="<%= i %>"><%= i %></a></li>
+    <% } %>
+    <li>
+      <a href="#" data-page="next"aria-label="Next"><span aria-hidden="true">&raquo;</span></a>
+    </li>
+  </ul>
+</nav>

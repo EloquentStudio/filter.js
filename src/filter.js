@@ -8,14 +8,6 @@ var FilterJS = function(records, container, options) {
 FilterJS.VERSION = '2.0.0';
 FilterJS.list = [];
 
-$.fn.filterjs = function(records, options) {
-  var $this = $(this);
-
-  if (!$this.data('fjs')){
-    $this.data('fjs', FilterJS(records, $this, options));
-  }
-};
-
 window.FilterJS = FilterJS;
 
 var FJS = function(records, container, options) {
@@ -25,7 +17,7 @@ var FJS = function(records, container, options) {
   this.callbacks = this.opts.callbacks || {};
   this.$container = $(container);
   this.view = this.opts.view || renderRecord;
-  this.templateFn = this.template($(this.opts.template).html());
+  this.templateFn = templateBuilder($(this.opts.template).html());
   this.criterias = [];
   this._index = 1;
 
@@ -35,6 +27,7 @@ var FJS = function(records, container, options) {
 
   this.Model = JsonQuery();
   this.Model.getterFns['_fid'] = function(r){ return r['_fid'];};
+  this.initPaginator();
   this.addRecords(records);
 };
 
@@ -47,49 +40,6 @@ Object.defineProperty(F, 'records', {
 Object.defineProperty(F, 'recordsCount', {
   get: function(){ return this.Model.records.length; }
 });
-
-//View Template
-// Ref: Underscopre.js
-//JavaScript micro-templating, similar to John Resig's implementation.
-var templateSettings = {
-  evaluate    : /<%([\s\S]+?)%>/g,
-  interpolate : /<%=([\s\S]+?)%>/g,
-  escape      : /<%-([\s\S]+?)%>/g
-};
-
-var escapeStr = function(string) {
-  return (''+string).replace(/&/g,  '&amp;')
-                    .replace(/</g,  '&lt;')
-                    .replace(/>/g,  '&gt;')
-                    .replace(/"/g,  '&quot;')
-                    .replace(/'/g,  '&#x27;')
-                    .replace(/\//g, '&#x2F;');
-};
-
-F.template = function(str, data) {
-  var c  = templateSettings;
-  var tmpl = 'var __p=[],print=function(){__p.push.apply(__p,arguments);};' +
-    'with(obj||{}){__p.push(\'' +
-    str.replace(/\\/g, '\\\\')
-       .replace(/'/g, "\\'")
-       .replace(c.escape, function(match, code) {
-         return "',escapeStr(" + code.replace(/\\'/g, "'") + "),'";
-       })
-       .replace(c.interpolate, function(match, code) {
-         return "'," + code.replace(/\\'/g, "'") + ",'";
-       })
-       .replace(c.evaluate || null, function(match, code) {
-         return "');" + code.replace(/\\'/g, "'")
-                            .replace(/[\r\n\t]/g, ' ') + ";__p.push('";
-       })
-       .replace(/\r/g, '\\r')
-       .replace(/\n/g, '\\n')
-       .replace(/\t/g, '\\t')
-       + "');}return __p.join('');";
-
-  var func = new Function('obj', tmpl);
-  return data ? func(data) : function(data) { return func(data) };
-};
 
 //Callback
 F.execCallback = function(name, records){
@@ -106,12 +56,11 @@ F.addCallback = function(name, fns){
 
 //Add Data
 F.addRecords = function(records){
-  var has_scheme = !!this.Model.schema;
 
   this.execCallback('beforeAddRecords', records);
 
   if(this.Model.addRecords(records)){
-    if(!this.has_scheme){
+    if(!this.Model.schema){
       this.initSearch(this.opts.search);
     }
 
@@ -337,10 +286,16 @@ F.filter = function(){
 };
 
 //HideShow element
-F.show = function(result, type){
+F.show = function(result, offset){
+  offset = offset || {start: 0, end: result.length};
+
   $('.fjs_item').hide();
 
-  for(var i = 0, l = result.length; i < l; i++){
+  if(this.paginator){
+    this.paginator.render(result.length);
+  }
+
+  for(var i = offset.start; i < offset.end; i++){
     $('#fjs_' + result[i]._fid).show();
   }
 };
@@ -510,3 +465,12 @@ F.streamData = function(time){
   }
 };
 
+F.initPaginator = function(){
+  var self = this;
+
+  if(!this.opts.pagination){ return; }
+
+  this.paginator = new Paginator(this.opts.pagination, function(offset){
+    self.show(self.lastResult(), offset);
+  });
+};

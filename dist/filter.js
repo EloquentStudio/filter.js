@@ -1,6 +1,6 @@
 /*
  * filter.js
- * 2.0.0 (2014-12-23)
+ * 2.0.0 (2014-12-28)
  *
  * Released under the MIT license
  * http://opensource.org/licenses/MIT
@@ -748,520 +748,684 @@ if (!Array.prototype.indexOf) {
 
 ;(function($, window, document) {
 
-"use strict";
+  "use strict";
+  
+  
+  //View Template
+  // Ref: Underscopre.js
+  //JavaScript micro-templating, similar to John Resig's implementation.
+  var templateSettings = {
+    evaluate    : /<%([\s\S]+?)%>/g,
+    interpolate : /<%=([\s\S]+?)%>/g,
+    escape      : /<%-([\s\S]+?)%>/g
+  };
+  
+  var escapeStr = function(string) {
+    return (''+string).replace(/&/g,  '&amp;')
+                      .replace(/</g,  '&lt;')
+                      .replace(/>/g,  '&gt;')
+                      .replace(/"/g,  '&quot;')
+                      .replace(/'/g,  '&#x27;')
+                      .replace(/\//g, '&#x2F;');
+  };
+  
+  function templateBuilder(str, data) {
+    var c  = templateSettings;
+    var tmpl = 'var __p=[],print=function(){__p.push.apply(__p,arguments);};' +
+      'with(obj||{}){__p.push(\'' +
+      str.replace(/\\/g, '\\\\')
+         .replace(/'/g, "\\'")
+         .replace(c.escape, function(match, code) {
+           return "',escapeStr(" + code.replace(/\\'/g, "'") + "),'";
+         })
+         .replace(c.interpolate, function(match, code) {
+           return "'," + code.replace(/\\'/g, "'") + ",'";
+         })
+         .replace(c.evaluate || null, function(match, code) {
+           return "');" + code.replace(/\\'/g, "'")
+                              .replace(/[\r\n\t]/g, ' ') + ";__p.push('";
+         })
+         .replace(/\r/g, '\\r')
+         .replace(/\n/g, '\\n')
+         .replace(/\t/g, '\\t')
+         + "');}return __p.join('');";
+  
+    var func = new Function('obj', tmpl);
+    return data ? func(data) : function(data) { return func(data) };
+  };
+  
 
-
-var FilterJS = function(records, container, options) {
-  var fjs = new FJS(records, container, options);
-  FilterJS.list.push(fjs);
-
-  return fjs;
-};
-
-FilterJS.VERSION = '2.0.0';
-FilterJS.list = [];
-
-$.fn.filterjs = function(records, options) {
-  var $this = $(this);
-
-  if (!$this.data('fjs')){
-    $this.data('fjs', FilterJS(records, $this, options));
-  }
-};
-
-window.FilterJS = FilterJS;
-
-var FJS = function(records, container, options) {
-  var self = this;
-
-  this.opts = options || {};
-  this.callbacks = this.opts.callbacks || {};
-  this.$container = $(container);
-  this.view = this.opts.view || renderRecord;
-  this.templateFn = this.template($(this.opts.template).html());
-  this.criterias = [];
-  this._index = 1;
-
-  $.each(this.opts.criterias || [], function(){
-    self.addCriteria(this);
-  });
-
-  this.Model = JsonQuery();
-  this.Model.getterFns['_fid'] = function(r){ return r['_fid'];};
-  this.addRecords(records);
-};
-
-var F = FJS.prototype;
-
-Object.defineProperty(F, 'records', {
-  get: function(){ return this.Model.records; }
-});
-
-Object.defineProperty(F, 'recordsCount', {
-  get: function(){ return this.Model.records.length; }
-});
-
-//View Template
-// Ref: Underscopre.js
-//JavaScript micro-templating, similar to John Resig's implementation.
-var templateSettings = {
-  evaluate    : /<%([\s\S]+?)%>/g,
-  interpolate : /<%=([\s\S]+?)%>/g,
-  escape      : /<%-([\s\S]+?)%>/g
-};
-
-var escapeStr = function(string) {
-  return (''+string).replace(/&/g,  '&amp;')
-                    .replace(/</g,  '&lt;')
-                    .replace(/>/g,  '&gt;')
-                    .replace(/"/g,  '&quot;')
-                    .replace(/'/g,  '&#x27;')
-                    .replace(/\//g, '&#x2F;');
-};
-
-F.template = function(str, data) {
-  var c  = templateSettings;
-  var tmpl = 'var __p=[],print=function(){__p.push.apply(__p,arguments);};' +
-    'with(obj||{}){__p.push(\'' +
-    str.replace(/\\/g, '\\\\')
-       .replace(/'/g, "\\'")
-       .replace(c.escape, function(match, code) {
-         return "',escapeStr(" + code.replace(/\\'/g, "'") + "),'";
-       })
-       .replace(c.interpolate, function(match, code) {
-         return "'," + code.replace(/\\'/g, "'") + ",'";
-       })
-       .replace(c.evaluate || null, function(match, code) {
-         return "');" + code.replace(/\\'/g, "'")
-                            .replace(/[\r\n\t]/g, ' ') + ";__p.push('";
-       })
-       .replace(/\r/g, '\\r')
-       .replace(/\n/g, '\\n')
-       .replace(/\t/g, '\\t')
-       + "');}return __p.join('');";
-
-  var func = new Function('obj', tmpl);
-  return data ? func(data) : function(data) { return func(data) };
-};
-
-//Callback
-F.execCallback = function(name, records){
-  if(this.callbacks[name]) {
-    this.callbacks[name].call(this, records);
-  }
-};
-
-F.addCallback = function(name, fns){
-  if(name && fns){
-    this.callbacks[name] = fns;
-  }
-};
-
-//Add Data
-F.addRecords = function(records){
-  var has_scheme = !!this.Model.schema;
-
-  this.execCallback('beforeAddRecords', records);
-
-  if(this.Model.addRecords(records)){
-    if(!this.has_scheme){
-      this.initSearch(this.opts.search);
-    }
-
-    this.render(records);
-    this.filter();
-  }
-
-  this.execCallback('afterAddRecords', records);
-};
-
-F.removeRecords = function(criteria){
-  var ids;
-
-  if($.isPlainObject(criteria)){
-    ids = this.Model.where(criteria).pluck('_fid').all;
-  }else if($.isArray(criteria)){
-    ids = this.Model.where({'id.$in': criteria}).pluck('_fid').all;
-  }
-
-  if(!ids){
-    return false;
-  }
-
-  var records = this.Model.records, 
-      removedCount = 0,
-      idsLength = ids.length,
-      fid;
-
-  for(var i = records.length - 1; i > -1; i--){
-    fid = records[i]._fid
-
-    if(ids.indexOf(fid) > -1){
-      records.splice(i, 1);
-      removedCount ++;
-
-      $('#fjs_' + fid).remove();
-    } 
-
-    if(removedCount == idsLength){
-      break;
-    }
-  }
-
-  this.execCallback('afterRemove');
-
-  return true;
-};
-
-var renderRecord = function(record, index){
-  return this.templateFn(record);
-};
-
-F.render = function(records){
-  var self = this, ele;
-
-  if(!records.length){return; }
-
-  this.execCallback('beforeRender', records);
-
-  var cName = 'beforeRecordRender';
-
-  $.each(records, function(i){
-    self.execCallback(cName, this);
-    this._fid = (self._index++);
-
-    ele = $($.trim(self.view.call(self, this, i)));
-    ele.attr('id', 'fjs_' + this._fid);
-    ele.addClass('fjs_item');
-    self.$container.append(ele);
-  });
-};
-
-var setDefaultCriteriaOpts = function(criteria){
-  var ele = criteria.$ele,
-      eleType = criteria.$ele.attr('type');
-
-  if(!criteria.selector){
-    if (ele.get(0).tagName == 'INPUT'){
-      criteria.selector = (eleType == 'checkbox' || eleType == 'radio') ? ':checked' : ':input';
-    }else if (ele.get(0).tagName == 'SELECT'){
-      criteria.selector = 'select';
-    }
-  }
-
-  if (!criteria.event){
-    criteria.event = (eleType == 'checkbox' || eleType == 'radio') ? 'click' : 'change';
-  }
-
-  return criteria;
-};
-
-var bindFilterEvent = function(criteria, context){
-  $('body').on(criteria.event, criteria.ele, function(e) {
-    context.filter();
-  });
-};
-
-F.addCriteria = function(criterias){
-  var self = this;
-
-  if(!criterias){ return false; }
-
-  if($.isArray(criterias)){
-    $.each(criterias, function(){
-      addFilterCriteria.call(self, this);
+  var FilterJS = function(records, container, options) {
+    var fjs = new FJS(records, container, options);
+    FilterJS.list.push(fjs);
+  
+    return fjs;
+  };
+  
+  FilterJS.VERSION = '2.0.0';
+  FilterJS.list = [];
+  
+  window.FilterJS = FilterJS;
+  
+  var FJS = function(records, container, options) {
+    var self = this;
+  
+    this.opts = options || {};
+    this.callbacks = this.opts.callbacks || {};
+    this.$container = $(container);
+    this.view = this.opts.view || renderRecord;
+    this.templateFn = templateBuilder($(this.opts.template).html());
+    this.criterias = [];
+    this._index = 1;
+  
+    $.each(this.opts.criterias || [], function(){
+      self.addCriteria(this);
     });
-  }else{
-    addFilterCriteria.call(self, criterias);
-  }
-
-  return true;
-};
-
-// Add Filter criteria
-// criteria: { ele: '#name', event: 'check', field: 'name', type: 'range' }
-var addFilterCriteria = function(criteria){
-  if(!criteria || !criteria.field || !criteria.ele){
-    return false;
-  }
-
-  criteria.$ele = $(criteria.ele);
-
-  if(!criteria.$ele.length){
-    return false;
-  }
-
-  criteria = setDefaultCriteriaOpts(criteria);
-  bindFilterEvent(criteria, this);
-
-  criteria._q = criteria.field + (criteria.type == 'range' ? '.$bt' : '')
-  criteria.active = true;
-
-  this.criterias.push(criteria);
-
-  return true;
-};
-
-F.removeCriteria = function(field){
-  var self = this, criteria, index;
-
-  $.each(self.criterias, function(i){
-    if(this.field == field){
-      index = i;
-    }
+  
+    this.Model = JsonQuery();
+    this.Model.getterFns['_fid'] = function(r){ return r['_fid'];};
+    this.initPaginator();
+    this.addRecords(records);
+  };
+  
+  var F = FJS.prototype;
+  
+  Object.defineProperty(F, 'records', {
+    get: function(){ return this.Model.records; }
   });
+  
+  Object.defineProperty(F, 'recordsCount', {
+    get: function(){ return this.Model.records.length; }
+  });
+  
+  //Callback
+  F.execCallback = function(name, records){
+    if(this.callbacks[name]) {
+      this.callbacks[name].call(this, records);
+    }
+  };
+  
+  F.addCallback = function(name, fns){
+    if(name && fns){
+      this.callbacks[name] = fns;
+    }
+  };
+  
+  //Add Data
+  F.addRecords = function(records){
+  
+    this.execCallback('beforeAddRecords', records);
+  
+    if(this.Model.addRecords(records)){
+      if(!this.Model.schema){
+        this.initSearch(this.opts.search);
+      }
+  
+      this.render(records);
+      this.filter();
+    }
+  
+    this.execCallback('afterAddRecords', records);
+  };
+  
+  F.removeRecords = function(criteria){
+    var ids;
+  
+    if($.isPlainObject(criteria)){
+      ids = this.Model.where(criteria).pluck('_fid').all;
+    }else if($.isArray(criteria)){
+      ids = this.Model.where({'id.$in': criteria}).pluck('_fid').all;
+    }
+  
+    if(!ids){
+      return false;
+    }
+  
+    var records = this.Model.records, 
+        removedCount = 0,
+        idsLength = ids.length,
+        fid;
+  
+    for(var i = records.length - 1; i > -1; i--){
+      fid = records[i]._fid
+  
+      if(ids.indexOf(fid) > -1){
+        records.splice(i, 1);
+        removedCount ++;
+  
+        $('#fjs_' + fid).remove();
+      } 
+  
+      if(removedCount == idsLength){
+        break;
+      }
+    }
+  
+    this.execCallback('afterRemove');
+  
+    return true;
+  };
+  
+  var renderRecord = function(record, index){
+    return this.templateFn(record);
+  };
+  
+  F.render = function(records){
+    var self = this, ele;
+  
+    if(!records.length){return; }
+  
+    this.execCallback('beforeRender', records);
+  
+    var cName = 'beforeRecordRender';
+  
+    $.each(records, function(i){
+      self.execCallback(cName, this);
+      this._fid = (self._index++);
+  
+      ele = $($.trim(self.view.call(self, this, i)));
+      ele.attr('id', 'fjs_' + this._fid);
+      ele.addClass('fjs_item');
+      self.$container.append(ele);
+    });
+  };
+  
+  var setDefaultCriteriaOpts = function(criteria){
+    var ele = criteria.$ele,
+        eleType = criteria.$ele.attr('type');
+  
+    if(!criteria.selector){
+      if (ele.get(0).tagName == 'INPUT'){
+        criteria.selector = (eleType == 'checkbox' || eleType == 'radio') ? ':checked' : ':input';
+      }else if (ele.get(0).tagName == 'SELECT'){
+        criteria.selector = 'select';
+      }
+    }
+  
+    if (!criteria.event){
+      criteria.event = (eleType == 'checkbox' || eleType == 'radio') ? 'click' : 'change';
+    }
+  
+    return criteria;
+  };
+  
+  var bindFilterEvent = function(criteria, context){
+    $('body').on(criteria.event, criteria.ele, function(e) {
+      context.filter();
+    });
+  };
+  
+  F.addCriteria = function(criterias){
+    var self = this;
+  
+    if(!criterias){ return false; }
+  
+    if($.isArray(criterias)){
+      $.each(criterias, function(){
+        addFilterCriteria.call(self, this);
+      });
+    }else{
+      addFilterCriteria.call(self, criterias);
+    }
+  
+    return true;
+  };
+  
+  // Add Filter criteria
+  // criteria: { ele: '#name', event: 'check', field: 'name', type: 'range' }
+  var addFilterCriteria = function(criteria){
+    if(!criteria || !criteria.field || !criteria.ele){
+      return false;
+    }
+  
+    criteria.$ele = $(criteria.ele);
+  
+    if(!criteria.$ele.length){
+      return false;
+    }
+  
+    criteria = setDefaultCriteriaOpts(criteria);
+    bindFilterEvent(criteria, this);
+  
+    criteria._q = criteria.field + (criteria.type == 'range' ? '.$bt' : '')
+    criteria.active = true;
+  
+    this.criterias.push(criteria);
+  
+    return true;
+  };
+  
+  F.removeCriteria = function(field){
+    var self = this, criteria, index;
+  
+    $.each(self.criterias, function(i){
+      if(this.field == field){
+        index = i;
+      }
+    });
+  
+    if(index){
+      criteria = this.criterias.splice(index, 1)[0];
+      $('body').off(criteria.event, criteria.ele)
+    }
+  };
+  
+  var changeCriteriaStatus = function(names, active){
+    var self = this;
+  
+    if(!names){ return; }
+  
+    if(!$.isArray(names)){
+      names = [names]
+    }
+  
+    $.each(names, function(){
+      var name = this;
+  
+      $.each(self.criterias, function(){
+        if(this.field == name){
+          this.active = active;
+        }
+      })
+    });
+  };
+  
+  F.deactivateCriteria = function(names){
+    changeCriteriaStatus.call(self, names, false);
+  };
+  
+  F.activateCriteria = function(names){
+    changeCriteriaStatus.call(this, names, true);
+  };
+  
+  var getSelectedValues = function(criteria){
+    var vals = [];
+  
+    criteria.$ele.filter(criteria.selector).each(function() {
+      vals.push($(this).val());
+    });
+  
+    if(criteria.type == 'range'){
+      vals = vals[0].split('-');
+    }
+  
+    return vals;
+  };
+  
+  F.lastResult = function(){
+    return (this.last_result || this.records);
+  };
+  
+  F.filter = function(){
+    var query = {}, vals, _q;
+  
+    $.each(this.criterias, function(){
+      if(this.active){
+        vals = getSelectedValues(this);
+  
+        if(vals || vals.length){
+          _q = ($.isArray(vals) && !this.type) ? (this._q + '.$in') : this._q;
+          query[_q] = vals ;
+        }
+      }
+    });
+  
+    this.last_result = this.Model.where(query).all;
+  
+    if(this.searchFilter(this.last_result)){
+      return query;
+    }
+  
+    this.show(this.last_result);
+    this.execCallback('afterFilter', this.last_result);
+  
+    return query;
+  };
+  
+  //HideShow element
+  F.show = function(result, offset){
+    offset = offset || {start: 0, end: result.length};
+  
+    $('.fjs_item').hide();
+  
+    if(this.paginator){
+      this.paginator.render(result.length);
+    }
+  
+    for(var i = offset.start; i < offset.end; i++){
+      $('#fjs_' + result[i]._fid).show();
+    }
+  };
+  
+  //Search
+  var bindSearchEvent = function(searchBox, timeout, context){
+    $('body').on('keyup', searchBox, function(e){
+      if (context.searchTimeoutId) {
+        clearTimeout(context.searchTimeoutId);
+      }
+      context.searchTimeoutId = setTimeout(function() {
+        context.filter();
+      }, timeout);
+      //context.searchFilter(true);
+    });
+  };
+  
+  F.initSearch = function(opts){
+    if(!opts && !opts.ele){
+      return;
+    }
+  
+    if(!opts.start_length){
+      this.opts.search.start_length = 2
+    }
+  
+    this.$search_ele = $(this.opts.search.ele);
+  
+    if(this.$search_ele.length){
+      this.has_search = true;
+      this.searchFn = this.buildSearchFn(opts.fields);
+      bindSearchEvent(opts.ele, opts.timeout || 0, this);
+    }
+  };
+  
+  F.buildSearchFn = function(fields){
+     var self = this, getterFns = [];
+  
+     if(fields){
+       $.each(fields, function(){
+         getterFns.push(self.Model.getterFns[this]);
+       })
+     }else{
+       $.each(self.Model.getterFns, function(i, fn){
+         getterFns.push(fn);
+       });
+     }
+  
+     return function(text, record){
+       text = text.toLocaleUpperCase();
+  
+       for(var i = 0, l = getterFns.length; i < l; i++){
+  
+         if((getterFns[i](record) + '').toLocaleUpperCase().indexOf(text) > -1){
+           return true;
+         }
+  
+       }
+       return false;
+     }
+  };
+  
+  F.searchFilter = function(records) {
+    if(!this.has_search){
+      return;
+    }
+  
+    var text = $.trim(this.$search_ele.val()),
+        result;
+  
+    if(text.length < this.opts.search.start_length){
+      return false;
+    }
+  
+    result = this.search(text, records || this.lastResult());
+  
+    this.show(result);
+    this.execCallback('afterFilter', result);
+  
+    return true;
+  };
+  
+  F.search = function(text, records){
+    text = text.toLocaleUpperCase();
+  
+    var result = [];
+  
+    for(var i = 0, l = records.length; i < l; i++){
+      if(this.searchFn(text, records[i])){
+        result.push(records[i]);
+      }
+    }
+  
+    return result;
+  };
+  
+  //Streaming
+  F.setStreaming = function(opts){
+    if(!opts) {return;}
+  
+    this.opts.streaming = opts;
+  
+    if(opts.data_url){
+      opts.stream_after = (opts.stream_after || 2)*1000;
+      opts.batch_size = opts.batch_size || false;
+      this.streamData(opts.stream_after);
+    }
+  
+  };
+  
+  var fetchData = function(){
+    var self = this,
+        params = this.opts.params || {},
+        opts = this.opts.streaming;
+  
+    params.offset = this.recordsCount;
+  
+    if (opts.batch_size) {
+      params.limit = opts.batch_size;
+    }
+  
+    if (this.has_search){
+      params['q'] = $.trim(this.$search_ele.val());
+    }
+  
+    $.getJSON(opts.data_url, params).done(function(records){
+      if (params.limit != null && (!records || !records.length)){
+        self.stopStreaming();
+      }else{
+        self.setStreamInterval();
+        self.addRecords(records);
+      }
+  
+    }).fail(function(e){
+        self.stopStreaming();
+    });
+  };
+  
+  F.setStreamInterval = function(){
+    var self = this;
+  
+    if(self.opts.streaming.stop == true){ return; }
+  
+    self.streamingTimer = setTimeout(function(){
+      fetchData.call(self);
+    }, self.opts.streaming.stream_after);
+  };
+  
+  F.stopStreaming = function(){
+    this.opts.streaming.stop = true;
+  
+    if (this.streamingTimer){
+      clearTimeout(this.streamingTimer);
+    }
+  };
+  
+  F.resumeStreaming = function(){
+    this.opts.streaming.stop = false;
+    this.streamData(this.opts.streaming.stream_after);
+  };
+  
+  F.streamData = function(time){
+    this.setStreamInterval();
+  
+    if(!this.opts.streaming.batch_size){
+      this.stopStreaming();
+    }
+  };
+  
+  F.initPaginator = function(){
+    var self = this;
+  
+    if(!this.opts.pagination){ return; }
+  
+    this.paginator = new Paginator(this.opts.pagination, function(offset){
+      self.show(self.lastResult(), offset);
+    });
+  };
+  
 
-  if(index){
-    criteria = this.criterias.splice(index, 1)[0];
-    $('body').off(criteria.event, criteria.ele)
+  function Paginator(opts, filterCallback) {
+    this.opts = opts || {};
+  
+    this.opts.per_page = this.opts.per_page || {};
+    this.opts.per_page.values = [].concat(this.opts.per_page.values || [20, 30, 50]);
+    this.perPage = this.opts.per_page.values[0];
+  
+    this.currentPage = 1;
+    this.lastCurrentPage = null;
+    this.initTemplates();
+    this.$container = $(this.opts.container);
+    this.bindEvents(filterCallback); 
   }
-};
-
-var changeCriteriaStatus = function(names, active){
-  var self = this;
-
-  if(!names){ return; }
-
-  if(!$.isArray(names)){
-    names = [names]
-  }
-
-  $.each(names, function(){
-    var name = this;
-
-    $.each(self.criterias, function(){
-      if(this.field == name){
-        this.active = active;
+  
+  var P = Paginator.prototype;
+  
+  P.initTemplates = function(){
+    var pagiHtml, perPhtml;
+  
+    if(this.opts.template){
+      pagiHtml = $(this.opts.template).html()
+    }else{
+      pagiHtml = '<nav>  <ul class="pagination">    <li>      <a href="#" data-page="previous" aria-label="Previous"><span aria-hidden="true">&laquo;</span></a>    </li>    <% for(var i = 1; i <= pages; i++ ){ %>      <li class="<%= i == current_page ? \'active\' : \'\' %>"><a href="#" data-page="<%= i %>"><%= i %></a></li>    <% } %>    <li>      <a href="#" data-page="next"aria-label="Next"><span aria-hidden="true">&raquo;</span></a>    </li>  </ul></nav>';
+    }
+  
+    this.paginationTmpl = templateBuilder(pagiHtml);
+  
+    if(!this.opts.per_page.container){
+      return;
+    }
+  
+    if(this.opts.per_page.template){
+      perPhtml = $(this.opts.perPage.template).html();
+    }else{
+      perPhtml= '<select size="1" name="per_page" data-per-page="true">  <% for(var i = 0; i < options.length; i++ ){ %>    <option value="<%= options[i] %>"><%= options[i] %></option>  <% } %></select>';
+    }
+  
+    $(this.opts.per_page.container).html(templateBuilder(perPhtml, {
+      options: this.opts.per_page.values
+    }));
+  
+  };
+  
+  P.pageCount = function(objCount){
+    return Math.ceil(objCount / this.perPage);
+  };
+  
+  P.render = function(objCount, currentPage){
+    var html = "";
+  
+    if(this.perPage >= objCount){
+      this.$container.html(html);
+      return;
+    }  
+   
+    this.objCount = objCount;
+    this.pages = this.pageCount(objCount);
+  
+    html = this.paginationTmpl({
+      pages: this.pages, 
+      current_page: currentPage || this.currentPage
+    });
+  
+    this.$container.html(html);
+  };
+  
+  P.findClickedPage = function(page){
+    console.log(this.currentPage, this.pages)
+    if(parseInt(page)){
+      return page;
+    }
+  
+    if(page == 'first') {
+     return  0;
+    }
+    
+    if(page == 'last'){
+      return this.pages;
+    }
+  
+    if(page == 'next'){
+      return this.currentPage == this.pages ? this.currentPage : (this.currentPage + 1);
+    }
+  
+    if(page == 'previous'){
+      return this.currentPage == 1 ? 1 : (this.currentPage - 1);
+    }
+  };
+  
+  P.bindEvents = function(filterCallback){
+    var self = this;
+  
+    this.$container.on('click', '[data-page]', function(e){
+      e.preventDefault();
+      var page = self.findClickedPage($(this).data('page'));
+  
+      if(page != self.currentPage){
+        self.lastCurrentPage = self.currentPage;
+        self.currentPage = page;
+        filterCallback(self.getOffset());
       }
     })
-  });
-};
-
-F.deactivateCriteria = function(names){
-  changeCriteriaStatus.call(self, names, false);
-};
-
-F.activateCriteria = function(names){
-  changeCriteriaStatus.call(this, names, true);
-};
-
-var getSelectedValues = function(criteria){
-  var vals = [];
-
-  criteria.$ele.filter(criteria.selector).each(function() {
-    vals.push($(this).val());
-  });
-
-  if(criteria.type == 'range'){
-    vals = vals[0].split('-');
-  }
-
-  return vals;
-};
-
-F.lastResult = function(){
-  return (this.last_result || this.records);
-};
-
-F.filter = function(){
-  var query = {}, vals, _q;
-
-  $.each(this.criterias, function(){
-    if(this.active){
-      vals = getSelectedValues(this);
-
-      if(vals || vals.length){
-        _q = ($.isArray(vals) && !this.type) ? (this._q + '.$in') : this._q;
-        query[_q] = vals ;
+  
+    if(!this.opts.per_page.container){ return; }
+  
+    var $perPage = $(this.opts.per_page.container), 
+        eleEvent = $perPage.find('[data-per-page]').is('select') ? 'change' : 'click';
+  
+    $perPage.on(eleEvent, '[data-per-page]', function(e){
+  
+      var $ele = $(this), perPage;
+  
+      if($ele.is('a')){
+        e.preventDefault();
+        perPage = $ele.data('value') || $ele.text();
+      }else{
+        perPage = $ele.val();
       }
+  
+      perPage = parseInt(perPage);
+  
+      if(perPage && self.perPage != perPage){
+        self.perPage = perPage;
+        filterCallback(self.getOffset());
+      }
+    });
+  
+  };
+  
+  P.pageChanged = function(){
+    return this.currentPage == this.lastCurrentPage;
+  };
+  
+  P.getOffset = function(){
+    var start = (this.perPage * (this.currentPage - 1)),
+        end = start + this.perPage;
+  
+    if(end > this.objCount){
+      end = this.objCount;
     }
-  });
-
-  this.last_result = this.Model.where(query).all;
-
-  if(this.searchFilter(this.last_result)){
-    return query;
+  
+    return {start: start, end: end};
   }
+  
 
-  this.show(this.last_result);
-  this.execCallback('afterFilter', this.last_result);
-
-  return query;
-};
-
-//HideShow element
-F.show = function(result, type){
-  $('.fjs_item').hide();
-
-  for(var i = 0, l = result.length; i < l; i++){
-    $('#fjs_' + result[i]._fid).show();
-  }
-};
-
-//Search
-var bindSearchEvent = function(searchBox, timeout, context){
-  $('body').on('keyup', searchBox, function(e){
-    if (context.searchTimeoutId) {
-      clearTimeout(context.searchTimeoutId);
+  $.fn.filterjs = function(records, options) {
+    var $this = $(this);
+  
+    if (!$this.data('fjs')){
+      $this.data('fjs', FilterJS(records, $this, options));
     }
-    context.searchTimeoutId = setTimeout(function() {
-      context.filter();
-    }, timeout);
-    //context.searchFilter(true);
-  });
-};
-
-F.initSearch = function(opts){
-  if(!opts && !opts.ele){
-    return;
-  }
-
-  if(!opts.start_length){
-    this.opts.search.start_length = 2
-  }
-
-  this.$search_ele = $(this.opts.search.ele);
-
-  if(this.$search_ele.length){
-    this.has_search = true;
-    this.searchFn = this.buildSearchFn(opts.fields);
-    bindSearchEvent(opts.ele, opts.timeout || 0, this);
-  }
-};
-
-F.buildSearchFn = function(fields){
-   var self = this, getterFns = [];
-
-   if(fields){
-     $.each(fields, function(){
-       getterFns.push(self.Model.getterFns[this]);
-     })
-   }else{
-     $.each(self.Model.getterFns, function(i, fn){
-       getterFns.push(fn);
-     });
-   }
-
-   return function(text, record){
-     text = text.toLocaleUpperCase();
-
-     for(var i = 0, l = getterFns.length; i < l; i++){
-
-       if((getterFns[i](record) + '').toLocaleUpperCase().indexOf(text) > -1){
-         return true;
-       }
-
-     }
-     return false;
-   }
-};
-
-F.searchFilter = function(records) {
-  if(!this.has_search){
-    return;
-  }
-
-  var text = $.trim(this.$search_ele.val()),
-      result;
-
-  if(text.length < this.opts.search.start_length){
-    return false;
-  }
-
-  result = this.search(text, records || this.lastResult());
-
-  this.show(result);
-  this.execCallback('afterFilter', result);
-
-  return true;
-};
-
-F.search = function(text, records){
-  text = text.toLocaleUpperCase();
-
-  var result = [];
-
-  for(var i = 0, l = records.length; i < l; i++){
-    if(this.searchFn(text, records[i])){
-      result.push(records[i]);
-    }
-  }
-
-  return result;
-};
-
-//Streaming
-F.setStreaming = function(opts){
-  if(!opts) {return;}
-
-  this.opts.streaming = opts;
-
-  if(opts.data_url){
-    opts.stream_after = (opts.stream_after || 2)*1000;
-    opts.batch_size = opts.batch_size || false;
-    this.streamData(opts.stream_after);
-  }
-
-};
-
-var fetchData = function(){
-  var self = this,
-      params = this.opts.params || {},
-      opts = this.opts.streaming;
-
-  params.offset = this.recordsCount;
-
-  if (opts.batch_size) {
-    params.limit = opts.batch_size;
-  }
-
-  if (this.has_search){
-    params['q'] = $.trim(this.$search_ele.val());
-  }
-
-  $.getJSON(opts.data_url, params).done(function(records){
-    if (params.limit != null && (!records || !records.length)){
-      self.stopStreaming();
-    }else{
-      self.setStreamInterval();
-      self.addRecords(records);
-    }
-
-  }).fail(function(e){
-      self.stopStreaming();
-  });
-};
-
-F.setStreamInterval = function(){
-  var self = this;
-
-  if(self.opts.streaming.stop == true){ return; }
-
-  self.streamingTimer = setTimeout(function(){
-    fetchData.call(self);
-  }, self.opts.streaming.stream_after);
-};
-
-F.stopStreaming = function(){
-  this.opts.streaming.stop = true;
-
-  if (this.streamingTimer){
-    clearTimeout(this.streamingTimer);
-  }
-};
-
-F.resumeStreaming = function(){
-  this.opts.streaming.stop = false;
-  this.streamData(this.opts.streaming.stream_after);
-};
-
-F.streamData = function(time){
-  this.setStreamInterval();
-
-  if(!this.opts.streaming.batch_size){
-    this.stopStreaming();
-  }
-};
+  };
+  
 
 
 })( jQuery, window , document );

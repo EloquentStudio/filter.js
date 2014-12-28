@@ -9,7 +9,7 @@
     <script src="assets/js/jquery-ui-1.10.2.custom.min.js" type="text/javascript"></script>
     <script src="../dist/filter.js" type="text/javascript"></script>
     <script src="data/movies.js" type="text/javascript"></script>
-    <script src="index.js" type="text/javascript"></script>
+    <script src="stream.js" type="text/javascript"></script>
   </head>
   <body>
     <div class="container">
@@ -17,6 +17,9 @@
       <div class="sidebar col-span-3">
         <div class="row">
           <h4 class="col-span-6"> Movies (<span id="total_movies">250</span>)</h4>
+          <div class="col-span-6 progress">
+            <div class="progress-bar" id="stream_progress" style="width: 0%">0 %</div>
+          </div>
         </div>
         <div>
           <input type="text" id="searchbox" placeholder="Search...">
@@ -144,15 +147,9 @@
         </div></div>
 
       </div>
-      <!--
-      <div class="sorting content col-span-9"> </div>
-      -->
-      <div class="movies content col-span-9">
-        <div class="row">
-          <div id="per_page" class="col-span-2"></div>
-          <div id="pagination" class="col-span-10"></div>
-        </div>
-        <div id="movies"></div>
+      <div class="sorting content col-span-9">
+      </div>
+      <div class="movies content col-span-9" id="movies">
       </div>
       <script id="movie-template" type="text/html">
         <div class="col-span-4 movie">

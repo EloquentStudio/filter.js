@@ -5,12 +5,6 @@ $(document).ready(function(){
   var FJS = FilterJS(movies, '#movies', {
     template: '#movie-template',
     search: {ele: '#searchbox'},
-    pagination: { 
-      container: '#pagination', 
-      per_page: {
-        container: '#per_page'
-      }
-    },
     //search: {ele: '#searchbox', fields: ['runtime']}, // With specific fields
     callbacks: {
       afterFilter: function(result){
@@ -23,6 +17,22 @@ $(document).ready(function(){
     if(this.recordsCount >= 450){
       this.stopStreaming();
     }
+  });
+
+  FJS.addCallback('afterAddRecords', function(){
+    var percent = (this.recordsCount - 250)*100/250;
+
+    $('#stream_progress').text(percent + '%').attr('style', 'width: '+ percent +'%;');
+
+    if (percent == 100){
+      $('#stream_progress').parent().fadeOut(1000);
+    }
+  });
+
+  FJS.setStreaming({
+    data_url: 'data/stream_movies.json',
+    stream_after: 1,
+    batch_size: 50
   });
 
   FJS.addCriteria({field: 'year', ele: '#year_filter', type: 'range'});
