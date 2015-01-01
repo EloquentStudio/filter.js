@@ -1,13 +1,21 @@
 <nav>
   <ul class="pagination">
-    <li>
-      <a href="#" data-page="previous" aria-label="Previous"><span aria-hidden="true">&laquo;</span></a>
-    </li>
-    <% for(var i = 1; i <= pages; i++ ){ %>
-      <li class="<%= i == current_page ? 'active' : '' %>"><a href="#" data-page="<%= i %>"><%= i %></a></li>
+    <% if(!current_page.isFirst()) { %>
+      <li> <a href="#" data-page="first" aria-label="First"><span aria-hidden="true">First</span></a> </li>
+      <li><a href="#" data-page="previous" aria-label="Previous"><span aria-hidden="true">&larr; Previous</span></a></li>
     <% } %>
-    <li>
-      <a href="#" data-page="next"aria-label="Next"><span aria-hidden="true">&raquo;</span></a>
-    </li>
+    <% for(var i = 0, l = pages.length; i < l; i++ ){ %>
+        <% if(pages[i].isLeftOuter() || pages[i].isRightOuter() || pages[i].isInsideWindow()) { %>
+          <li class="<%= pages[i].isCurrent() ? 'active' : '' %>">
+            <a href="#" data-page="<%= pages[i].num %>"><%= pages[i].num %></a>
+          </li>
+        <% }else{ %>
+          <li class="disabled"><a href="#">...</a></li>
+        <% } %>
+    <% } %>
+    <% if(!current_page.isLast()) { %>
+      <li><a href="#" data-page="next" aria-label="Next"><span aria-hidden="true">Next &rarr;</span></a></li>
+      <li><a href="#" data-page="last" aria-label="Last"><span aria-hidden="true">Last</span></a></li>
+    <% } %>
   </ul>
 </nav>

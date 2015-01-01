@@ -1,11 +1,11 @@
 /*
  * filter.js
- * 2.0.0 (2014-12-28)
+ * 2.0.0 (2015-01-01)
  *
  * Released under the MIT license
  * http://opensource.org/licenses/MIT
  *
- * Copyright 2011-2014 Jiren Patel[jirenpatel@gmail.com]
+ * Copyright 2011-2015 Jiren Patel[jirenpatel@gmail.com]
  *
  * Dependency:
  *  jQuery(v1.9 >=)
@@ -814,7 +814,7 @@ if (!Array.prototype.indexOf) {
     this.callbacks = this.opts.callbacks || {};
     this.$container = $(container);
     this.view = this.opts.view || renderRecord;
-    this.templateFn = templateBuilder($(this.opts.template).html());
+    this.templateFn = templateBuilder($.trim($(this.opts.template).html()));
     this.criterias = [];
     this._index = 1;
   
@@ -824,7 +824,11 @@ if (!Array.prototype.indexOf) {
   
     this.Model = JsonQuery();
     this.Model.getterFns['_fid'] = function(r){ return r['_fid'];};
-    this.initPaginator();
+  
+    if(this.opts.pagination){
+      this.initPaginator(this.opts.pagination);
+    }
+  
     this.addRecords(records);
   };
   
@@ -853,6 +857,9 @@ if (!Array.prototype.indexOf) {
   
   //Add Data
   F.addRecords = function(records){
+    if(!records || !records.length){
+      return;
+    }
   
     this.execCallback('beforeAddRecords', records);
   
@@ -911,23 +918,23 @@ if (!Array.prototype.indexOf) {
   };
   
   F.render = function(records){
-    var self = this, ele;
-  
-    if(!records.length){return; }
+    var cName = 'beforeRecordRender',
+        idAttr = 'id',
+        css = 'fjs_item',
+        ele,
+        self = this;
   
     this.execCallback('beforeRender', records);
   
-    var cName = 'beforeRecordRender';
+    records.forEach(function(r, i){
+      self.execCallback(cName, r);
+      r._fid =  (self._index++);
   
-    $.each(records, function(i){
-      self.execCallback(cName, this);
-      this._fid = (self._index++);
-  
-      ele = $($.trim(self.view.call(self, this, i)));
-      ele.attr('id', 'fjs_' + this._fid);
-      ele.addClass('fjs_item');
+      ele = $(self.view(r, i));
+      ele.attr(idAttr, 'fjs_' + r._fid);
+      ele.addClass(css);
       self.$container.append(ele);
-    });
+    })
   };
   
   var setDefaultCriteriaOpts = function(criteria){
@@ -1083,14 +1090,10 @@ if (!Array.prototype.indexOf) {
   };
   
   //HideShow element
-  F.show = function(result, offset){
-    offset = offset || {start: 0, end: result.length};
-  
+  F.show = function(result){
+    var offset = this.renderPagination(result.length);
+    
     $('.fjs_item').hide();
-  
-    if(this.paginator){
-      this.paginator.render(result.length);
-    }
   
     for(var i = offset.start; i < offset.end; i++){
       $('#fjs_' + result[i]._fid).show();
@@ -1265,16 +1268,31 @@ if (!Array.prototype.indexOf) {
   F.initPaginator = function(){
     var self = this;
   
-    if(!this.opts.pagination){ return; }
-  
     this.paginator = new Paginator(this.opts.pagination, function(offset){
       self.show(self.lastResult(), offset);
     });
   };
   
+  F.renderPagination = function(recordsCount){
+    if(this.paginator){
+      return this.paginator.render(recordsCount);
+    }
+      
+    return {start: 0, end: recordsCount};
+  };
+  
 
   function Paginator(opts, filterCallback) {
-    this.opts = opts || {};
+    this.opts = $.extend({
+      inner_window: 0,
+      outer_window: 0,
+      left: 0,
+      right: 0
+    }, opts);
+  
+    this.opts.window = this.opts.window || this.opts.inner_window || 3;
+    this.opts.left = this.opts.left || this.opts.outer_window;
+    this.opts.right = this.opts.right || this.opts.outer_window;
   
     this.opts.per_page = this.opts.per_page || {};
     this.opts.per_page.values = [].concat(this.opts.per_page.values || [20, 30, 50]);
@@ -1295,7 +1313,7 @@ if (!Array.prototype.indexOf) {
     if(this.opts.template){
       pagiHtml = $(this.opts.template).html()
     }else{
-      pagiHtml = '<nav>  <ul class="pagination">    <li>      <a href="#" data-page="previous" aria-label="Previous"><span aria-hidden="true">&laquo;</span></a>    </li>    <% for(var i = 1; i <= pages; i++ ){ %>      <li class="<%= i == current_page ? \'active\' : \'\' %>"><a href="#" data-page="<%= i %>"><%= i %></a></li>    <% } %>    <li>      <a href="#" data-page="next"aria-label="Next"><span aria-hidden="true">&raquo;</span></a>    </li>  </ul></nav>';
+      pagiHtml = '<nav>  <ul class="pagination">    <% if(!current_page.isFirst()) { %>      <li> <a href="#" data-page="first" aria-label="First"><span aria-hidden="true">First</span></a> </li>      <li><a href="#" data-page="previous" aria-label="Previous"><span aria-hidden="true">&larr; Previous</span></a></li>    <% } %>    <% for(var i = 0, l = pages.length; i < l; i++ ){ %>        <% if(pages[i].isLeftOuter() || pages[i].isRightOuter() || pages[i].isInsideWindow()) { %>          <li class="<%= pages[i].isCurrent() ? \'active\' : \'\' %>">            <a href="#" data-page="<%= pages[i].num %>"><%= pages[i].num %></a>          </li>        <% }else{ %>          <li class="disabled"><a href="#">...</a></li>        <% } %>    <% } %>    <% if(!current_page.isLast()) { %>      <li><a href="#" data-page="next" aria-label="Next"><span aria-hidden="true">Next &rarr;</span></a></li>      <li><a href="#" data-page="last" aria-label="Last"><span aria-hidden="true">Last</span></a></li>    <% } %>  </ul></nav>';
     }
   
     this.paginationTmpl = templateBuilder(pagiHtml);
@@ -1316,50 +1334,58 @@ if (!Array.prototype.indexOf) {
   
   };
   
-  P.pageCount = function(objCount){
-    return Math.ceil(objCount / this.perPage);
+  P.rangeToArray = function(n1, n2){
+    var nums = [];
+  
+    if(n1 <= 0){
+      n1 = 1;
+    }else if(n2 <= 0){
+      n2 = 1;
+    }
+    
+    if(n2 > this.totalPages){
+      n2 = this.totalPages;
+    } 
+  
+    for(n1; n1 <= n2; n1++){
+      nums.push(n1);
+    }
+    return nums;
   };
   
-  P.render = function(objCount, currentPage){
-    var html = "";
+  P.getPages = function(){
+    var i = 0,
+        l,
+        pages = [],
+        left = this.rangeToArray(1, this.opts.left),
+        inside = this.rangeToArray(this.currentPage - this.opts.window, this.currentPage + this.opts.window ),
+        right = this.rangeToArray(this.totalPages - this.opts.right, this.totalPages);
   
-    if(this.perPage >= objCount){
-      this.$container.html(html);
-      return;
-    }  
-   
-    this.objCount = objCount;
-    this.pages = this.pageCount(objCount);
+    var nums = $.unique(left.concat(inside, right))
+                  .sort(function(a,b){ return (a - b);})
+    
+    for(i = 0, l = nums.length; i < l; i++){
+      this.lastPage = new Page(this.opts, nums[i], this.totalPages, this.currentPage);
+      pages.push(this.lastPage);
+    }
+  
+    return pages;
+  };
+  
+  P.render = function(totalItems, currentPage){
+    var html;
+  
+    this.totalItems = totalItems;
+    this.totalPages = Math.ceil(totalItems / this.perPage);
   
     html = this.paginationTmpl({
-      pages: this.pages, 
-      current_page: currentPage || this.currentPage
+      pages: this.getPages(), 
+      current_page: new Page(this.opts, this.currentPage, this.totalPages, this.currentPage), 
     });
   
     this.$container.html(html);
-  };
   
-  P.findClickedPage = function(page){
-    console.log(this.currentPage, this.pages)
-    if(parseInt(page)){
-      return page;
-    }
-  
-    if(page == 'first') {
-     return  0;
-    }
-    
-    if(page == 'last'){
-      return this.pages;
-    }
-  
-    if(page == 'next'){
-      return this.currentPage == this.pages ? this.currentPage : (this.currentPage + 1);
-    }
-  
-    if(page == 'previous'){
-      return this.currentPage == 1 ? 1 : (this.currentPage - 1);
-    }
+    return this.getOffset(totalItems);
   };
   
   P.bindEvents = function(filterCallback){
@@ -1367,7 +1393,7 @@ if (!Array.prototype.indexOf) {
   
     this.$container.on('click', '[data-page]', function(e){
       e.preventDefault();
-      var page = self.findClickedPage($(this).data('page'));
+      var page = getPageNum($(this).data('page'), self.totalPages, self.currentPage);
   
       if(page != self.currentPage){
         self.lastCurrentPage = self.currentPage;
@@ -1402,20 +1428,96 @@ if (!Array.prototype.indexOf) {
   
   };
   
-  P.pageChanged = function(){
-    return this.currentPage == this.lastCurrentPage;
-  };
-  
-  P.getOffset = function(){
+  P.getOffset = function(totalItems){
     var start = (this.perPage * (this.currentPage - 1)),
         end = start + this.perPage;
   
-    if(end > this.objCount){
-      end = this.objCount;
+    if(!totalItems){
+      totalItems = this.totalItems
+    }
+  
+    if(end > totalItems){
+      end = totalItems;
     }
   
     return {start: start, end: end};
   }
+  
+
+  function getPageNum(page, total, current){
+    var num = parseInt(page);
+  
+    if(num){
+      return num;
+    }
+  
+    if(page == 'first') {
+     return  1;
+    }
+    
+    if(page == 'last'){
+      return total;
+    }
+  
+    if(page == 'next'){
+      return current == total ? current : (current + 1);
+    }
+  
+    if(page == 'previous'){
+      return current == 1 ? 1 : (current - 1);
+    }
+  
+    return page;
+  };
+  
+  function Page(opts, page, last, current){
+    this.opts = opts;
+    this.last = last;
+    this.current = current;
+    this.num = getPageNum(page);
+  }
+  
+  var G = Page.prototype;
+  
+  G.isCurrent = function(){
+    return this.num == this.current;
+  };
+  
+  G.isFirst = function(){
+    return this.num == 1;
+  };
+  
+  G.isLast = function(){
+    return this.num == this.last;
+  };
+  
+  G.isPrev = function(){
+    return this.num == (this.current - 1);
+  };
+  
+  G.isNext = function(){
+    return this.num == (this.current + 1);
+  };
+  
+  //within the left outer window or not
+  G.isLeftOuter = function(){
+    return this.num <= this.opts.left;
+  };
+  
+  //within the right outer window or not
+  G.isRightOuter = function(){
+    return (this.last - this.num) < this.opts.right;
+  };
+  
+  //inside the inner window or not
+  G.isInsideWindow = function(){
+    return Math.abs(this.current - this.num) <= this.opts.window;
+  };
+  
+  G.isTruncated = function(){
+    return this.num == 'gap';
+  };
+  
   
 
   $.fn.filterjs = function(records, options) {

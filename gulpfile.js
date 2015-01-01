@@ -61,8 +61,8 @@ gulp.task('scripts', function() {
   .pipe(injector())
   .pipe(header(banner, { pkg: pkg } ))
   .pipe(gulp.dest(paths.dist))
-  //.pipe(sourcemaps.init())
-  //.pipe(uglify({preserveComments: 'all'}))
+  .pipe(sourcemaps.init())
+  .pipe(uglify({preserveComments: 'all'}))
   .pipe(rename(compressedJs))
   .pipe(gulp.dest(paths.dist))
 

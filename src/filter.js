@@ -17,7 +17,7 @@ var FJS = function(records, container, options) {
   this.callbacks = this.opts.callbacks || {};
   this.$container = $(container);
   this.view = this.opts.view || renderRecord;
-  this.templateFn = templateBuilder($(this.opts.template).html());
+  this.templateFn = templateBuilder($.trim($(this.opts.template).html()));
   this.criterias = [];
   this._index = 1;
 
@@ -27,7 +27,11 @@ var FJS = function(records, container, options) {
 
   this.Model = JsonQuery();
   this.Model.getterFns['_fid'] = function(r){ return r['_fid'];};
-  this.initPaginator();
+
+  if(this.opts.pagination){
+    this.initPaginator(this.opts.pagination);
+  }
+
   this.addRecords(records);
 };
 
@@ -56,6 +60,9 @@ F.addCallback = function(name, fns){
 
 //Add Data
 F.addRecords = function(records){
+  if(!records || !records.length){
+    return;
+  }
 
   this.execCallback('beforeAddRecords', records);
 
@@ -114,23 +121,23 @@ var renderRecord = function(record, index){
 };
 
 F.render = function(records){
-  var self = this, ele;
-
-  if(!records.length){return; }
+  var cName = 'beforeRecordRender',
+      idAttr = 'id',
+      css = 'fjs_item',
+      ele,
+      self = this;
 
   this.execCallback('beforeRender', records);
 
-  var cName = 'beforeRecordRender';
+  records.forEach(function(r, i){
+    self.execCallback(cName, r);
+    r._fid =  (self._index++);
 
-  $.each(records, function(i){
-    self.execCallback(cName, this);
-    this._fid = (self._index++);
-
-    ele = $($.trim(self.view.call(self, this, i)));
-    ele.attr('id', 'fjs_' + this._fid);
-    ele.addClass('fjs_item');
+    ele = $(self.view(r, i));
+    ele.attr(idAttr, 'fjs_' + r._fid);
+    ele.addClass(css);
     self.$container.append(ele);
-  });
+  })
 };
 
 var setDefaultCriteriaOpts = function(criteria){
@@ -286,14 +293,10 @@ F.filter = function(){
 };
 
 //HideShow element
-F.show = function(result, offset){
-  offset = offset || {start: 0, end: result.length};
-
+F.show = function(result){
+  var offset = this.renderPagination(result.length);
+  
   $('.fjs_item').hide();
-
-  if(this.paginator){
-    this.paginator.render(result.length);
-  }
 
   for(var i = offset.start; i < offset.end; i++){
     $('#fjs_' + result[i]._fid).show();
@@ -468,9 +471,15 @@ F.streamData = function(time){
 F.initPaginator = function(){
   var self = this;
 
-  if(!this.opts.pagination){ return; }
-
   this.paginator = new Paginator(this.opts.pagination, function(offset){
     self.show(self.lastResult(), offset);
   });
+};
+
+F.renderPagination = function(recordsCount){
+  if(this.paginator){
+    return this.paginator.render(recordsCount);
+  }
+    
+  return {start: 0, end: recordsCount};
 };

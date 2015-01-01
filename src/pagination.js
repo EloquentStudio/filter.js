@@ -1,5 +1,14 @@
 function Paginator(opts, filterCallback) {
-  this.opts = opts || {};
+  this.opts = $.extend({
+    inner_window: 0,
+    outer_window: 0,
+    left: 0,
+    right: 0
+  }, opts);
+
+  this.opts.window = this.opts.window || this.opts.inner_window || 3;
+  this.opts.left = this.opts.left || this.opts.outer_window;
+  this.opts.right = this.opts.right || this.opts.outer_window;
 
   this.opts.per_page = this.opts.per_page || {};
   this.opts.per_page.values = [].concat(this.opts.per_page.values || [20, 30, 50]);
@@ -41,50 +50,58 @@ P.initTemplates = function(){
 
 };
 
-P.pageCount = function(objCount){
-  return Math.ceil(objCount / this.perPage);
+P.rangeToArray = function(n1, n2){
+  var nums = [];
+
+  if(n1 <= 0){
+    n1 = 1;
+  }else if(n2 <= 0){
+    n2 = 1;
+  }
+  
+  if(n2 > this.totalPages){
+    n2 = this.totalPages;
+  } 
+
+  for(n1; n1 <= n2; n1++){
+    nums.push(n1);
+  }
+  return nums;
 };
 
-P.render = function(objCount, currentPage){
-  var html = "";
+P.getPages = function(){
+  var i = 0,
+      l,
+      pages = [],
+      left = this.rangeToArray(1, this.opts.left),
+      inside = this.rangeToArray(this.currentPage - this.opts.window, this.currentPage + this.opts.window ),
+      right = this.rangeToArray(this.totalPages - this.opts.right, this.totalPages);
 
-  if(this.perPage >= objCount){
-    this.$container.html(html);
-    return;
-  }  
- 
-  this.objCount = objCount;
-  this.pages = this.pageCount(objCount);
+  var nums = $.unique(left.concat(inside, right))
+                .sort(function(a,b){ return (a - b);})
+  
+  for(i = 0, l = nums.length; i < l; i++){
+    this.lastPage = new Page(this.opts, nums[i], this.totalPages, this.currentPage);
+    pages.push(this.lastPage);
+  }
+
+  return pages;
+};
+
+P.render = function(totalItems, currentPage){
+  var html;
+
+  this.totalItems = totalItems;
+  this.totalPages = Math.ceil(totalItems / this.perPage);
 
   html = this.paginationTmpl({
-    pages: this.pages, 
-    current_page: currentPage || this.currentPage
+    pages: this.getPages(), 
+    current_page: new Page(this.opts, this.currentPage, this.totalPages, this.currentPage), 
   });
 
   this.$container.html(html);
-};
 
-P.findClickedPage = function(page){
-  console.log(this.currentPage, this.pages)
-  if(parseInt(page)){
-    return page;
-  }
-
-  if(page == 'first') {
-   return  0;
-  }
-  
-  if(page == 'last'){
-    return this.pages;
-  }
-
-  if(page == 'next'){
-    return this.currentPage == this.pages ? this.currentPage : (this.currentPage + 1);
-  }
-
-  if(page == 'previous'){
-    return this.currentPage == 1 ? 1 : (this.currentPage - 1);
-  }
+  return this.getOffset(totalItems);
 };
 
 P.bindEvents = function(filterCallback){
@@ -92,7 +109,7 @@ P.bindEvents = function(filterCallback){
 
   this.$container.on('click', '[data-page]', function(e){
     e.preventDefault();
-    var page = self.findClickedPage($(this).data('page'));
+    var page = getPageNum($(this).data('page'), self.totalPages, self.currentPage);
 
     if(page != self.currentPage){
       self.lastCurrentPage = self.currentPage;
@@ -127,16 +144,16 @@ P.bindEvents = function(filterCallback){
 
 };
 
-P.pageChanged = function(){
-  return this.currentPage == this.lastCurrentPage;
-};
-
-P.getOffset = function(){
+P.getOffset = function(totalItems){
   var start = (this.perPage * (this.currentPage - 1)),
       end = start + this.perPage;
 
-  if(end > this.objCount){
-    end = this.objCount;
+  if(!totalItems){
+    totalItems = this.totalItems
+  }
+
+  if(end > totalItems){
+    end = totalItems;
   }
 
   return {start: start, end: end};
