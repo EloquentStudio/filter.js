@@ -29,11 +29,13 @@ $(document).ready(function(){
     }
   });
 
+  /*
   FJS.setStreaming({
     data_url: 'data/stream_movies.json',
     stream_after: 1,
     batch_size: 50
   });
+  */
 
   FJS.addCriteria({field: 'year', ele: '#year_filter', type: 'range'});
   FJS.addCriteria({field: 'rating', ele: '#rating_filter', type: 'range'});

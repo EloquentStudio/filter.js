@@ -92,9 +92,9 @@ F.template = function(str, data) {
 };
 
 //Callback
-F.execCallback = function(name, records){
+F.execCallback = function(name, args){
   if(this.callbacks[name]) {
-    this.callbacks[name].call(this, records);
+    this.callbacks[name].call(this, args);
   }
 };
 
@@ -203,12 +203,6 @@ var setDefaultCriteriaOpts = function(criteria){
   return criteria;
 };
 
-var bindFilterEvent = function(criteria, context){
-  $('body').on(criteria.event, criteria.ele, function(e) {
-    context.filter();
-  });
-};
-
 F.addCriteria = function(criterias){
   var self = this;
 
@@ -239,7 +233,7 @@ var addFilterCriteria = function(criteria){
   }
 
   criteria = setDefaultCriteriaOpts(criteria);
-  bindFilterEvent(criteria, this);
+  this.bindEvent(criteria.ele, criteria.event);
 
   criteria._q = criteria.field + (criteria.type == 'range' ? '.$bt' : '')
   criteria.active = true;
@@ -292,18 +286,22 @@ F.activateCriteria = function(names){
   changeCriteriaStatus.call(this, names, true);
 };
 
-var getSelectedValues = function(criteria){
+var getSelectedValues = function(criteria, context){
   var vals = [];
 
   criteria.$ele.filter(criteria.selector).each(function() {
     vals.push($(this).val());
   });
 
+  if($.isArray(vals[0])){
+    vals = [].concat(vals);
+  }
+
   if(criteria.type == 'range'){
     vals = vals[0].split('-');
   }
 
-  return vals;
+  return context.execCallback('onFilterSelect', {criteria: criteria, values: vals}) || vals;
 };
 
 F.lastResult = function(){
@@ -311,11 +309,13 @@ F.lastResult = function(){
 };
 
 F.filter = function(){
-  var query = {}, vals, _q;
+  var query = {}, 
+      vals, _q,
+      self = this;
 
   $.each(this.criterias, function(){
     if(this.active){
-      vals = getSelectedValues(this);
+      vals = getSelectedValues(this, self);
 
       if(vals || vals.length){
         _q = ($.isArray(vals) && !this.type) ? (this._q + '.$in') : this._q;
@@ -345,16 +345,24 @@ F.show = function(result, type){
   }
 };
 
+F.filterTimer = function(timeout){
+  var self = this;
+
+  if (this.filterTimeoutId) {
+    clearTimeout(this.filterTimeoutId);
+  }
+
+  this.filterTimeoutId = setTimeout(function() {
+    self.filter();
+  }, timeout);
+};
+
 //Search
-var bindSearchEvent = function(searchBox, timeout, context){
-  $('body').on('keyup', searchBox, function(e){
-    if (context.searchTimeoutId) {
-      clearTimeout(context.searchTimeoutId);
-    }
-    context.searchTimeoutId = setTimeout(function() {
-      context.filter();
-    }, timeout);
-    //context.searchFilter(true);
+F.bindEvent = function(ele, eventName){
+  var self = this;
+
+  $(document).on(eventName, ele, function(e){
+    self.filterTimer(self.opts.timeout || 70);
   });
 };
 
@@ -372,7 +380,7 @@ F.initSearch = function(opts){
   if(this.$search_ele.length){
     this.has_search = true;
     this.searchFn = this.buildSearchFn(opts.fields);
-    bindSearchEvent(opts.ele, opts.timeout || 0, this);
+    this.bindEvent(opts.ele, 'keyup');
   }
 };
 
