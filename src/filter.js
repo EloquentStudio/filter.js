@@ -252,7 +252,7 @@ F.removeCriteria = function(field){
     }
   });
 
-  if(index){
+  if(index != null){
     criteria = this.criterias.splice(index, 1)[0];
     $('body').off(criteria.event, criteria.ele)
   }
