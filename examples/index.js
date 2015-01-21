@@ -35,7 +35,7 @@ $(document).ready(function(){
     batch_size: 50
   });
 
-  FJS.addCriteria({field: 'year', ele: '#year_filter', type: 'range'});
+  FJS.addCriteria({field: 'year', ele: '#year_filter', type: 'range', all: 'all'});
   FJS.addCriteria({field: 'rating', ele: '#rating_filter', type: 'range'});
   FJS.addCriteria({field: 'runtime', ele: '#runtime_filter', type: 'range'});
   FJS.addCriteria({field: 'genre', ele: '#genre_criteria input:checkbox'});

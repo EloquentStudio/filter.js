@@ -294,7 +294,11 @@ var getSelectedValues = function(criteria, context){
   });
 
   if($.isArray(vals[0])){
-    vals = [].concat(vals);
+    vals = [].concat.apply([], vals);
+  }
+
+  if(criteria.all && vals.indexOf(criteria.all) > -1){
+    return [];
   }
 
   if(criteria.type == 'range'){
@@ -311,20 +315,22 @@ F.lastResult = function(){
 F.filter = function(){
   var query = {}, 
       vals, _q,
+      count = 0,
       self = this;
 
   $.each(this.criterias, function(){
     if(this.active){
       vals = getSelectedValues(this, self);
 
-      if(vals || vals.length){
+      if(vals && vals.length){
         _q = ($.isArray(vals) && !this.type) ? (this._q + '.$in') : this._q;
         query[_q] = vals ;
+        count = count + 1;
       }
     }
   });
 
-  this.last_result = this.Model.where(query).all;
+  this.last_result = count ? this.Model.where(query).all : this.Model.all;
 
   if(this.searchFilter(this.last_result)){
     return query;
@@ -362,7 +368,7 @@ F.bindEvent = function(ele, eventName){
   var self = this;
 
   $(document).on(eventName, ele, function(e){
-    self.filterTimer(self.opts.timeout || 70);
+    self.filterTimer(self.opts.timeout || 30);
   });
 };
 

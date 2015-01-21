@@ -99,7 +99,7 @@ Other options are filter `type`, `event` and `selector`.
 - filter `type`, by default it is equal but if you want to search in range you can set it `range`. For `range` html element value must be in format of `val1-val2`. i.e `100-200`.
 - `event` by default for checkbox, radio button is `click`, for text input, select box is `change`.
 - `selector` by default for checkbox and radio button is `:checked`, for input field `input` and for select box is `select`.'#genre_criteria input:checkbox' will collect the checkboxes values in html element with `id="genre_criteria"`
-
+- `all` option : if selected values of specific filter criteria contains `all` option value then all record selected for that criteria.
 
 There are two way to add criteria one is add at time of filter object initialisation and other one is add when required
 
@@ -114,7 +114,10 @@ There are two way to add criteria one is add at time of filter object initialisa
   FJS.addCriteria({field: 'year', ele: '#year_filter', type: 'range'})
   FJS.addCriteria({field: 'genre', ele: '#genre_criteria input:checkbox'})
 
-  # With all options.
+  # with all  option
+  FJS.addCriteria({field: 'year', ele: '#year_filter', type: 'range', all: 'all_years'})
+
+  # Full options list.
   FJS.addCriteria({field: 'genre', ele: '.genres', event: 'change', selector: ':checked' })
 ```
 
