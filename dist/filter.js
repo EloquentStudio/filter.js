@@ -1,6 +1,6 @@
 /*
  * filter.js
- * 2.0.0 (2015-01-21)
+ * 2.0.0 (2015-02-10)
  *
  * Released under the MIT license
  * http://opensource.org/licenses/MIT
@@ -930,7 +930,8 @@ F.render = function(records){
     self.execCallback(cName, this);
     this._fid = (self._index++);
 
-    ele = $($.trim(self.view.call(self, this, i)));
+    ele = self.view.call(self, this, i);
+    if (typeof ele === 'string') ele = $($.trim(ele));
     ele.attr('id', 'fjs_' + this._fid);
     ele.addClass('fjs_item');
     self.$container.append(ele);
