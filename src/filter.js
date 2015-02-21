@@ -301,9 +301,8 @@ var getSelectedValues = function(criteria, context){
   if(criteria.all && vals.indexOf(criteria.all) > -1){
     return [];
   }
-
   if(criteria.type == 'range'){
-    vals = vals[0].split('-');
+    vals = vals[0].split(criteria.delimiter || '-');
   }
 
   return context.execCallback('onFilterSelect', {criteria: criteria, values: vals}) || vals;
