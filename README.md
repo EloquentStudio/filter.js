@@ -17,14 +17,30 @@ Basic requirement to implement filtering using filter.js are JSON data, View tem
 It takes three arguments one is movies, second is container in which html element going to append, third one is options. Options must have template element selector.
 Others are in options like criteria, callbacks, search.
 
-```
+```javascript
 var FJS = FilterJS(movies, '#movies', {
   template: '#movie-template',
-    callbacks: {
+  callbacks: {
     afterFilter: function(result){
       $('#total_movies').text(result.length);
      }
    }
+});
+```
+
+To append in each item in different container use option `appendToContainer`. This option is a function with two arguments 
+one is html element content and second is record object.
+
+```javascript
+
+//This will append elements to specific year.
+var appendFn = function(html_ele, record){
+  $("#" + record.year).append(html_ele);
+}
+
+var FJS = FilterJS(movies, '#movies', {
+  template: '#movie-template',
+  appendToContainer: appendFn
 });
 ```
 
@@ -33,7 +49,7 @@ var FJS = FilterJS(movies, '#movies', {
 
 Capture the JSON data (maybe using @movies.to_json). i.e
 
-```
+```javascript
   var movies = [
   {
     "name": "The Shawshank Redemption",
@@ -63,7 +79,7 @@ Capture the JSON data (maybe using @movies.to_json). i.e
 To render each json object require view template. In filter.js micro-templating module inspired by Underscopre.js.
 
 
-```
+```javascript
 	<script id="movie-template" type="text/html">
 	  <div class="movie">
  		<div class="thumbnail">
@@ -104,21 +120,21 @@ Other options are filter `type`, `event` and `selector`.
 
 There are two way to add criteria one is add at time of filter object initialisation and other one is add when required
 
-```
-  # On create
+```javascript
+  //On create
   var fjs = FilterJS(movies, '#movies', {
     template: '#movie-template',
     criterias: [ {field: 'year', ele: '#year_filter', type: 'range'} ]
   }
 
-  # Add one at a time.
+  // Add one at a time.
   FJS.addCriteria({field: 'year', ele: '#year_filter', type: 'range'})
   FJS.addCriteria({field: 'genre', ele: '#genre_criteria input:checkbox'})
 
-  # with all  option
+  // with all  option
   FJS.addCriteria({field: 'year', ele: '#year_filter', type: 'range', all: 'all_years'})
 
-  # Full options list.
+  // Full options list.
   FJS.addCriteria({field: 'genre', ele: '.genres', event: 'change', selector: ':checked' })
 ```
 
@@ -129,7 +145,7 @@ More detail for `range` filter. It is expected to set ranges as values like '20-
 
    Example:
 
-```
+```html
 <input checked="checked" value="20-30" type="checkbox">
 ```
 
@@ -137,15 +153,18 @@ For nested field selection. In below object to select filter on name `field` opt
 
 Json object:
 
+```json
+
     {
       detail: { name: 'Jiren', address: {city: 'Pune'} }
     }
+```
 
 #### Remove criteria.
 
 Using `removeCriteria`, remove criteria dynamically. It take one argument `filed` name. i.e removing year criteria.
 
-```
+```javascript
 fjs.removeCriteria('year')
 ```
 
@@ -162,7 +181,8 @@ Define callback in settings. Callbacks execute on different events.
 
 i.e
 
-```
+```javascript
+
  var filter_callbacks = {
    beforeAddRecords: function(records){
      // Process new json data records.
@@ -185,7 +205,8 @@ i.e
 
 Init Filter object with above callbacks
 
-```
+```javascript
+
 var fjs = FilterJS(movies, '#movies', {
   template: '#movie-template',
     callbacks: filter_callbacks
@@ -203,14 +224,15 @@ var fjs = FilterJS(movies, '#movies', {
 
 For search needed textbox element selector. By default search will work on all json object fields. If needed search in particular fields then set `fields` option.
 
-```
- # Init with search
+```javascript
+
+ // Init with search
  FilterJS(movies, '#movies', {
    template: '#movie-template',
    search: {ele: '#searchbox'}  // Search in all fields of json object.
  }
 
- #Search in given fields
+ // Search in given fields
 
  search: {ele: '#searchbox', fields: ['name', 'runtime']}
 
@@ -218,13 +240,14 @@ For search needed textbox element selector. By default search will work on all j
 
 Default search will trigger after 2 char. This can be configured using `start_length` option.
 
-```
+```javascript
+
 search: {ele: '#searchbox', fields: ['name', 'runtime'], start_length: 4 }
 ```
 
 Default search will start searching immediately after user types. A timeout can be configured using `timeout` option (in milliseconds).
 
-```
+```javascript
 search: {ele: '#searchbox', fields: ['name', 'runtime'], timeout: 100 }
 ```
 
@@ -234,10 +257,12 @@ Add more data to existing filter
 
 If you are streaming json data using ajax then you can add data like this
 
+```javascript
 
-    var fjs = FilterJS(movies, '#movies', { template: '#movie-template'})
+var fjs = FilterJS(movies, '#movies', { template: '#movie-template'})
 
-    fJS.addData(data)
+fJS.addData(data)
+```
 
 
 Add data using ajax streaming
@@ -245,7 +270,7 @@ Add data using ajax streaming
 
 Add streaming option to above define 'settings'.
 
-```
+```javascript
   var fjs = FilterJS(movies, '#movies', {
     template: '#movie-template',
     streaming: {
@@ -266,7 +291,7 @@ movies/index.json.json?offset=0&limit=50&q='search text'
 
  Add streaming after initialisation.
 
-```
+```javascript
 fjs.setStreaming({
   data_url: 'data/stream_movies.json',
   stream_after: 1,
@@ -279,14 +304,13 @@ Remove records from filtering
 
 - Remove using ids. ids are records `id` field.
 
-```
-  fjs.removeRecords([1,2,3]);
-
+```javascript
+fjs.removeRecords([1,2,3]);
 ```
 
 - Remove using [JsonQuery](https://github.com/jiren/JsonQuery) criteria
 
-```
+```javascript
   fjs.removeRecords({year: 1980});
 
   fjs.removeRecords({'year.$gt': 1980, 'rating': 8.5}); 

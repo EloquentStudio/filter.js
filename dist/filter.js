@@ -1,6 +1,6 @@
 /*
  * filter.js
- * 2.0.0 (2015-02-21)
+ * 2.0.0 (2015-02-26)
  *
  * Released under the MIT license
  * http://opensource.org/licenses/MIT
@@ -781,6 +781,7 @@ var FJS = function(records, container, options) {
   this.templateFn = this.template($(this.opts.template).html());
   this.criterias = [];
   this._index = 1;
+  this.appendToContainer = this.opts.appendToContainer || appendToContainer;
 
   $.each(this.opts.criterias || [], function(){
     self.addCriteria(this);
@@ -924,18 +925,23 @@ F.render = function(records){
 
   this.execCallback('beforeRender', records);
 
-  var cName = 'beforeRecordRender';
+  var cbName = 'beforeRecordRender';
 
   $.each(records, function(i){
-    self.execCallback(cName, this);
+    self.execCallback(cbName, this);
     this._fid = (self._index++);
 
     ele = self.view.call(self, this, i);
     if (typeof ele === 'string') ele = $($.trim(ele));
     ele.attr('id', 'fjs_' + this._fid);
     ele.addClass('fjs_item');
-    self.$container.append(ele);
+
+    self.appendToContainer(ele, this);
   });
+};
+
+var appendToContainer = function(htmlele, record){
+  this.$container.append(htmlele);
 };
 
 var setDefaultCriteriaOpts = function(criteria){

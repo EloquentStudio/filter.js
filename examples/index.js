@@ -2,6 +2,11 @@ $(document).ready(function(){
 
   initSliders();
 
+  //NOTE: To append in different container
+  var appendToContainer = function(htmlele, record){
+    console.log(record)
+  };
+
   var FJS = FilterJS(movies, '#movies', {
     template: '#movie-template',
     search: {ele: '#searchbox'},
@@ -11,6 +16,7 @@ $(document).ready(function(){
         $('#total_movies').text(result.length);
       }
     }
+    //appendToContainer: appendToContainer
   });
 
   FJS.addCallback('beforeAddRecords', function(){
