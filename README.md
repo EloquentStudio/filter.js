@@ -5,7 +5,6 @@ Multiple filter criteria can be specified and used in conjunction with
 each other.
 
 ## Usage
-***
 
 Basic requirement to implement filtering using filter.js are JSON data, View template and filter criteria.
 
@@ -243,7 +242,7 @@ search: {ele: '#searchbox', fields: ['name', 'runtime'], timeout: 100 }
 ```
 
 ## Add more data to existing filter
-***
+
 If you are streaming json data using ajax then you can add data like this
 
 ```javascript
@@ -287,7 +286,7 @@ fjs.setStreaming({
 ```
 
 ## Remove records from filtering
-***
+
 - Remove records using the record's `id` field.
 
 ```javascript
@@ -303,24 +302,24 @@ fjs.removeRecords([1,2,3]);
 ```
 
 ## Build and Development
-***
+
 - `npm install gulp -g`
 - Install packages `npm install`
 - To build `gulp build`
 - For development `gulp`. This will start watch on files, also start webserver.
 
 ## Note
-***
+
 - Old filter.js in [v1.5.2](https://github.com/jiren/filter.js/tree/v1.5.2) git tag.
 
 ## Demo
-***
+
 To see the sample demo, clone this repo and open demo/filterjs.html in your browser
 
 [Filter](http://jiren.github.io/filter.js/index.html)
 
 ## Used by
-***
+
 [Tischefrei (search page)](http://tischefrei.de)
 
 [Roboty przemysłowe](http://roboty-przemyslowe.pl)
@@ -328,14 +327,14 @@ To see the sample demo, clone this repo and open demo/filterjs.html in your brow
 If you use this, please send me an email, I shall add your link here!
 
 ## Sponsors and Supporters
-***
+
 - [Josh Software](http://www.joshsoftware.com)
 - Instant search field filtering sponsored by [W/E consultants](http://www.w-e.nl)
 
 ## Contributing
-***
+
 Please send me a pull request so that this can be improved.
 
 ## License
-***
+
 This is released under the MIT license.
