@@ -105,7 +105,7 @@ It required two mandatory options are `field` which is name of any property from
 Other options are filter `type`, `event` and `selector`.
 
 - filter `type`, by default it is equal but if you want to search in range you can set it `range`. For `range` html element value should be in format of `val1-val2`. i.e `100-200`.
-- `delimiter`, by default hyphen '-' is used as range seperator `val1-val2`. If you want to use a different seperator (if data contains hyphen e.g: ' 2012-02-02 ') it can be specified using `delimiter: ','` and html element value should be in format `val1<delimiter>val2`. i.e.`2012-02-02,2015-02-02`.
+- `delimiter`, by default hyphen '-' is used as range separator `val1-val2`. If you want to use a different separator (if data contains hyphen e.g: ' 2012-02-02 ') it can be specified using `delimiter: ','` and html element value should be in format `val1<delimiter>val2`. i.e.`2012-02-02,2015-02-02`.
 - `event` by default for checkbox, radio button is `click`, for text input, select box is `change`.
 - `selector` by default for checkbox and radio button is `:checked`, for input field `input` and for select box is `select`.'#genre_criteria input:checkbox' will collect the checkboxes values in html element with `id="genre_criteria"`
 - `all` option : if selected values of specific filter criteria contains `all` option value then all record selected for that criteria.
