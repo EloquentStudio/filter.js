@@ -1,18 +1,15 @@
-Filter.js
-=============
+# Filter.js
 
 Filter.js is client-side JSON objects filter and render html elements.
 Multiple filter criteria can be specified and used in conjunction with
 each other.
 
-
-Usage
------
+## Usage
+***
 
 Basic requirement to implement filtering using filter.js are JSON data, View template and filter criteria.
 
 ### Filter Initialisation
--------------------------
 
 It takes three arguments one is movies, second is container in which html element going to append, third one is options. Options must have template element selector.
 Others are in options like criteria, callbacks, search.
@@ -28,8 +25,7 @@ var FJS = FilterJS(movies, '#movies', {
 });
 ```
 
-To append in each item in different container use option `appendToContainer`. This option is a function with two arguments 
-one is html element content and second is record object.
+To append in each item in different container use option `appendToContainer`. This option is a function with two arguments, one is html element content and second is record object.
 
 ```javascript
 
@@ -45,7 +41,6 @@ var FJS = FilterJS(movies, '#movies', {
 ```
 
 ### JSON data
--------------
 
 Capture the JSON data (maybe using @movies.to_json). i.e
 
@@ -74,10 +69,8 @@ Capture the JSON data (maybe using @movies.to_json). i.e
  ```
 
 ### View
---------
 
-To render each json object require view template. In filter.js micro-templating module inspired by Underscopre.js.
-
+To render each json object require view template. In filter.js micro-templating module inspired by Underscore.js.
 
 ```javascript
 	<script id="movie-template" type="text/html">
@@ -108,10 +101,10 @@ To render each json object require view template. In filter.js micro-templating 
 ```
 
 ### Filter Criteria
--------------------
 
 It required two mandatory options are `field` which is name of any property from json data and other is HTML `ele` element on which filter will be trigger by click,change etc events.
 Other options are filter `type`, `event` and `selector`.
+
 - filter `type`, by default it is equal but if you want to search in range you can set it `range`. For `range` html element value should be in format of `val1-val2`. i.e `100-200`.
 - `delimiter`, by default hyphen '-' is used as range seperator `val1-val2`. If you want to use a different seperator (if data contains hyphen e.g: ' 2012-02-02 ') it can be specified using `delimiter: ','` and html element value should be in format `val1<delimiter>val2`. i.e.`2012-02-02,2015-02-02`.
 - `event` by default for checkbox, radio button is `click`, for text input, select box is `change`.
@@ -139,7 +132,8 @@ There are two way to add criteria one is add at time of filter object initialisa
 ```
 
 **field**: `genre` this is a JSON attribute defined in JSON objects.
-For Range selections,
+
+#### For Range selections
 
 More detail for `range` filter. It is expected to set ranges as values like '20-30'
 
@@ -168,8 +162,7 @@ Using `removeCriteria`, remove criteria dynamically. It take one argument `filed
 fjs.removeCriteria('year')
 ```
 
-### Filtering Callbacks
--------------------
+#### Filtering Callbacks
 
 Define callback in settings. Callbacks execute on different events.
 
@@ -179,7 +172,7 @@ Define callback in settings. Callbacks execute on different events.
 - `beforeRecordRender` : Trigger for each json object record at time of rendering.
 - `afterFilter` : Trigger after filtering event.
 
-i.e
+i.e.,
 
 ```javascript
 
@@ -203,7 +196,7 @@ i.e
 };
 ```
 
-Init Filter object with above callbacks
+#### Init Filter object with above callbacks
 
 ```javascript
 
@@ -218,9 +211,7 @@ var fjs = FilterJS(movies, '#movies', {
   });
 ```
 
-
 ### Instant Search integration
----------------------------
 
 For search needed textbox element selector. By default search will work on all json object fields. If needed search in particular fields then set `fields` option.
 
@@ -251,10 +242,8 @@ Default search will start searching immediately after user types. A timeout can 
 search: {ele: '#searchbox', fields: ['name', 'runtime'], timeout: 100 }
 ```
 
-
-Add more data to existing filter
---------------------------------
-
+## Add more data to existing filter
+***
 If you are streaming json data using ajax then you can add data like this
 
 ```javascript
@@ -264,9 +253,7 @@ var fjs = FilterJS(movies, '#movies', { template: '#movie-template'})
 fJS.addData(data)
 ```
 
-
-Add data using ajax streaming
------------------------------
+### Add data using ajax streaming
 
 Add streaming option to above define 'settings'.
 
@@ -299,10 +286,9 @@ fjs.setStreaming({
 });
 ```
 
-Remove records from filtering
------------------------------
-
-- Remove using ids. ids are records `id` field.
+## Remove records from filtering
+***
+- Remove records using the record's `id` field.
 
 ```javascript
 fjs.removeRecords([1,2,3]);
@@ -313,55 +299,43 @@ fjs.removeRecords([1,2,3]);
 ```javascript
   fjs.removeRecords({year: 1980});
 
-  fjs.removeRecords({'year.$gt': 1980, 'rating': 8.5}); 
+  fjs.removeRecords({'year.$gt': 1980, 'rating': 8.5});
 ```
 
-### Build and Development
--------------------------
-
+## Build and Development
+***
 - `npm install gulp -g`
-
 - Install packages `npm install`
-
 - To build `gulp build`
-
 - For development `gulp`. This will start watch on files, also start webserver.
 
-
-### NOTE
----------
-
+## Note
+***
 - Old filter.js in [v1.5.2](https://github.com/jiren/filter.js/tree/v1.5.2) git tag.
 
-
-Demo
-----
+## Demo
+***
 To see the sample demo, clone this repo and open demo/filterjs.html in your browser
 
 [Filter](http://jiren.github.io/filter.js/index.html)
 
-
-USED BY
---------
-
+## Used by
+***
 [Tischefrei (search page)](http://tischefrei.de)
 
 [Roboty przemysłowe](http://roboty-przemyslowe.pl)
 
 If you use this, please send me an email, I shall add your link here!
 
-
-Sponsors and Supporters
------------------------
-
+## Sponsors and Supporters
+***
 - [Josh Software](http://www.joshsoftware.com)
-
 - Instant search field filtering sponsored by [W/E consultants](http://www.w-e.nl)
 
-Contributing
-------------
+## Contributing
+***
 Please send me a pull request so that this can be improved.
 
-License
--------
+## License
+***
 This is released under the MIT license.
