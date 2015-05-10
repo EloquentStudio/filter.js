@@ -69,7 +69,7 @@ Capture the JSON data (maybe using @movies.to_json). i.e
 
 ### View
 
-To render each json object require view template. In filter.js micro-templating module inspired by Underscore.js.
+Rendering JSON objects requires a view template. In filter.js micro-templating module inspired by Underscore.js.
 
 ```javascript
 	<script id="movie-template" type="text/html">
@@ -101,7 +101,7 @@ To render each json object require view template. In filter.js micro-templating 
 
 ### Filter Criteria
 
-It required two mandatory options are `field` which is name of any property from json data and other is HTML `ele` element on which filter will be trigger by click,change etc events.
+It required two mandatory options are `field` which is name of any property from JSON data and other is HTML `ele` element on which filter will be trigger by click,change etc events.
 Other options are filter `type`, `event` and `selector`.
 
 - filter `type`, by default it is equal but if you want to search in range you can set it `range`. For `range` html element value should be in format of `val1-val2`. i.e `100-200`.
@@ -110,7 +110,7 @@ Other options are filter `type`, `event` and `selector`.
 - `selector` by default for checkbox and radio button is `:checked`, for input field `input` and for select box is `select`.'#genre_criteria input:checkbox' will collect the checkboxes values in html element with `id="genre_criteria"`
 - `all` option : if selected values of specific filter criteria contains `all` option value then all record selected for that criteria.
 
-There are two way to add criteria one is add at time of filter object initialisation and other one is add when required
+There are two way to add criteria. One is add at time of filter object initialisation and other is add when required.
 
 ```javascript
   //On create
@@ -144,7 +144,7 @@ More detail for `range` filter. It is expected to set ranges as values like '20-
 
 For nested field selection. In below object to select filter on name `field` option value would be `detail.name`, for city `detail.address.city`.
 
-Json object:
+JSON object:
 
 ```json
 
@@ -168,7 +168,7 @@ Define callback in settings. Callbacks execute on different events.
 - `beforeAddRecords` : Trigger before adding records to filter.
 - `afterAddRecords`
 - `beforeRender`  : Trigger before rendering going to call.
-- `beforeRecordRender` : Trigger for each json object record at time of rendering.
+- `beforeRecordRender` : Trigger for each JSON object record at time of rendering.
 - `afterFilter` : Trigger after filtering event.
 
 i.e.,
@@ -177,7 +177,7 @@ i.e.,
 
  var filter_callbacks = {
    beforeAddRecords: function(records){
-     // Process new json data records.
+     // Process new JSON data records.
      // i.e Process data before adding to filter while streaming.
    },
    afterAddRecords: function(records){
@@ -212,14 +212,14 @@ var fjs = FilterJS(movies, '#movies', {
 
 ### Instant Search integration
 
-For search needed textbox element selector. By default search will work on all json object fields. If needed search in particular fields then set `fields` option.
+For search needed textbox element selector. By default search will work on all JSON object fields. If needed search in particular fields then set `fields` option.
 
 ```javascript
 
  // Init with search
  FilterJS(movies, '#movies', {
    template: '#movie-template',
-   search: {ele: '#searchbox'}  // Search in all fields of json object.
+   search: {ele: '#searchbox'}  // Search in all fields of JSON object.
  }
 
  // Search in given fields
@@ -243,7 +243,7 @@ search: {ele: '#searchbox', fields: ['name', 'runtime'], timeout: 100 }
 
 ## Add more data to existing filter
 
-If you are streaming json data using ajax then you can add data like this
+If you are streaming JSON data using ajax then you can add data like this
 
 ```javascript
 
