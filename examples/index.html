@@ -1,7 +1,7 @@
-<!DOCTYPE HTML>
-<html xmlns="http://www.w3.org/1999/xhtml">
+<!DOCTYPE html>
+<html lang="en">
   <head>
-    <meta content="text/html; charset=UTF-8" http-equiv="Content-Type">
+    <meta charset="UTF-8">
     <link href="assets/css/bootstrap.min.css" media="screen" rel="stylesheet" type="text/css">
     <link href="assets/css/jquery-ui-1.10.2.custom.min.css" media="screen" rel="stylesheet" type="text/css">
     <link href="assets/css/stream.css" media="screen" rel="stylesheet" type="text/css">
@@ -29,7 +29,7 @@
           <h4>Rating</h4>
           <span id="rating_range_label" class="slider-label">8 - 10</span>
           <div id="rating_slider" class="slider"></div>
-          <input type="hidden" id="rating_filter" value="8-10"/>
+          <input type="hidden" id="rating_filter" value="8-10" />
         </div>
         <div class="criteria" id="runtime_criteria">
           <h4>Runtime</h4>
@@ -144,13 +144,13 @@
             <label>
               <input type="checkbox" value="Sport"> Sport
             </label>
-        </div></div>
-
+        </div>
+        </div>
       </div>
-      <div class="sorting content col-span-9">
+      <div class="sorting content col-span-9"></div>
+      <div class="movies content col-span-9" id="movies"></div>
       </div>
-      <div class="movies content col-span-9" id="movies">
-      </div>
+<!-- /.container -->
       <script id="movie-template" type="text/html">
         <div class="col-span-4 movie">
           <div class="thumbnail">
