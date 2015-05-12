@@ -43,7 +43,7 @@ select:focus, textarea:focus, input:focus{
   color: #808080;
   padding-left: 0px;
 /* border-bottom: 2px solid #e5e5e5;
-  border-bottom: 2px solid #F08080; 
+  border-bottom: 2px solid #F08080;
   padding-bottom: 7px;
  */
 }
@@ -76,7 +76,7 @@ select:focus, textarea:focus, input:focus{
 
 .title{
   padding: 5px 0 ;
-/*  color: #b94a48; 
+/*  color: #b94a48;
   color: #F08080;*/
   color: #D3D3D3;
   margin-left: 15px;
@@ -126,7 +126,7 @@ select:focus, textarea:focus, input:focus{
 .movie h4{
   margin-top: 15px;
   margin-bottom: -5px;
-  border-bottom: 1px solid #A9A9A9; 
+  border-bottom: 1px solid #A9A9A9;
   padding-bottom: 7px;
 }
 
@@ -145,20 +145,6 @@ select:focus, textarea:focus, input:focus{
 
 .first{
   margin-top: 10px;
-}
-
-.search-icon{
-  position: relative;
-  margin-top: -27px;
-  display: inline-block;
-  width: 28px;
-  height: 14px;
-  line-height: 14px;
-  vertical-align: middle;
-  background-color: transparent;
-  font-size: 20px;
-  color: #20B2AA;
-  float: right;
 }
 
 .collection{
@@ -206,14 +192,6 @@ select:focus, textarea:focus, input:focus{
   margin-right: 3px;
 }
 
-.criteria h4{
-  border-bottom: 1px solid #A9A9A9;
-  padding-top: 10px;
-  padding-bottom: 5px;
-  margin: 10px;
-  color: #808080;
-}
-
 .ui-widget-header{
   background: none;
   background-color: #20B2AA;
@@ -233,12 +211,3 @@ select:focus, textarea:focus, input:focus{
   text-align: center;
   font-weight: 200;
 }
-
-.criteria .checkbox{
-  margin-left: 20px;
-}
-
-.criteria select{
-  margin-left: 10px;
-}
-
