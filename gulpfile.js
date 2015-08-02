@@ -8,13 +8,11 @@ var gulp = require('gulp'),
   header = require('gulp-header'),
   runSequence = require('run-sequence'),
   rename = require('gulp-rename'),
-  browserSync = require('browser-sync');
+  browserSync = require('browser-sync'),
+  injector = require('gulp-injector');
 
-var src_files = [
-  'src/prefix.js',
-  'src/filter.js',
-  //'src/pagination.js',
-  'src/postfix.js'
+var scripts = [
+  'src/*.js'
 ];
 
 var pkg = require('./package.json'),
@@ -23,7 +21,7 @@ var pkg = require('./package.json'),
         'https://raw.githubusercontent.com/jiren/JsonQuery/master/json_query.js',
     ],
     lib: 'lib/',
-    scripts: [ 'lib/json_query.js'].concat(src_files),
+    scripts: [ 'lib/json_query.js'].concat(['src/main.js']),
     views: ['src/views/*.html'],
     dist: 'dist'
   },
@@ -68,17 +66,18 @@ gulp.task('scripts', function() {
 
  return gulp.src(paths.scripts)
   .pipe(concat(uncompressedJs))
+  .pipe(injector())
   .pipe(header(banner, { pkg: pkg } ))
   .pipe(gulp.dest(paths.dist))
   .pipe(sourcemaps.init())
-  .pipe(uglify({preserveComments: 'all'}))
+  //.pipe(uglify({preserveComments: 'all'}))
   .pipe(rename(compressedJs))
   .pipe(gulp.dest(paths.dist))
 
 });
 
 gulp.task('watch', function() {
-  gulp.watch(paths.scripts, ['scripts']);
+  gulp.watch(scripts, ['scripts']);
   gulp.watch(paths.lib, ['scripts']);
 });
 

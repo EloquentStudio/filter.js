@@ -1,23 +1,3 @@
-var FilterJS = function(records, container, options) {
-  var fjs = new FJS(records, container, options);
-  FilterJS.list.push(fjs);
-
-  return fjs;
-};
-
-FilterJS.VERSION = '2.0.0';
-FilterJS.list = [];
-
-$.fn.filterjs = function(records, options) {
-  var $this = $(this);
-
-  if (!$this.data('fjs')){
-    $this.data('fjs', FilterJS(records, $this, options));
-  }
-};
-
-window.FilterJS = FilterJS;
-
 var FJS = function(records, container, options) {
   var self = this;
 
@@ -25,10 +5,11 @@ var FJS = function(records, container, options) {
   this.callbacks = this.opts.callbacks || {};
   this.$container = $(container);
   this.view = this.opts.view || renderRecord;
-  this.templateFn = this.template($(this.opts.template).html());
+  this.templateFn = templateBuilder($(this.opts.template).html());
   this.criterias = [];
   this._index = 1;
   this.appendToContainer = this.opts.appendToContainer || appendToContainer;
+  this.has_pagination = !!this.opts.pagination
 
   $.each(this.opts.criterias || [], function(){
     self.addCriteria(this);
@@ -36,7 +17,11 @@ var FJS = function(records, container, options) {
 
   this.Model = JsonQuery();
   this.Model.getterFns['_fid'] = function(r){ return r['_fid'];};
-  this.addRecords(records);
+  this.addRecords(records, false);
+
+  if(this.has_pagination){
+    this.initPagination();
+  }
 };
 
 var F = FJS.prototype;
@@ -49,53 +34,14 @@ Object.defineProperty(F, 'recordsCount', {
   get: function(){ return this.Model.records.length; }
 });
 
-//View Template
-// Ref: Underscopre.js
-//JavaScript micro-templating, similar to John Resig's implementation.
-var templateSettings = {
-  evaluate    : /<%([\s\S]+?)%>/g,
-  interpolate : /<%=([\s\S]+?)%>/g,
-  escape      : /<%-([\s\S]+?)%>/g
-};
-
-var escapeStr = function(string) {
-  return (''+string).replace(/&/g,  '&amp;')
-                    .replace(/</g,  '&lt;')
-                    .replace(/>/g,  '&gt;')
-                    .replace(/"/g,  '&quot;')
-                    .replace(/'/g,  '&#x27;')
-                    .replace(/\//g, '&#x2F;');
-};
-
-F.template = function(str, data) {
-  var c  = templateSettings;
-  var tmpl = 'var __p=[],print=function(){__p.push.apply(__p,arguments);};' +
-    'with(obj||{}){__p.push(\'' +
-    str.replace(/\\/g, '\\\\')
-       .replace(/'/g, "\\'")
-       .replace(c.escape, function(match, code) {
-         return "',escapeStr(" + code.replace(/\\'/g, "'") + "),'";
-       })
-       .replace(c.interpolate, function(match, code) {
-         return "'," + code.replace(/\\'/g, "'") + ",'";
-       })
-       .replace(c.evaluate || null, function(match, code) {
-         return "');" + code.replace(/\\'/g, "'")
-                            .replace(/[\r\n\t]/g, ' ') + ";__p.push('";
-       })
-       .replace(/\r/g, '\\r')
-       .replace(/\n/g, '\\n')
-       .replace(/\t/g, '\\t')
-       + "');}return __p.join('');";
-
-  var func = new Function('obj', tmpl);
-  return data ? func(data) : function(data) { return func(data) };
-};
+F.templateBuilder = templateBuilder;
 
 //Callback
-F.execCallback = function(name, args){
+F.execCallback = function(){
+  var name = arguments[0];
+
   if(this.callbacks[name]) {
-    this.callbacks[name].call(this, args);
+    this.callbacks[name].apply(this, Array.prototype.slice.call(arguments, 1));
   }
 };
 
@@ -106,7 +52,7 @@ F.addCallback = function(name, fns){
 };
 
 //Add Data
-F.addRecords = function(records){
+F.addRecords = function(records, applyFilter){
   var has_scheme = !!this.Model.schema;
 
   this.execCallback('beforeAddRecords', records);
@@ -117,7 +63,9 @@ F.addRecords = function(records){
     }
 
     this.render(records);
-    this.filter();
+    if(applyFilter !== false){
+      this.filter();
+    }
   }
 
   this.execCallback('afterAddRecords', records);
@@ -166,29 +114,43 @@ var renderRecord = function(record, index){
 };
 
 F.render = function(records){
-  var self = this, ele;
+  var self = this, 
+      ele, 
+      cbName;
 
   if(!records.length){return; }
 
   this.execCallback('beforeRender', records);
-
-  var cbName = 'beforeRecordRender';
+  cbName = 'beforeRecordRender';
 
   $.each(records, function(i){
     self.execCallback(cbName, this);
     this._fid = (self._index++);
-
-    ele = self.view.call(self, this, i);
-    if (typeof ele === 'string') ele = $($.trim(ele));
-    ele.attr('id', 'fjs_' + this._fid);
-    ele.addClass('fjs_item');
-
-    self.appendToContainer(ele, this);
+  
+    if(!self.has_pagination){ 
+      self.renderItem(this, i);
+    }
   });
 };
 
-var appendToContainer = function(htmlele, record){
-  this.$container.append(htmlele);
+F.renderItem = function(record, i){
+  if(!record){
+    return;
+  }
+
+  var ele = this.view(record, i);
+
+  if(typeof ele == 'string'){
+    ele = $($.trim(ele));
+  }
+
+  ele.attr('id', 'fjs_' + record._fid).addClass('fjs_item');
+
+  this.appendToContainer(ele, record);
+};
+
+var appendToContainer = function(html_ele, record){
+  this.$container.append(html_ele);
 };
 
 var setDefaultCriteriaOpts = function(criteria){
@@ -293,7 +255,7 @@ F.activateCriteria = function(names){
   changeCriteriaStatus.call(this, names, true);
 };
 
-var getSelectedValues = function(criteria, context){
+F.getSelectedValues = function(criteria, context){
   var vals = [];
 
   criteria.$ele.filter(criteria.selector).each(function() {
@@ -305,8 +267,9 @@ var getSelectedValues = function(criteria, context){
   }
 
   if(criteria.all && vals.indexOf(criteria.all) > -1){
-    return [];
+    return;
   }
+
   if(criteria.type == 'range'){
     vals = vals[0].split(criteria.delimiter || '-');
   }
@@ -326,7 +289,7 @@ F.filter = function(){
 
   $.each(this.criterias, function(){
     if(this.active){
-      vals = getSelectedValues(this, self);
+      vals = self.getSelectedValues(this, self);
 
       if(vals && vals.length){
         _q = ($.isArray(vals) && !this.type) ? (this._q + '.$in') : this._q;
@@ -343,18 +306,35 @@ F.filter = function(){
   }
 
   this.show(this.last_result);
-  this.execCallback('afterFilter', this.last_result);
+  this.execCallback('afterFilter', this.last_result, JsonQuery.blankClone(this.last_result, this.Model));
+  this.renderPagination(this.last_result.length);
 
   return query;
 };
 
 //HideShow element
 F.show = function(result, type){
+  var i = 0, l = result.length;
+
+  if(this.has_pagination){
+    i = this.page.perPage *(this.page.currentPage - 1);
+    l = i + this.page.perPage;
+
+    this.$container.html("");
+
+    for(i; i < l; i++){
+      this.renderItem(result[i], i);
+    }
+
+    return;
+  }
+
   $('.fjs_item').hide();
 
-  for(var i = 0, l = result.length; i < l; i++){
+  for(i; i < l; i++){
     $('#fjs_' + result[i]._fid).show();
   }
+  
 };
 
 F.filterTimer = function(timeout){
@@ -369,13 +349,13 @@ F.filterTimer = function(timeout){
   }, timeout);
 };
 
-//Search
 F.bindEvent = function(ele, eventName){
   var self = this;
 
   $(document).on(eventName, ele, function(e){
-    self.filterTimer(self.opts.timeout || 30);
+    self.filterTimer(self.opts.timeout || 35);
   });
+
 };
 
 F.initSearch = function(opts){
@@ -438,6 +418,7 @@ F.searchFilter = function(records) {
   result = this.search(text, records || this.lastResult());
 
   this.show(result);
+  this.renderPagination(result.length);
   this.execCallback('afterFilter', result);
 
   return true;
@@ -528,5 +509,55 @@ F.streamData = function(time){
   if(!this.opts.streaming.batch_size){
     this.stopStreaming();
   }
+};
+
+F.clear = function(){
+  if(this.opts.streaming){
+    this.stopStreaming();
+  }
+
+  $.each(this.criterias, function(){
+    $(document).off(this.event, this.ele);
+  })
+
+  if(this.opts.search){
+    $(document).off('keyup', this.opts.search.ele);
+  }
+
+  if (this.filterTimeoutId) {
+    clearTimeout(this.filterTimeoutId);
+  }
+}
+
+F.initPagination = function(){
+  var self = this,
+      opts = this.opts.pagination;
+
+  if(!opts.perPage){
+    opts.perPage = {}
+  }
+
+  // [].concat(10)
+  opts.perPage.values = opts.perPage.values ? [].concat(opts.perPage.values) : [10, 20, 30];
+
+  this.page = { currentPage: 1, perPage: opts.perPage.values[0] || 10 };
+
+  this.paginator = new Paginator(this.lastResult().length, this.opts.pagination, function(currentPage, perPage){
+    self.page = { currentPage: currentPage, perPage: perPage }
+    self.show(self.lastResult())
+  })
+
+  this.paginator.render();
+  this.filter();
+};
+
+F.renderPagination = function(totalCount){
+  if(!this.has_pagination){
+    return;
+  }
+
+  this.paginator.recordsCount = totalCount; 
+  this.paginator.currentPage = 1;
+  this.paginator.render()
 };
 
