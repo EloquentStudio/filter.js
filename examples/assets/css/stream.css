@@ -237,3 +237,12 @@ select:focus, textarea:focus, input:focus{
 .movies-pagination{
   text-align: center;
 }
+
+.movies-pagination li a{
+ color: #000;
+}
+
+.movies-pagination li.active a{
+  background-color: #AAA;
+  border-color: #AAA;
+}

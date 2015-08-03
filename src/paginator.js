@@ -72,6 +72,11 @@ P.paginate = function(page){
 
 P.render = function(){
   var pages  = this.getPages();
+
+  if(this.currentPage > pages.totalPages){
+    this.currentPage = pages.totalPages;
+  }
+
   this.$container.html(this.paginationTmpl(pages))
 
   return pages;  
@@ -142,14 +147,6 @@ P.initPerPage = function(){
 };
 
 P.setPerPage = function(value){
-  var pages;
-
   this.perPageCount = value;
-  pages = this.totalPages();
-
-  if(this.currentPage > pages){
-    this.currentPage = pages;
-  }
-
   this.setCurrentPage(this.currentPage);
 }

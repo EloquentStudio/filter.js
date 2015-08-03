@@ -9,7 +9,8 @@ var FJS = function(records, container, options) {
   this.criterias = [];
   this._index = 1;
   this.appendToContainer = this.opts.appendToContainer || appendToContainer;
-  this.has_pagination = !!this.opts.pagination
+  this.has_pagination = !!this.opts.pagination;
+  this.search_text = '';
 
   $.each(this.opts.criterias || [], function(){
     self.addCriteria(this);
@@ -312,7 +313,6 @@ F.filter = function(){
   return query;
 };
 
-//HideShow element
 F.show = function(result, type){
   var i = 0, l = result.length;
 
@@ -403,23 +403,32 @@ F.buildSearchFn = function(fields){
    }
 };
 
+F.lastSearchResult = function(){
+  if (this.search_text.length > this.opts.search.start_length){
+    return this.search_result;
+  }else{
+    return this.lastResult();
+  }
+}
+
 F.searchFilter = function(records) {
   if(!this.has_search){
     return;
   }
 
-  var text = $.trim(this.$search_ele.val()),
-      result;
+  var result;
+  this.search_text =  $.trim(this.$search_ele.val());
 
-  if(text.length < this.opts.search.start_length){
+  if (this.search_text.length < this.opts.search.start_length){
     return false;
   }
 
-  result = this.search(text, records || this.lastResult());
+  result = this.search(this.search_text, records || this.lastResult());
 
   this.show(result);
   this.renderPagination(result.length);
   this.execCallback('afterFilter', result);
+  this.search_result = result;
 
   return true;
 };
@@ -544,7 +553,13 @@ F.initPagination = function(){
 
   this.paginator = new Paginator(this.lastResult().length, this.opts.pagination, function(currentPage, perPage){
     self.page = { currentPage: currentPage, perPage: perPage }
-    self.show(self.lastResult())
+
+    if(self.has_search){
+      self.show(self.lastSearchResult())
+    }else{
+      self.show(self.lastResult())
+    }
+
   })
 
   this.paginator.render();

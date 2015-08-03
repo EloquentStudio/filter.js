@@ -1,6 +1,6 @@
 /*
  * filter.js
- * 2.0.0 (2015-08-02)
+ * 2.0.0 (2015-08-03)
  *
  * Released under the MIT license
  * http://opensource.org/licenses/MIT
@@ -864,7 +864,8 @@
     this.criterias = [];
     this._index = 1;
     this.appendToContainer = this.opts.appendToContainer || appendToContainer;
-    this.has_pagination = !!this.opts.pagination
+    this.has_pagination = !!this.opts.pagination;
+    this.search_text = '';
   
     $.each(this.opts.criterias || [], function(){
       self.addCriteria(this);
@@ -1167,7 +1168,6 @@
     return query;
   };
   
-  //HideShow element
   F.show = function(result, type){
     var i = 0, l = result.length;
   
@@ -1258,23 +1258,32 @@
      }
   };
   
+  F.lastSearchResult = function(){
+    if (this.search_text.length > this.opts.search.start_length){
+      return this.search_result;
+    }else{
+      return this.lastResult();
+    }
+  }
+  
   F.searchFilter = function(records) {
     if(!this.has_search){
       return;
     }
   
-    var text = $.trim(this.$search_ele.val()),
-        result;
+    var result;
+    this.search_text =  $.trim(this.$search_ele.val());
   
-    if(text.length < this.opts.search.start_length){
+    if (this.search_text.length < this.opts.search.start_length){
       return false;
     }
   
-    result = this.search(text, records || this.lastResult());
+    result = this.search(this.search_text, records || this.lastResult());
   
     this.show(result);
     this.renderPagination(result.length);
     this.execCallback('afterFilter', result);
+    this.search_result = result;
   
     return true;
   };
@@ -1399,7 +1408,13 @@
   
     this.paginator = new Paginator(this.lastResult().length, this.opts.pagination, function(currentPage, perPage){
       self.page = { currentPage: currentPage, perPage: perPage }
-      self.show(self.lastResult())
+  
+      if(self.has_search){
+        self.show(self.lastSearchResult())
+      }else{
+        self.show(self.lastResult())
+      }
+  
     })
   
     this.paginator.render();
@@ -1494,6 +1509,11 @@
   
   P.render = function(){
     var pages  = this.getPages();
+  
+    if(this.currentPage > pages.totalPages){
+      this.currentPage = pages.totalPages;
+    }
+  
     this.$container.html(this.paginationTmpl(pages))
   
     return pages;  
@@ -1564,15 +1584,7 @@
   };
   
   P.setPerPage = function(value){
-    var pages;
-  
     this.perPageCount = value;
-    pages = this.totalPages();
-  
-    if(this.currentPage > pages){
-      this.currentPage = pages;
-    }
-  
     this.setCurrentPage(this.currentPage);
   }
   
@@ -1602,6 +1614,6 @@
   window.FilterJS = FilterJS;
 
   views['pagination'] = '<nav>  <ul class="pagination">    <% if(currentPage > 1) { %>      <li> <a href="#" data-page="first" aria-label="First"><span aria-hidden="true">First</span></a> </li>      <li><a href="#" data-page="prev" aria-label="Previous"><span aria-hidden="true">&larr; Previous</span></a></li>    <% } %>    <% for(var i = 0, l = pages.length; i < l; i++ ){ %>      <li class="<%= pages[i] == currentPage ? \'active\' : \'\' %>">        <a href="#" data-page="<%= pages[i] %>"><%= pages[i] %></a>      </li>    <% } %>    <% if( currentPage < totalPages ) { %>      <li><a href="#" data-page="next" aria-label="Next"><span aria-hidden="true">Next &rarr;</span></a></li>      <li><a href="#" data-page="last" aria-label="Last"><span aria-hidden="true">Last</span></a></li>    <% } %>  </ul></nav>'; 
-  views['per_page'] = '<select size="1" name="per_page" data-perpage="true">  <% for(var i = 0; i < values.length; i++ ){ %>    <option value="<%= values[i] %>"><%= values[i] %></option>  <% } %></select>'; 
+  views['per_page'] = '<select size="1" name="per_page" data-perpage="true" class="per-page">  <% for(var i = 0; i < values.length; i++ ){ %>    <option value="<%= values[i] %>"><%= values[i] %></option>  <% } %></select>'; 
 
 })( jQuery, window , document );

@@ -13,8 +13,11 @@ $(document).ready(function(){
     var qResult = JsonQuery(result);
 
     checkboxes.each(function(){
-      var c = $(this)
-      var count = qResult.where({ 'genre': c.val() }).count;
+      var c = $(this), count = 0
+
+      if(result.length > 0){
+        count = qResult.where({ 'genre': c.val() }).count;
+      }
       c.next().text(c.val() + '(' + count + ')')
     });
   }
