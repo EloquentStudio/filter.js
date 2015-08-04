@@ -1,6 +1,6 @@
 /*
  * filter.js
- * 2.0.0 (2015-08-03)
+ * 2.0.0 (2015-08-04)
  *
  * Released under the MIT license
  * http://opensource.org/licenses/MIT
@@ -1407,6 +1407,7 @@
     this.page = { currentPage: 1, perPage: opts.perPage.values[0] || 10 };
   
     this.paginator = new Paginator(this.lastResult().length, this.opts.pagination, function(currentPage, perPage){
+      //console.log(currentPage, this.currentPage, perPage, this.perPageCount)
       self.page = { currentPage: currentPage, perPage: perPage }
   
       if(self.has_search){
@@ -1414,10 +1415,8 @@
       }else{
         self.show(self.lastResult())
       }
-  
     })
   
-    this.paginator.render();
     this.filter();
   };
   
@@ -1426,9 +1425,7 @@
       return;
     }
   
-    this.paginator.recordsCount = totalCount; 
-    this.paginator.currentPage = 1;
-    this.paginator.render()
+    this.paginator.setRecordCount(totalCount);
   };
   
   
@@ -1453,6 +1450,7 @@
     this.currentPage = 1;
     this.onPagination = onPagination;
     this.initPerPage();
+    this.render();
     this.bindEvents();
   };
   
@@ -1478,6 +1476,11 @@
     this.paginate(page);
   };
   
+  P.setRecordCount = function(total){
+    this.recordsCount = total;
+    this.setCurrentPage(this.currentPage);
+  }
+  
   P.toPage = function(page){
     if(page == 'first'){
       return 1;
@@ -1501,10 +1504,8 @@
   };
   
   P.paginate = function(page){
-    this.$container.find('[data-page="'+ this.prevCurrentPage +'"]').removeClass('active');
-    this.$container.find('[data-page="'+ this.currentPage +'"]').addClass('active');
-    this.onPagination(this.currentPage, this.perPageCount);
     this.render();
+    this.onPagination(this.currentPage, this.perPageCount);
   };
   
   P.render = function(){
@@ -1514,9 +1515,12 @@
       this.currentPage = pages.totalPages;
     }
   
-    this.$container.html(this.paginationTmpl(pages))
+    if(this.currentPage == 0){
+      this.currentPage = 1;
+    }
   
-    return pages;  
+    pages.currentPage = this.currentPage;
+    this.$container.html(this.paginationTmpl(pages))
   };
   
   function makePageArray(start, end){
@@ -1533,7 +1537,7 @@
     var total = this.totalPages();
       
     if(!this.opts.visiblePages){
-      return { currentPage: this.currentPage, totalPages: total, pages: makePageArray(0, total), self: this };
+      return { totalPages: total, pages: makePageArray(0, total), self: this };
     }
   
     var half = Math.floor(this.opts.visiblePages / 2);

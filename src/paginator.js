@@ -16,6 +16,7 @@ var Paginator = function(recordsCount, opts, onPagination) {
   this.currentPage = 1;
   this.onPagination = onPagination;
   this.initPerPage();
+  this.render();
   this.bindEvents();
 };
 
@@ -41,6 +42,11 @@ P.setCurrentPage = function(page){
   this.paginate(page);
 };
 
+P.setRecordCount = function(total){
+  this.recordsCount = total;
+  this.setCurrentPage(this.currentPage);
+}
+
 P.toPage = function(page){
   if(page == 'first'){
     return 1;
@@ -64,10 +70,8 @@ P.toPage = function(page){
 };
 
 P.paginate = function(page){
-  this.$container.find('[data-page="'+ this.prevCurrentPage +'"]').removeClass('active');
-  this.$container.find('[data-page="'+ this.currentPage +'"]').addClass('active');
-  this.onPagination(this.currentPage, this.perPageCount);
   this.render();
+  this.onPagination(this.currentPage, this.perPageCount);
 };
 
 P.render = function(){
@@ -77,9 +81,12 @@ P.render = function(){
     this.currentPage = pages.totalPages;
   }
 
-  this.$container.html(this.paginationTmpl(pages))
+  if(this.currentPage == 0){
+    this.currentPage = 1;
+  }
 
-  return pages;  
+  pages.currentPage = this.currentPage;
+  this.$container.html(this.paginationTmpl(pages))
 };
 
 function makePageArray(start, end){
@@ -96,7 +103,7 @@ P.getPages = function () {
   var total = this.totalPages();
     
   if(!this.opts.visiblePages){
-    return { currentPage: this.currentPage, totalPages: total, pages: makePageArray(0, total), self: this };
+    return { totalPages: total, pages: makePageArray(0, total), self: this };
   }
 
   var half = Math.floor(this.opts.visiblePages / 2);

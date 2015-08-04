@@ -552,6 +552,7 @@ F.initPagination = function(){
   this.page = { currentPage: 1, perPage: opts.perPage.values[0] || 10 };
 
   this.paginator = new Paginator(this.lastResult().length, this.opts.pagination, function(currentPage, perPage){
+    //console.log(currentPage, this.currentPage, perPage, this.perPageCount)
     self.page = { currentPage: currentPage, perPage: perPage }
 
     if(self.has_search){
@@ -559,10 +560,8 @@ F.initPagination = function(){
     }else{
       self.show(self.lastResult())
     }
-
   })
 
-  this.paginator.render();
   this.filter();
 };
 
@@ -571,8 +570,6 @@ F.renderPagination = function(totalCount){
     return;
   }
 
-  this.paginator.recordsCount = totalCount; 
-  this.paginator.currentPage = 1;
-  this.paginator.render()
+  this.paginator.setRecordCount(totalCount);
 };
 
