@@ -5,7 +5,6 @@
   /* inject src/template.js */
   /* inject src/util.js */
   /* inject src/filter.js */
-  /* inject src/sorting.js */
   /* inject src/paginator.js */
   /* inject src/jquery_fn.js */
 
@@ -19,6 +18,7 @@
   };
 
   FilterJS.list = list;
+  FilterJS.templateBuilder = templateBuilder;
 
   window.FilterJS = FilterJS;
 

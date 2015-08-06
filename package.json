@@ -1,6 +1,6 @@
 {
   "name": "filter.js",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "description": "A javascript library for filtering json object and rendering html",
   "homepage": "https://github.com/jiren/filter.js",
   "licenses": [

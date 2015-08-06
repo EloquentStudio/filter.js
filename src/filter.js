@@ -307,8 +307,8 @@ F.filter = function(){
   }
 
   this.show(this.last_result);
-  this.execCallback('afterFilter', this.last_result, JsonQuery.blankClone(this.last_result, this.Model));
   this.renderPagination(this.last_result.length);
+  this.execCallback('afterFilter', this.last_result, JsonQuery.blankClone(this.Model, this.last_result));
 
   return query;
 };
@@ -425,10 +425,10 @@ F.searchFilter = function(records) {
 
   result = this.search(this.search_text, records || this.lastResult());
 
+  this.search_result = result;
   this.show(result);
   this.renderPagination(result.length);
-  this.execCallback('afterFilter', result);
-  this.search_result = result;
+  this.execCallback('afterFilter', result, JsonQuery.blankClone(this.Model, result));
 
   return true;
 };

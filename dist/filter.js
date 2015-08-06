@@ -1,6 +1,6 @@
 /*
  * filter.js
- * 2.0.0 (2015-08-04)
+ * 2.1.0 (2015-08-06)
  *
  * Released under the MIT license
  * http://opensource.org/licenses/MIT
@@ -13,7 +13,7 @@
  
  /*
  * JsonQuery
- * 0.0.2 (2015-05-20)
+ * 0.0.2 (2015-08-06)
  *
  * Released under the MIT license
  * http://opensource.org/licenses/MIT
@@ -83,7 +83,11 @@
     this.lng = opts.longitude || Config.longitude;
     this.id  = opts.id;
   
-    if(this.records.length){
+    if(opts.schema){
+      this.schema = opts.schema;
+    }
+  
+    if(this.records.length && !this.schema){
       initSchema(this, records[0], opts.schema);
     }
   };
@@ -1162,8 +1166,8 @@
     }
   
     this.show(this.last_result);
-    this.execCallback('afterFilter', this.last_result, JsonQuery.blankClone(this.last_result, this.Model));
     this.renderPagination(this.last_result.length);
+    this.execCallback('afterFilter', this.last_result, JsonQuery.blankClone(this.Model, this.last_result));
   
     return query;
   };
@@ -1280,10 +1284,10 @@
   
     result = this.search(this.search_text, records || this.lastResult());
   
+    this.search_result = result;
     this.show(result);
     this.renderPagination(result.length);
-    this.execCallback('afterFilter', result);
-    this.search_result = result;
+    this.execCallback('afterFilter', result, JsonQuery.blankClone(this.Model, result));
   
     return true;
   };
@@ -1428,8 +1432,6 @@
     this.paginator.setRecordCount(totalCount);
   };
   
-  
-
   
 
   var Paginator = function(recordsCount, opts, onPagination) {
@@ -1614,6 +1616,7 @@
   };
 
   FilterJS.list = list;
+  FilterJS.templateBuilder = templateBuilder;
 
   window.FilterJS = FilterJS;
 
