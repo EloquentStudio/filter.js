@@ -286,7 +286,8 @@ F.filter = function(){
   var query = {}, 
       vals, _q,
       count = 0,
-      self = this;
+      self = this,
+      criteria;
 
   $.each(this.criterias, function(){
     if(this.active){
@@ -300,7 +301,9 @@ F.filter = function(){
     }
   });
 
-  this.last_result = count ? this.Model.where(query).all : this.Model.all;
+  criteria = count ? this.Model.where(query) : this.Model;
+  this.execCallback('shortResult', criteria);
+  this.last_result = criteria.all;
 
   if(this.searchFilter(this.last_result)){
     return query;
@@ -317,6 +320,7 @@ F.show = function(result, type){
   var i = 0, l = result.length;
 
   if(this.has_pagination){
+
     i = this.page.perPage *(this.page.currentPage - 1);
     l = i + this.page.perPage;
 
@@ -427,7 +431,7 @@ F.searchFilter = function(records) {
 
   this.search_result = result;
   this.show(result);
-  this.renderPagination(result.length);
+  this.renderPagination(result.length)
   this.execCallback('afterFilter', result, JsonQuery.blankClone(this.Model, result));
 
   return true;
@@ -546,10 +550,11 @@ F.initPagination = function(){
     opts.perPage = {}
   }
 
-  // [].concat(10)
-  opts.perPage.values = opts.perPage.values ? [].concat(opts.perPage.values) : [10, 20, 30];
+  if(!opts.perPage.values){
+    opts.perPage.values = [10, 20, 30];
+  }
 
-  this.page = { currentPage: 1, perPage: opts.perPage.values[0] || 10 };
+  this.page = { currentPage: 1, perPage: opts.perPage.values };
 
   this.paginator = new Paginator(this.lastResult().length, this.opts.pagination, function(currentPage, perPage){
     //console.log(currentPage, this.currentPage, perPage, this.perPageCount)
@@ -566,10 +571,8 @@ F.initPagination = function(){
 };
 
 F.renderPagination = function(totalCount){
-  if(!this.has_pagination){
-    return;
+  if(this.has_pagination){
+    this.paginator.setRecordCount(totalCount);
   }
-
-  this.paginator.setRecordCount(totalCount);
 };
 

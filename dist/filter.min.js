@@ -1,6 +1,6 @@
 /*
  * filter.js
- * 2.1.0 (2015-08-06)
+ * 2.1.0 (2015-08-10)
  *
  * Released under the MIT license
  * http://opensource.org/licenses/MIT
@@ -1145,7 +1145,8 @@
     var query = {}, 
         vals, _q,
         count = 0,
-        self = this;
+        self = this,
+        criteria;
   
     $.each(this.criterias, function(){
       if(this.active){
@@ -1159,7 +1160,9 @@
       }
     });
   
-    this.last_result = count ? this.Model.where(query).all : this.Model.all;
+    criteria = count ? this.Model.where(query) : this.Model;
+    this.execCallback('shortResult', criteria);
+    this.last_result = criteria.all;
   
     if(this.searchFilter(this.last_result)){
       return query;
@@ -1176,6 +1179,7 @@
     var i = 0, l = result.length;
   
     if(this.has_pagination){
+  
       i = this.page.perPage *(this.page.currentPage - 1);
       l = i + this.page.perPage;
   
@@ -1286,7 +1290,7 @@
   
     this.search_result = result;
     this.show(result);
-    this.renderPagination(result.length);
+    this.renderPagination(result.length)
     this.execCallback('afterFilter', result, JsonQuery.blankClone(this.Model, result));
   
     return true;
@@ -1405,10 +1409,11 @@
       opts.perPage = {}
     }
   
-    // [].concat(10)
-    opts.perPage.values = opts.perPage.values ? [].concat(opts.perPage.values) : [10, 20, 30];
+    if(!opts.perPage.values){
+      opts.perPage.values = [10, 20, 30];
+    }
   
-    this.page = { currentPage: 1, perPage: opts.perPage.values[0] || 10 };
+    this.page = { currentPage: 1, perPage: opts.perPage.values };
   
     this.paginator = new Paginator(this.lastResult().length, this.opts.pagination, function(currentPage, perPage){
       //console.log(currentPage, this.currentPage, perPage, this.perPageCount)
@@ -1425,11 +1430,9 @@
   };
   
   F.renderPagination = function(totalCount){
-    if(!this.has_pagination){
-      return;
+    if(this.has_pagination){
+      this.paginator.setRecordCount(totalCount);
     }
-  
-    this.paginator.setRecordCount(totalCount);
   };
   
   
