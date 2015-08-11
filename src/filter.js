@@ -363,7 +363,7 @@ F.bindEvent = function(ele, eventName){
 };
 
 F.initSearch = function(opts){
-  if(!opts && !opts.ele){
+  if(!opts || !opts.ele){
     return;
   }
 

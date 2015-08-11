@@ -1,6 +1,6 @@
 /*
  * filter.js
- * 2.1.0 (2015-08-10)
+ * 2.1.0 (2015-08-11)
  *
  * Released under the MIT license
  * http://opensource.org/licenses/MIT
@@ -1222,7 +1222,7 @@
   };
   
   F.initSearch = function(opts){
-    if(!opts && !opts.ele){
+    if(!opts || !opts.ele){
       return;
     }
   
