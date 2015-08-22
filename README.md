@@ -318,6 +318,8 @@ To see the sample demo, clone this repo and open demo/filterjs.html in your brow
 
 [Filter](http://jiren.github.io/filter.js/index.html)
 
+[Filter with Pagination] (http://jiren.github.io/filter.js/pagination.html)
+
 ## Used by
 
 [Tischefrei (search page)](http://tischefrei.de)
