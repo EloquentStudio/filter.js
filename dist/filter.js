@@ -1,6 +1,6 @@
 /*
  * filter.js
- * 2.1.0 (2015-08-11)
+ * 2.1.0 (2015-09-13)
  *
  * Released under the MIT license
  * http://opensource.org/licenses/MIT
@@ -870,6 +870,7 @@
     this.appendToContainer = this.opts.appendToContainer || appendToContainer;
     this.has_pagination = !!this.opts.pagination;
     this.search_text = '';
+    this.anyFilterSelected = false;
   
     $.each(this.opts.criterias || [], function(){
       self.addCriteria(this);
@@ -1134,6 +1135,8 @@
       vals = vals[0].split(criteria.delimiter || '-');
     }
   
+    vals = this.parseValues(criteria.field, vals);
+  
     return context.execCallback('onFilterSelect', {criteria: criteria, values: vals}) || vals;
   };
   
@@ -1160,6 +1163,7 @@
       }
     });
   
+    this.anyFilterSelected = count > 0;
     criteria = count ? this.Model.where(query) : this.Model;
     this.execCallback('shortResult', criteria);
     this.last_result = criteria.all;
@@ -1435,6 +1439,17 @@
     }
   };
   
+  F.parseValues = function(field, values){
+    var type = this.Model.schema[field];
+  
+    if(type == 'Number'){
+      return $.map(values, function(v){ return Number(v) }); 
+    }else if(type == 'Boolean'){
+      return $.map(values, function(v){ return (v == 'true' || v == true) }); 
+    }else{
+      return values;
+    }
+  };
   
 
   var Paginator = function(recordsCount, opts, onPagination) {

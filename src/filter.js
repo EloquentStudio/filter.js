@@ -11,6 +11,7 @@ var FJS = function(records, container, options) {
   this.appendToContainer = this.opts.appendToContainer || appendToContainer;
   this.has_pagination = !!this.opts.pagination;
   this.search_text = '';
+  this.anyFilterSelected = false;
 
   $.each(this.opts.criterias || [], function(){
     self.addCriteria(this);
@@ -275,6 +276,8 @@ F.getSelectedValues = function(criteria, context){
     vals = vals[0].split(criteria.delimiter || '-');
   }
 
+  vals = this.parseValues(criteria.field, vals);
+
   return context.execCallback('onFilterSelect', {criteria: criteria, values: vals}) || vals;
 };
 
@@ -301,6 +304,7 @@ F.filter = function(){
     }
   });
 
+  this.anyFilterSelected = count > 0;
   criteria = count ? this.Model.where(query) : this.Model;
   this.execCallback('shortResult', criteria);
   this.last_result = criteria.all;
@@ -576,3 +580,14 @@ F.renderPagination = function(totalCount){
   }
 };
 
+F.parseValues = function(field, values){
+  var type = this.Model.schema[field];
+
+  if(type == 'Number'){
+    return $.map(values, function(v){ return Number(v) }); 
+  }else if(type == 'Boolean'){
+    return $.map(values, function(v){ return (v == 'true' || v == true) }); 
+  }else{
+    return values;
+  }
+};

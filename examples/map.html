@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <link href="assets/css/bootstrap.min.css" media="screen" rel="stylesheet" type="text/css">
+    <link href="assets/css/jquery-ui-1.10.2.custom.min.css" media="screen" rel="stylesheet" type="text/css">
+    <link href="assets/css/stream.css" media="screen" rel="stylesheet" type="text/css">
+    <script src="https://maps.googleapis.com/maps/api/js?v=3.16&key=AIzaSyBWcRdeBybFQUpx5tyfIw1QbwskiRuFsdc" type="text/javascript"></script>
+    <script src="assets/js/jquery-1.11.3.min.js" type="text/javascript"></script>
+    <script src="assets/js/jquery-ui-1.10.2.custom.min.js" type="text/javascript"></script>
+    <script src="../dist/filter.js" type="text/javascript"></script>
+    <script src="data/places.js" type="text/javascript"></script>
+    <script src="map.js" type="text/javascript"></script>
+  </head>
+  <body>
+    <div class="container">
+      <h1 class="title">FILTER.JS</h1>
+      <div class="sidebar col-md-3">
+        <div>
+          <h4 class='col-md-6'>Places (<span id="total_places">0</span>)</h4>
+        </div>
+        <div>
+          <label class="sr-only" for="searchbox">Search</label>
+          <input type="text" class="form-control" id="searchbox" placeholder="Search &hellip;">
+          <span class="glyphicon glyphicon-search search-icon"></span>
+        </div>
+        </br>
+        <div class="well">
+          <fieldset id="rating_criteria">
+            <legend>Rating</legend> <span id="rating_range_label" class="slider-label">4 - 5</span>
+            <div id="rating_slider" class="slider">
+            </div>
+            <input type="hidden" id="rating_filter" value="4-5">
+          </fieldset>
+        </div>
+        <div class="well">
+          <fieldset id="is_closed_criteria">
+            <legend>Open / Closed</legend> 
+            <div class="checkbox">
+              <label>
+                <input type="checkbox" value="true" name="is_closed" checked>
+                <span>Open</span>
+              </label>
+              <label>
+                <input type="checkbox" value="false" name="is_closed" checked>
+                <span>Closed</span>
+              </label>
+            </div>
+          </fieldset>
+        </div>
+        <div class="well">
+          <fieldset>
+            <legend>Categories</legend>
+            <div class="checkbox">
+              <label>
+                <input type="checkbox" value="All" id="all_categories" checked>
+                <span>All</span>
+              </label>
+            </div>
+            <div id="categories_criteria"></div>
+          </fieldset>
+        </div>
+      </div>
+
+      <div class="col-md-9">
+        <div id="map" class="map"></div>
+        <div class="places content row" id="places"> </div>
+      </div>
+    </div>
+
+    <script id="place-template" type="text/html">
+      <div class="col-md-4 movie">
+        <div class="thumbnail">
+          <span class="label label-success rating"><%= rating %>
+            <i class="glyphicon glyphicon-star"></i>
+          </span>
+          <div class="caption">
+            <h4><%= name %></h4>
+            <div class="outline">
+              <%= description %>
+              <span class="open-close">
+                <i class="glyphicon glyphicon-time"></i>
+                <%= is_closed ? 'Closed' : 'Open' %>
+              </span>
+            </div>
+            <div class="detail">
+              <dl>
+                <dt>Categories</dt>
+                <dd><%= categories.join(', ') %></dd>
+                <% if(phone){ %>
+                  <dt>Phone</dt>
+                  <dd><%= phone %></dt>
+                  <% } %>
+                <dt>Address</dt>
+                <dd><%= address %></dd>
+              </dl>
+            </div>
+          </div>
+        </div>
+      </div>
+    </script>
+    <script id="category-template" type="text/html">
+      <div class="checkbox">
+        <label>
+          <input type="checkbox" value="<%= value %>">
+          <span><%= name %></span>
+        </label>
+      </div>
+    </script>
+  </body>
+</html>
