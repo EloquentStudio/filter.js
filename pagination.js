@@ -9,14 +9,14 @@ $(document).ready(function(){
 
   var afterFilter = function(result, jQ){
     $('#total_movies').text(result.length);
+
     var checkboxes  = $("#genre_criteria :input:gt(0)");
-    var qResult = JsonQuery(result);
 
     checkboxes.each(function(){
       var c = $(this), count = 0
 
       if(result.length > 0){
-        count = qResult.where({ 'genre': c.val() }).count;
+        count = jQ.where({ 'genre': c.val() }).count;
       }
       c.next().text(c.val() + '(' + count + ')')
     });
@@ -37,6 +37,28 @@ $(document).ready(function(){
         container: '#per_page'
       },
     }
+  });
+
+  FJS.addCallback('beforeAddRecords', function(){
+    if(this.recordsCount >= 450){
+      this.stopStreaming();
+    }
+  });
+
+  FJS.addCallback('afterAddRecords', function(){
+    var percent = (this.recordsCount - 250)*100/250;
+
+    $('#stream_progress').text(percent + '%').attr('style', 'width: '+ percent +'%;');
+
+    if (percent == 100){
+      $('#stream_progress').parent().fadeOut(1000);
+    }
+  });
+
+  FJS.setStreaming({
+    data_url: 'data/stream_movies.json',
+    stream_after: 1,
+    batch_size: 50
   });
 
   FJS.addCriteria({field: 'year', ele: '#year_filter', type: 'range', all: 'all'});
