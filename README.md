@@ -317,8 +317,8 @@ fjs.removeRecords([1,2,3]);
 To see the sample demo, clone this repo and open demo/filterjs.html in your browser
 
 [Filter](http://jiren.github.io/filter.js/index.html)
-[Filter](http://jiren.github.io/filter.js/map.html)
-[Filter](http://jiren.github.io/filter.js/pagination.html)
+
+[Filter - Google Map](http://jiren.github.io/filter.js/map.html)
 
 [Filter with Pagination] (http://jiren.github.io/filter.js/pagination.html)
 
