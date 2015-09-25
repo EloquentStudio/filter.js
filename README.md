@@ -328,9 +328,11 @@ To see the sample demo, clone this repo and open demo/filterjs.html in your brow
 
 [Tischefrei (search page)](http://tischefrei.de)
 
-[Roboty przemysłowe](http://roboty-przemyslowe.pl)
+[Roboty przemysłowe - WordPress](http://roboty-przemyslowe.pl)
 
-[Byte b.v. (partner page)](https://www.byte.nl/partners)
+[Byte b.v. (partner page) - Joomla!](https://www.byte.nl/partners)
+
+[Seal King Europe (product page) - Joomla!](http://sealkingeurope.com/products)
 
 If you use this, please send me an email, I shall add your link here!
 
