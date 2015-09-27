@@ -25,4 +25,6 @@
   views['pagination'] = /*inject src/views/pagination.html */; 
   views['per_page'] = /*inject src/views/per_page.html */; 
 
+  /* inject src/auto.js */
+
 })( jQuery, window , document );

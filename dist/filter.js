@@ -1,6 +1,6 @@
 /*
  * filter.js
- * 2.1.0 (2015-09-13)
+ * 2.1.0 (2015-09-27)
  *
  * Released under the MIT license
  * http://opensource.org/licenses/MIT
@@ -1640,5 +1640,77 @@
 
   views['pagination'] = '<nav>  <ul class="pagination">    <% if(currentPage > 1) { %>      <li> <a href="#" data-page="first" aria-label="First"><span aria-hidden="true">First</span></a> </li>      <li><a href="#" data-page="prev" aria-label="Previous"><span aria-hidden="true">&larr; Previous</span></a></li>    <% } %>    <% for(var i = 0, l = pages.length; i < l; i++ ){ %>      <li class="<%= pages[i] == currentPage ? \'active\' : \'\' %>">        <a href="#" data-page="<%= pages[i] %>"><%= pages[i] %></a>      </li>    <% } %>    <% if( currentPage < totalPages ) { %>      <li><a href="#" data-page="next" aria-label="Next"><span aria-hidden="true">Next &rarr;</span></a></li>      <li><a href="#" data-page="last" aria-label="Last"><span aria-hidden="true">Last</span></a></li>    <% } %>  </ul></nav>'; 
   views['per_page'] = '<select size="1" name="per_page" data-perpage="true" class="per-page">  <% for(var i = 0; i < values.length; i++ ){ %>    <option value="<%= values[i] %>"><%= values[i] %></option>  <% } %></select>'; 
+
+  /*
+   * Find html tag and parse options for filter
+   */
+  function getElementWithOptions(name, hasMany){
+    var attr  = "fjs-"+ name;
+    var $eles = $("[" + attr + "]");
+    var options = []; 
+  
+    if(!$eles.length){
+      return;
+    }
+  
+    $.each($eles, function(){
+      var $ele = $(this);
+      var option = { ele: $ele };
+      var optionStr = $ele.attr(attr);
+  
+      options.push(option);
+  
+      if(!optionStr){
+        return options;
+      }
+  
+      $.each(optionStr.split(','), function(i, opt){
+        var kv = opt.split("=");
+        option[kv[0]] = kv[1];
+      })
+    })
+  
+    return hasMany ? options : options[0];
+  };
+  
+  FilterJS.auto = function(records, callbacks){
+    var options = {};
+    var container = getElementWithOptions("items");
+    var fjs,
+        search, 
+        template,
+        criterias;
+    
+    if(!container || !container.template){
+      return;
+    }
+  
+    options.template = container.template
+    search = getElementWithOptions("search");
+    
+    if(search){
+      if(search.fields){
+        search.fields = search.fields.split(',');
+      }
+      options.search = search;
+    }
+  
+    if(callbacks){
+      options.callbacks = callbacks;
+    }
+  
+    fjs = FilterJS(records, container.ele, options) 
+  
+    criterias = getElementWithOptions("criteria", true);
+  
+    if(criterias){
+      fjs.addCriteria(criterias);
+    }
+  
+    return fjs
+  };
+  
+  
+
 
 })( jQuery, window , document );

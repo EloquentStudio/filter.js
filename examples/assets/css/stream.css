@@ -259,3 +259,8 @@ select:focus, textarea:focus, input:focus{
   -webkit-box-shadow: 0 2px 4px rgba(0, 0, 0, 1), 0 0 40px rgba(0, 0, 0, 0.06) inset;
   -moz-box-shadow: 0 2px 4px rgba(0, 0, 0, 1), 0 0 40px rgba(0, 0, 0, 0.06) inset;
 }
+
+code{
+  margin-top: 5px;
+  font-size: 80%;
+}
