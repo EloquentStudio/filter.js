@@ -324,9 +324,13 @@ To see the sample demo, clone this repo and open demo/filterjs.html in your brow
 
 ## Used by
 
+[Itrenewdirect (product search)](https://www.itrenewdirect.com/category/laptops.html)
+
 [Tischefrei (search page)](http://tischefrei.de)
 
 [Roboty przemysłowe](http://roboty-przemyslowe.pl)
+
+[Byte b.v. (partner page)](https://www.byte.nl/partners)
 
 If you use this, please send me an email, I shall add your link here!
 
