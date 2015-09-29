@@ -561,7 +561,6 @@ F.initPagination = function(){
   this.page = { currentPage: 1, perPage: opts.perPage.values };
 
   this.paginator = new Paginator(this.lastResult().length, this.opts.pagination, function(currentPage, perPage){
-    //console.log(currentPage, this.currentPage, perPage, this.perPageCount)
     self.page = { currentPage: currentPage, perPage: perPage }
 
     if(self.has_search){
