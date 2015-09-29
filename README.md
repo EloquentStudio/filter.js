@@ -318,6 +318,8 @@ To see the sample demo, clone this repo and open demo/filterjs.html in your brow
 
 [Filter](http://jiren.github.io/filter.js/index.html)
 
+[Filter Auto using html attributes](http://jiren.github.io/filter.js/auto.html)
+
 [Filter - Google Map](http://jiren.github.io/filter.js/map.html)
 
 [Filter with Pagination] (http://jiren.github.io/filter.js/pagination.html)
