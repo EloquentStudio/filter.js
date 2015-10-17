@@ -1,17 +1,15 @@
 # Filter.js
 
-Filter.js is client-side JSON objects filter and render html elements.
-Multiple filter criteria can be specified and used in conjunction with
-each other.
+Filter.js is client-side JSON objects filter which can render html elements. Multiple filter criteria can be specified and used in conjunction with each other.
 
 ## Usage
 
-Basic requirement to implement filtering using filter.js are JSON data, View template and filter criteria.
+Basic requirement to implement filtering using filter.js are JSON data, a 'View' template and a filter criteria.
 
 ### Filter Initialisation
 
-It takes three arguments one is movies, second is container in which html element going to append, third one is options. Options must have template element selector.
-Others are in options like criteria, callbacks, search.
+It takes three arguments one is movies, second is 'container' in which html elements are to be to appended and the third one is options.
+You can set options such as template, criteria, callbacks and search but only `template` is compulsory.
 
 ```javascript
 var FJS = FilterJS(movies, '#movies', {
@@ -24,12 +22,13 @@ var FJS = FilterJS(movies, '#movies', {
 });
 ```
 
-To append in each item in different container use option `appendToContainer`. This option is a function with two arguments, one is html element content and second is record object.
+To append each item in different container use option `appendToContainer`.
+This option is a function with two arguments, one is html element content and second is record object.
 
 ```javascript
 
 //This will append elements to specific year.
-var appendFn = function(html_ele, record){
+var appendFn = function(html_ele, record) {
   $("#" + record.year).append(html_ele);
 }
 
@@ -41,7 +40,7 @@ var FJS = FilterJS(movies, '#movies', {
 
 ### JSON data
 
-Capture the JSON data (maybe using @movies.to_json). i.e
+Capture the JSON data (maybe using @movies.to_json).
 
 ```javascript
   var movies = [
@@ -69,7 +68,7 @@ Capture the JSON data (maybe using @movies.to_json). i.e
 
 ### View
 
-Rendering JSON objects requires a view template. In filter.js micro-templating module inspired by Underscore.js.
+Rendering JSON objects requires a view template. The micro-templating module in filter.js is inspired by Underscore.js.
 
 ```javascript
 	<script id="movie-template" type="text/html">
@@ -101,13 +100,14 @@ Rendering JSON objects requires a view template. In filter.js micro-templating m
 
 ### Filter Criteria
 
-It required two mandatory options are `field` which is name of any property from JSON data and other is HTML `ele` element on which filter will be trigger by click,change etc events.
-Other options are filter `type`, `event` and `selector`.
+The two mandatory options required are `field` which is name of any property from JSON data and other is HTML `ele` element on which filter will be triggered by an event(e.g. click, change, etc.).
+Other filter options are `type`, `event` and `selector`.
 
-- filter `type`, by default it is equal but if you want to search in range you can set it `range`. For `range` html element value should be in format of `val1-val2`. i.e `100-200`.
-- `delimiter`, by default hyphen '-' is used as range separator `val1-val2`. If you want to use a different separator (if data contains hyphen e.g: ' 2012-02-02 ') it can be specified using `delimiter: ','` and html element value should be in format `val1<delimiter>val2`. i.e.`2012-02-02,2015-02-02`.
-- `event` by default for checkbox, radio button is `click`, for text input, select box is `change`.
-- `selector` by default for checkbox and radio button is `:checked`, for input field `input` and for select box is `select`.'#genre_criteria input:checkbox' will collect the checkboxes values in html element with `id="genre_criteria"`
+- filter `type`: by default it is equal but if you want to search within a range you can set it to `range`.
+For `range`, html element value should be in format of `val1-val2`(e.g. `100-200`).
+By default hyphen '-' is used as `delimiter` or range separator `val1-val2`. If you want to use a different separator (if data contains hyphen e.g: '2012-02-02') it can be specified using `delimiter: ','` and html element value should be in format `val1<delimiter>val2`. i.e.`2012-02-02,2015-02-02`.
+- `event` by default for checkbox and radio button is `click` and for text input and select box it is `change`.
+- `selector` by default for checkbox and radio button is `:checked`, for input field is `input` and for select box is `select`. '#genre_criteria input:checkbox' will collect the checkboxes values in html element with `id="genre_criteria"`
 - `all` option : if selected values of specific filter criteria contains `all` option value then all record selected for that criteria.
 
 There are two way to add criteria. One is add at time of filter object initialisation and other is add when required.
@@ -136,20 +136,19 @@ There are two way to add criteria. One is add at time of filter object initialis
 
 More detail for `range` filter. It is expected to set ranges as values like '20-30'
 
-   Example:
+  Example:
 
 ```html
 <input checked="checked" value="20-30" type="checkbox">
 ```
 
-For nested field selection. In below object to select filter on name `field` option value would be `detail.name`, for city `detail.address.city`.
+**For nested field selection**: In the below object, to select filter on name `field` option value would be `detail.name` and for city `detail.address.city`.
 
 JSON object:
 
 ```json
-
     {
-      detail: { name: 'Jiren', address: {city: 'Pune'} }
+      detail: { name: 'Jiren', address: { city: 'Pune' } }
     }
 ```
 
@@ -165,40 +164,38 @@ fjs.removeCriteria('year')
 
 Define callback in settings. Callbacks execute on different events.
 
-- `beforeAddRecords` : Trigger before adding records to filter.
-- `afterAddRecords`
-- `beforeRender`  : Trigger before rendering going to call.
-- `beforeRecordRender` : Trigger for each JSON object record at time of rendering.
-- `afterFilter` : Trigger after filtering event.
+- `beforeAddRecords` : Triggered before adding records to filter.
+- `afterAddRecords` : Triggered after all records are added.
+- `beforeRender` : Triggered before rendering going to call.
+- `beforeRecordRender` : Triggered for each JSON object record at time of rendering.
+- `afterFilter` : Triggered after filtering event.
 
 i.e.,
 
 ```javascript
-
- var filter_callbacks = {
-   beforeAddRecords: function(records){
-     // Process new JSON data records.
-     // i.e Process data before adding to filter while streaming.
-   },
-   afterAddRecords: function(records){
-     // i.e Update google markers or update sorting.
-   },
-   beforeRender: function(records){
+  var filter_callbacks = {
+    beforeAddRecords: function(records){
+      // Process new JSON data records.
+      // i.e Process data before adding to filter while streaming.
+    },
+    afterAddRecords: function(records){
+      // i.e Update google markers or update sorting.
+    },
+    beforeRender: function(records){
      //
-   },
-   beforeRecordRender: function(record){
+    },
+    beforeRecordRender: function(record){
       //i.e Add/Update record fields
-   },
-   afterFilter: function(result){
-     // i.e Update result counter, update google map markers.
-   }
-};
+    },
+    afterFilter: function(result){
+      // i.e Update result counter, update google map markers.
+    }
+  };
 ```
 
 #### Init Filter object with above callbacks
 
 ```javascript
-
 var fjs = FilterJS(movies, '#movies', {
   template: '#movie-template',
     callbacks: filter_callbacks
@@ -212,33 +209,29 @@ var fjs = FilterJS(movies, '#movies', {
 
 ### Instant Search integration
 
-For search needed textbox element selector. By default search will work on all JSON object fields. If needed search in particular fields then set `fields` option.
+To enable search, add a textbox element and set the selector in options. By default search will work on all JSON object fields. If you want to search on some particular fields then set the `fields` option.
 
 ```javascript
+  // Init with search
+  FilterJS(movies, '#movies', {
+    template: '#movie-template',
+    search: { ele: '#searchbox' }  // Search in all fields of JSON object.
+  }
 
- // Init with search
- FilterJS(movies, '#movies', {
-   template: '#movie-template',
-   search: {ele: '#searchbox'}  // Search in all fields of JSON object.
- }
-
- // Search in given fields
-
- search: {ele: '#searchbox', fields: ['name', 'runtime']}
-
+  // Search in given fields
+  search: { ele: '#searchbox', fields: ['name', 'runtime'] }
 ```
 
-Default search will trigger after 2 char. This can be configured using `start_length` option.
+The search will trigger after 2 characters by default. This can be configured using `start_length` option.
 
 ```javascript
-
-search: {ele: '#searchbox', fields: ['name', 'runtime'], start_length: 4 }
+  search: {ele: '#searchbox', fields: ['name', 'runtime'], start_length: 4 }
 ```
 
-Default search will start searching immediately after user types. A timeout can be configured using `timeout` option (in milliseconds).
+By default search will start immediately after a user types. A timeout can be configured using `timeout` option (in milliseconds).
 
 ```javascript
-search: {ele: '#searchbox', fields: ['name', 'runtime'], timeout: 100 }
+  search: {ele: '#searchbox', fields: ['name', 'runtime'], timeout: 100 }
 ```
 
 ## Add more data to existing filter
@@ -246,7 +239,6 @@ search: {ele: '#searchbox', fields: ['name', 'runtime'], timeout: 100 }
 If you are streaming JSON data using ajax then you can add data like this
 
 ```javascript
-
 var fjs = FilterJS(movies, '#movies', { template: '#movie-template'})
 
 fJS.addData(data)
@@ -322,7 +314,7 @@ To see the sample demo, clone this repo and open demo/filterjs.html in your brow
 
 [Filter - Google Map](http://jiren.github.io/filter.js/map.html)
 
-[Filter with Pagination] (http://jiren.github.io/filter.js/pagination.html)
+[Filter with Pagination](http://jiren.github.io/filter.js/pagination.html)
 
 ## Used by
 
