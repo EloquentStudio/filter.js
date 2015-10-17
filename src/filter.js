@@ -86,7 +86,7 @@ F.removeRecords = function(criteria){
     return false;
   }
 
-  var records = this.Model.records, 
+  var records = this.Model.records,
       removedCount = 0,
       idsLength = ids.length,
       fid;
@@ -99,7 +99,7 @@ F.removeRecords = function(criteria){
       removedCount ++;
 
       $('#fjs_' + fid).remove();
-    } 
+    }
 
     if(removedCount == idsLength){
       break;
@@ -116,8 +116,8 @@ var renderRecord = function(record, index){
 };
 
 F.render = function(records){
-  var self = this, 
-      ele, 
+  var self = this,
+      ele,
       cbName;
 
   if(!records.length){return; }
@@ -128,8 +128,8 @@ F.render = function(records){
   $.each(records, function(i){
     self.execCallback(cbName, this);
     this._fid = (self._index++);
-  
-    if(!self.has_pagination){ 
+
+    if(!self.has_pagination){
       self.renderItem(this, i);
     }
   });
@@ -286,7 +286,7 @@ F.lastResult = function(){
 };
 
 F.filter = function(){
-  var query = {}, 
+  var query = {},
       vals, _q,
       count = 0,
       self = this,
@@ -342,7 +342,7 @@ F.show = function(result, type){
   for(i; i < l; i++){
     $('#fjs_' + result[i]._fid).show();
   }
-  
+
 };
 
 F.filterTimer = function(timeout){
@@ -462,11 +462,10 @@ F.setStreaming = function(opts){
   this.opts.streaming = opts;
 
   if(opts.data_url){
-    opts.stream_after = (opts.stream_after || 2)*1000;
+    opts.stream_after = (opts.stream_after || 2) * 1000;
     opts.batch_size = opts.batch_size || false;
-    this.streamData(opts.stream_after);
+    this.streamData();
   }
-
 };
 
 var fetchData = function(){
@@ -485,13 +484,14 @@ var fetchData = function(){
   }
 
   $.getJSON(opts.data_url, params).done(function(records){
-    if (params.limit != null && (!records || !records.length)){
+    if(params.limit != null && (!records || !records.length)){
       self.stopStreaming();
     }else{
-      self.setStreamInterval();
+      if(!self.opts.streaming.infinite_scroll) {
+        self.setStreamInterval();
+      }
       self.addRecords(records);
     }
-
   }).fail(function(e){
       self.stopStreaming();
   });
@@ -520,11 +520,35 @@ F.resumeStreaming = function(){
   this.streamData(this.opts.streaming.stream_after);
 };
 
-F.streamData = function(time){
-  this.setStreamInterval();
-
+F.streamData = function(){
   if(!this.opts.streaming.batch_size){
     this.stopStreaming();
+  }
+
+  if(this.opts.streaming.infinite_scroll) {
+    this.streamOnScroll();
+  } else {
+    this.setStreamInterval();
+  }
+};
+
+F.streamOnScroll = function() {
+  var self = this;
+  self.lastScrollTop = 0;
+
+  window.onscroll = function() {
+    var bodyHeight = window.document.getElementsByTagName("body")[0].offsetHeight;
+    var heightOfWindow = window.innerHeight;
+    var contentScrolled = window.pageYOffset;
+    var total = bodyHeight - heightOfWindow;
+    var percentageScrolled = parseInt((contentScrolled / total) * 100);
+
+    if(percentageScrolled < 80) { self.lastScrollTop = percentageScrolled; }
+
+    if(self.lastScrollTop < 80 && percentageScrolled > self.lastScrollTop && percentageScrolled > 80) {
+      fetchData.call(self);
+      self.lastScrollTop = percentageScrolled;
+    }
   }
 };
 
@@ -583,9 +607,9 @@ F.parseValues = function(field, values){
   var type = this.Model.schema[field];
 
   if(type == 'Number'){
-    return $.map(values, function(v){ return Number(v) }); 
+    return $.map(values, function(v){ return Number(v) });
   }else if(type == 'Boolean'){
-    return $.map(values, function(v){ return (v == 'true' || v == true) }); 
+    return $.map(values, function(v){ return (v == 'true' || v == true) });
   }else{
     return values;
   }

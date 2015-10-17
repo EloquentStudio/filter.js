@@ -262,13 +262,15 @@ Add streaming option to above define 'settings'.
     streaming: {
       data_url: 'movies/index.json',
       stream_after: 1,
-        batch_size: 50
-      }
+      batch_size: 50,
+      infinite_scroll: false
+    }
   });
 ```
 
 - Only 'data_url' is mandatory.
 - 'stream_after' default value is 2 sec.
+- 'infinite_scroll' is false by default. Possible values: [false | true]
 - Streaming ajax request format
 
 ```
