@@ -293,6 +293,20 @@ fjs.removeRecords([1,2,3]);
   fjs.removeRecords({'year.$gt': 1980, 'rating': 8.5});
 ```
 
+## Change Template dynamically and Rebuild
+
+If you want to change the template dynamically but do not want to re-render the view (you many choose to render the template yourself) then just pass the template name to `setTemplate` function.
+
+```javascript
+  fjs.setTemplate('#movie-list-template');
+```
+
+If you want to re-render the new template then pass a second paramater as `true`. This will render the container with the data using the new template specified and apply the filtering.
+
+```javascript
+  fjs.setTemplate('#movie-list-template', true);
+```
+
 ## Build and Development
 
 - `npm install gulp -g`

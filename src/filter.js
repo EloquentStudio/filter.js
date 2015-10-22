@@ -5,13 +5,14 @@ var FJS = function(records, container, options) {
   this.callbacks = this.opts.callbacks || {};
   this.$container = $(container);
   this.view = this.opts.view || renderRecord;
-  this.templateFn = templateBuilder($(this.opts.template).html());
   this.criterias = [];
   this._index = 1;
   this.appendToContainer = this.opts.appendToContainer || appendToContainer;
   this.has_pagination = !!this.opts.pagination;
   this.search_text = '';
   this.anyFilterSelected = false;
+
+  this.setTemplate(this.opts.template);
 
   $.each(this.opts.criterias || [], function(){
     self.addCriteria(this);
@@ -548,7 +549,7 @@ F.clear = function(){
 
 F.initPagination = function(){
   var self = this,
-      opts = this.opts.pagination;
+  opts = this.opts.pagination;
 
   if(!opts.perPage){
     opts.perPage = {}
@@ -590,3 +591,14 @@ F.parseValues = function(field, values){
     return values;
   }
 };
+
+F.setTemplate = function(template, rebuild) {
+  this.templateFn = templateBuilder($(template).html());
+  if(rebuild === true) {
+    this.$container.empty();
+
+    this.render(this.records);
+    this.filter();
+  }
+};
+
