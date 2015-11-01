@@ -25,6 +25,7 @@ var pkg = require('./package.json'),
     views: ['src/views/*.html'],
     dist: 'dist'
   },
+  specs = 'spec/*_spec.js'
   uncompressedJs = 'filter.js',
   compressedJs = 'filter.min.js';
 
@@ -79,6 +80,7 @@ gulp.task('scripts', function() {
 gulp.task('watch', function() {
   gulp.watch(scripts, ['scripts']);
   gulp.watch(paths.lib, ['scripts']);
+  gulp.watch(specs, browserSync.reload)
 });
 
 gulp.task('browser-sync', function() {
@@ -98,4 +100,21 @@ gulp.task('build', function(cb){
 
 gulp.task('default', function(cb){
   runSequence('clean', 'scripts', ['browser-sync', 'watch'])
+});
+
+gulp.task('spec', function() {
+  browserSync({
+    server: {
+      baseDir: './spec',
+      index: 'SpecRunner.html',
+      routes: {
+        '/spec/lib/jquery.js': './spec/lib/jquery.js',
+        '/dist/filter.js': './dist/filter.js'
+      }
+    }
+  });
+});
+
+gulp.task('test', function(cb){
+  runSequence('spec', 'watch')
 });
