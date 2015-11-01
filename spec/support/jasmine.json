@@ -1,0 +1,9 @@
+{
+  "spec_dir": "spec",
+  "spec_files": [
+    "filterjs_spec.js"
+  ],
+  "helpers": [
+    "helpers/**/*.js"
+  ]
+}
