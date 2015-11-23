@@ -340,6 +340,8 @@ To see the sample demo, clone this repo and open demo/filterjs.html in your brow
 
 [Byte b.v. (partner page)](https://www.byte.nl/partners)
 
+[Sealking Europ (product filter)](http://sealkingeurope.com/products)
+
 If you use this, please send me an email, I shall add your link here!
 
 ## Sponsors and Supporters
