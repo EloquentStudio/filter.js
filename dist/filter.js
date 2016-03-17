@@ -1430,7 +1430,7 @@
   
     this.page = { currentPage: 1, perPage: opts.perPage.values };
   
-    this.paginator = new Paginator(this.lastResult().length, this.opts.pagination, function(currentPage, perPage){
+    this.paginator = new Paginator(this.execCallback, this.callbacks, this.lastResult().length, this.opts.pagination, function(currentPage, perPage){
       self.page = { currentPage: currentPage, perPage: perPage }
   
       if(self.has_search){
@@ -1473,9 +1473,11 @@
   
   
 
-  var Paginator = function(recordsCount, opts, onPagination) {
+  var Paginator = function(execCallback, callbacks, recordsCount, opts, onPagination) {
     var paginationView;
-  
+ 
+    this.execCallback = execCallback;
+    this.callbacks = callbacks;
     this.recordsCount = recordsCount;;
     this.opts = opts;
     this.$container = $(this.opts.container);
@@ -1501,7 +1503,9 @@
     var self = this;
   
     $(this.opts.container).on('click', '[data-page]', function(e){
+      self.execCallback('beforeChangePage');
       self.setCurrentPage($(this).data('page'));
+      self.execCallback('afterChangePage');
       e.preventDefault();
     });
   };
