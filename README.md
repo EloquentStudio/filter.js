@@ -169,6 +169,8 @@ Define callback in settings. Callbacks execute on different events.
 - `beforeRender` : Triggered before rendering going to call.
 - `beforeRecordRender` : Triggered for each JSON object record at time of rendering.
 - `afterFilter` : Triggered after filtering event.
+- `beforeChangePage` : Triggered before change page of paginator.
+- `afterChangePage` : Triggered after change page of paginator.
 
 i.e.,
 
@@ -189,6 +191,12 @@ i.e.,
     },
     afterFilter: function(result){
       // i.e Update result counter, update google map markers.
+    },
+    beforeChangePage: function(result) {
+     // i.e Delete a class to item.
+    },
+    afterChangePage: function(result) {
+     // i.e Insert a class to item.
     }
   };
 ```

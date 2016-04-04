@@ -824,7 +824,17 @@
                       .replace(/\//g, '&#x2F;');
   };
   
+  var convertHtmlEntityToStr = function(string) {
+    return (''+string).replace(/&amp;/g, '&')
+                      .replace(/&lt;/g, '<')
+                      .replace(/&gt;/g, '>')
+                      .replace(/&quot;/g, '\"')
+                      .replace(/&#x27;/g, '\'')
+                      .replace(/&#x2F;/g, '\/');
+  };
+  
   function templateBuilder(str, data) {
+    str = convertHtmlEntityToStr(str);
     var c  = templateSettings;
     var tmpl = 'var __p=[],print=function(){__p.push.apply(__p,arguments);};' +
       'with(obj||{}){__p.push(\'' +
@@ -1420,7 +1430,7 @@
   
     this.page = { currentPage: 1, perPage: opts.perPage.values };
   
-    this.paginator = new Paginator(this.lastResult().length, this.opts.pagination, function(currentPage, perPage){
+    this.paginator = new Paginator(this.execCallback, this.callbacks, this.lastResult().length, this.opts.pagination, function(currentPage, perPage){
       self.page = { currentPage: currentPage, perPage: perPage }
   
       if(self.has_search){
@@ -1463,9 +1473,11 @@
   
   
 
-  var Paginator = function(recordsCount, opts, onPagination) {
+  var Paginator = function(execCallback, callbacks, recordsCount, opts, onPagination) {
     var paginationView;
-  
+ 
+    this.execCallback = execCallback;
+    this.callbacks = callbacks;
     this.recordsCount = recordsCount;;
     this.opts = opts;
     this.$container = $(this.opts.container);
@@ -1491,7 +1503,9 @@
     var self = this;
   
     $(this.opts.container).on('click', '[data-page]', function(e){
+      self.execCallback('beforeChangePage');
       self.setCurrentPage($(this).data('page'));
+      self.execCallback('afterChangePage');
       e.preventDefault();
     });
   };
