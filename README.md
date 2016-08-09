@@ -14,6 +14,7 @@ You can set options such as template, criteria, callbacks and search but only `t
 ```javascript
 var FJS = FilterJS(movies, '#movies', {
   template: '#movie-template',
+  filter_on_init: true, // Default filter_on_init is false
   callbacks: {
     afterFilter: function(result){
       $('#total_movies').text(result.length);
@@ -339,6 +340,8 @@ To see the sample demo, clone this repo and open demo/filterjs.html in your brow
 [Roboty przemysłowe](http://roboty-przemyslowe.pl)
 
 [Byte b.v. (partner page)](https://www.byte.nl/partners)
+
+[Belihewan](http://www.belihewan.com)
 
 If you use this, please send me an email, I shall add your link here!
 
