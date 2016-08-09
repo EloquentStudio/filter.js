@@ -20,7 +20,7 @@ var FJS = function(records, container, options) {
 
   this.Model = JsonQuery();
   this.Model.getterFns['_fid'] = function(r){ return r['_fid'];};
-  this.addRecords(records, false);
+  this.addRecords(records, this.opts['filter_on_init'] || false);
 
   if(this.has_pagination){
     this.initPagination();

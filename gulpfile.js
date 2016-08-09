@@ -92,8 +92,7 @@ gulp.task('browser-sync', function() {
   });
 });
 
-gulp.task('build', function(cb){
-  runSequence('clean', 'scripts', cb)
+gulp.task('build', ['clean', 'scripts'], function(cb){
 });
 
 gulp.task('default', function(cb){

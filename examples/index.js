@@ -17,6 +17,7 @@ $(document).ready(function(){
       }
     }
     //appendToContainer: appendToContainer
+    //filter_on_init: true
   });
 
   FJS.addCallback('beforeAddRecords', function(){
