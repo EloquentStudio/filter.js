@@ -333,6 +333,8 @@ To see the sample demo, clone this repo and open demo/filterjs.html in your brow
 
 ## Used by
 
+[Mianillo](http://mianillo.com/content/MuseHTML/buscar.html)
+
 [Itrenewdirect (product search)](https://www.itrenewdirect.com/category/laptops.html)
 
 [Tischefrei (search page)](http://tischefrei.de)
