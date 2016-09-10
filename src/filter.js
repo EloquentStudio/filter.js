@@ -581,7 +581,7 @@ F.renderPagination = function(totalCount){
 };
 
 F.parseValues = function(field, values){
-  var type = this.Model.schema[field];
+  var type = typeof this.Model.schema == 'undefined' ? 'String' : this.Model.schema[field];
 
   if(type == 'Number'){
     return $.map(values, function(v){ return Number(v) }); 
