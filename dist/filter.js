@@ -1,11 +1,11 @@
 /*
  * filter.js
- * 2.1.0 (2016-08-09)
+ * 2.1.0 (2018-02-11)
  *
  * Released under the MIT license
  * http://opensource.org/licenses/MIT
  *
- * Copyright 2011-2016 Jiren Patel[jirenpatel@gmail.com]
+ * Copyright 2011-2018 Jiren Patel[jirenpatel@gmail.com]
  *
  * Dependency:
  *  jQuery(v1.9 >=)
@@ -1165,7 +1165,7 @@
     });
   
     this.anyFilterSelected = count > 0;
-    criteria = count ? this.Model.where(query) : this.Model;
+    criteria = this.Model.where(query);
     this.execCallback('shortResult', criteria);
     this.last_result = criteria.all;
   
@@ -1440,7 +1440,7 @@
   };
   
   F.parseValues = function(field, values){
-    var type = this.Model.schema[field];
+    var type = typeof this.Model.schema == 'undefined' ? 'String' : this.Model.schema[field];
   
     if(type == 'Number'){
       return $.map(values, function(v){ return Number(v) }); 

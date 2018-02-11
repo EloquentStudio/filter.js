@@ -306,7 +306,7 @@ F.filter = function(){
   });
 
   this.anyFilterSelected = count > 0;
-  criteria = count ? this.Model.where(query) : this.Model;
+  criteria = this.Model.where(query);
   this.execCallback('shortResult', criteria);
   this.last_result = criteria.all;
 
