@@ -1,6 +1,6 @@
 /*
  * filter.js
- * 2.1.0 (2018-02-11)
+ * 2.1.0 (2018-02-18)
  *
  * Released under the MIT license
  * http://opensource.org/licenses/MIT
