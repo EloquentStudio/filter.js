@@ -1,5 +1,6 @@
 # Filter.js
 [![CDNJS version](https://img.shields.io/cdnjs/v/filter.js.svg)](https://cdnjs.com/libraries/filter.js)
+[![Open Source Helpers](https://www.codetriage.com/jiren/filter.js/badges/users.svg)](https://www.codetriage.com/jiren/filter.js)
 
 Filter.js is client-side JSON objects filter which can render html elements. Multiple filter criteria can be specified and used in conjunction with each other.
 
