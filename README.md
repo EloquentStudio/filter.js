@@ -335,6 +335,8 @@ To see the sample demo, clone this repo and open demo/filterjs.html in your brow
 
 ## Used by
 
+[Statistisches Amt Basel-Stadt](https://www.statistik.bs.ch/zahlen/indikatoren/portal.html)
+
 [Mianillo](http://mianillo.com/content/MuseHTML/buscar.html)
 
 [Itrenewdirect (product search)](https://www.itrenewdirect.com/category/laptops.html)
