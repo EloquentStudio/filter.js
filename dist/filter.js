@@ -824,7 +824,17 @@
                       .replace(/\//g, '&#x2F;');
   };
   
+  var convertHtmlEntityToStr = function(string) {
+    return (''+string).replace(/&amp;/g, '&')
+                      .replace(/&lt;/g, '<')
+                      .replace(/&gt;/g, '>')
+                      .replace(/&quot;/g, '\"')
+                      .replace(/&#x27;/g, '\'')
+                      .replace(/&#x2F;/g, '\/');
+  };
+  
   function templateBuilder(str, data) {
+    str = convertHtmlEntityToStr(str);
     var c  = templateSettings;
     var tmpl = 'var __p=[],print=function(){__p.push.apply(__p,arguments);};' +
       'with(obj||{}){__p.push(\'' +
