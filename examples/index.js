@@ -9,7 +9,7 @@ $(document).ready(function(){
 
   var FJS = FilterJS(movies, '#movies', {
     template: '#movie-template',
-    search: {ele: '#searchbox'},
+    search: {ele: '#searchbox', display_all: true},
     //search: {ele: '#searchbox', fields: ['runtime']}, // With specific fields
     callbacks: {
       afterFilter: function(result){
@@ -35,6 +35,7 @@ $(document).ready(function(){
       $('#stream_progress').parent().fadeOut(1000);
     }
   });
+
 
   FJS.setStreaming({
     data_url: 'data/stream_movies.json',

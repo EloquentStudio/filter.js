@@ -150,6 +150,10 @@ F.renderItem = function(record, i){
   ele.attr('id', 'fjs_' + record._fid).addClass('fjs_item');
 
   this.appendToContainer(ele, record);
+
+  if(this.opts.search.display_all === false){
+    $('.fjs_item').hide();
+  }
 };
 
 var appendToContainer = function(html_ele, record){
@@ -376,6 +380,10 @@ F.initSearch = function(opts){
     this.opts.search.start_length = 2
   }
 
+  if(opts.display_all == null){
+    this.opts.search.display_all = true;
+  }
+
   this.$search_ele = $(this.opts.search.ele);
 
   if(this.$search_ele.length){
@@ -428,11 +436,16 @@ F.searchFilter = function(records) {
   var result;
   this.search_text =  $.trim(this.$search_ele.val());
 
-  if (this.search_text.length < this.opts.search.start_length){
-    return false;
+  if(this.opts.search.display_all === false){
+    if(this.search_text.length < this.opts.search.start_length){
+      result = [];
+      this.execCallback('afterEmptyResult');
+    }else{
+      result = this.search(this.search_text, records || this.lastResult());
+    }
+  }else{
+      result = this.search(this.search_text, records || this.lastResult());
   }
-
-  result = this.search(this.search_text, records || this.lastResult());
 
   this.search_result = result;
   this.show(result);
