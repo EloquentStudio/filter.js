@@ -79,7 +79,7 @@ Rendering JSON objects requires a view template. The micro-templating module in 
  		<div class="thumbnail">
           <span class="label label-success rating"><%= rating %></span>
           <div class="caption">
-            <h4><%= name %></h4>
+            <h4><%=name %></h4>
             <div class="outline">
               <%= outline %>
               <span class="runtime">
