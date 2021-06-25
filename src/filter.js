@@ -207,7 +207,7 @@ var addFilterCriteria = function(criteria){
   criteria = setDefaultCriteriaOpts(criteria);
   this.bindEvent(criteria.ele, criteria.event);
 
-  criteria._q = criteria.field + (criteria.type == 'range' ? '.$bt' : '')
+  criteria._q = criteria.field + (criteria.type == 'range' ? '.$bt' : ( (criteria.type != '' && typeof criteria.type != 'undefined' ) ? '.$'+criteria.type : '')  );
   criteria.active = true;
 
   this.criterias.push(criteria);
@@ -269,7 +269,7 @@ F.getSelectedValues = function(criteria, context){
     vals = [].concat.apply([], vals);
   }
 
-  if(criteria.all && vals.indexOf(criteria.all) > -1){
+  if( typeof criteria.all != 'undefined' && vals.indexOf(criteria.all) > -1){
     return;
   }
 
